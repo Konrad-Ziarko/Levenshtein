@@ -5,7 +5,7 @@ from pycuda.compiler import SourceModule
 
 #calculate Levenshtein distance
 def calcLevDist(str1, str2):
-    print(str1,'\n%s'%str2)
+    #print(str1,'\n%s'%str2)
     list1 = []
     list2 = []
     for i in str1:
@@ -34,9 +34,29 @@ def calcLevDist(str1, str2):
 
     #vectoradd_time = timer() - start
     #print("Time:%f" % vectoradd_time)
-    print(metric)
+    #print(metric)
     return metric[len(A)][len(B)]
     #return metric
+
+class Histogram:
+    def __init__(self):
+        self.values = {}
+    def addToHist(self, char):
+        if self.values.get(char)==None:
+            self.values[char] = 1
+        else:
+            self.values[char]=self.values[char]+1
+    def removeFromHist(self, char):
+        if self.values[char]==None:
+            pass
+        else:
+            self.values[char]=self.values[char]-1
+            if self.values[char]==0:
+                del self.values[char]
+    def printHist(self):
+        print (self.values)
+    def computeSimilarity(self, secondObj):
+
 
 #calculate generalized Levenshtein distance
 def calcLevGeneralization(str1, str2):
@@ -48,7 +68,8 @@ def calcLevGeneralization(str1, str2):
         return cost
 
 #find best matches in text; dist is equal to number of replace operations
-def findMatches(str1, str2):
+def findGeneralizedMatches(str1, str2):
+    start = timer()
     if len(str1) >= len(str2):
         strlen = len(str2)
         offset = strlen
@@ -70,6 +91,35 @@ def findMatches(str1, str2):
                 tmpStr = tmpStr + str1[offset]
             offset = offset+1
         #print(matchVal)
+        vectoradd_time = timer() - start
+        print("Time:%f" % vectoradd_time)
+        return bestMatch
+
+def findMatches(str1, str2):
+    start = timer()
+    if len(str1) >= len(str2):
+        strlen = len(str2)
+        offset = strlen
+        minDist = len(str2)+1
+        bestMatch = []
+        #matchVal = []
+        tmpStr = str1[0:strlen]
+
+        for i in range (0, len(str1)-strlen+1):
+            newDist = calcLevDist(tmpStr, str2)
+            if newDist <= minDist:
+                #print(tmpStr) #print matched string
+                minDist = newDist
+                bestMatch.append([offset-strlen, minDist])
+                #matchVal.append(minDist)
+
+            tmpStr = tmpStr[1:]
+            if offset < len(str1):
+                tmpStr = tmpStr + str1[offset]
+            offset = offset+1
+        #print(matchVal)
+        vectoradd_time = timer() - start
+        print("Time:%f" % vectoradd_time)
         return bestMatch
 
 def main():
@@ -78,10 +128,21 @@ def main():
     
     print('[Idx, DistVal]', findMatches(str1, str2))
 
-
+    """
     with open('data.txt', 'r') as myfile:
         data=myfile.read().replace('\n', ' ')
         print('[Idx, DistVal]', findMatches(data, str2))
+        print('[Idx, DistVal]', findGeneralizedMatches(data, str2))
+        """
+
+    hist = Histogram()
+    hist.addToHist(5)
+    hist.addToHist(5)
+    hist.addToHist(6)
+    hist.addToHist(5)
+    hist.addToHist(8)
+    hist.removeFromHist(8)
+    hist.printHist()
     
 if __name__ == '__main__':
     main()
