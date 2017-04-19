@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CudaTest", "CudaTest\CudaTe
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PythonCuda", "PythonCuda\PythonCuda.pyproj", "{C34B3971-EF55-40EA-A8A8-3FE066EAF48D}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Leven", "Leven\Leven.pyproj", "{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,12 @@ Global
 		{C34B3971-EF55-40EA-A8A8-3FE066EAF48D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C34B3971-EF55-40EA-A8A8-3FE066EAF48D}.Release|x64.ActiveCfg = Release|Any CPU
 		{C34B3971-EF55-40EA-A8A8-3FE066EAF48D}.Release|x86.ActiveCfg = Release|Any CPU
+		{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}.Release|x64.ActiveCfg = Release|Any CPU
+		{B65651A1-B917-4B3C-BE17-32EEA74F0BF6}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

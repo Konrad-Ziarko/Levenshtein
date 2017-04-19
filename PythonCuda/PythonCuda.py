@@ -3,6 +3,7 @@ from timeit import default_timer as timer
 from numba import cuda, vectorize
 from pycuda.compiler import SourceModule
 
+
 #calculate Levenshtein distance
 def calcLevDist(str1, str2):
     #print(str1,'\n%s'%str2)
@@ -40,23 +41,35 @@ def calcLevDist(str1, str2):
 
 class Histogram:
     def __init__(self):
-        self.values = {}
+        self.histValues = {}
     def addToHist(self, char):
-        if self.values.get(char)==None:
-            self.values[char] = 1
+        if self.histValues.get(char)==None:
+            self.histValues[char] = 1
         else:
-            self.values[char]=self.values[char]+1
+            self.histValues[char]=self.histValues[char]+1
     def removeFromHist(self, char):
-        if self.values[char]==None:
+        if self.histValues[char]==None:
             pass
         else:
-            self.values[char]=self.values[char]-1
-            if self.values[char]==0:
-                del self.values[char]
+            self.histValues[char]=self.histValues[char]-1
+            if self.histValues[char]==0:
+                del self.histValues[char]
     def printHist(self):
-        print (self.values)
+        print (self.histValues)
     def computeSimilarity(self, secondObj):
-
+        metricValue = 0
+        foundDiffs = {}
+        #foreach hist ele in self find elements in secon and vice versa
+        for x in self.histValues:
+            if secondObj.histValues.get(x) != None:
+                foundDiffs[x] = 1
+                if secondObj.histValues.get(x) != self.histValues.get(x):
+                    metricValue = metricValue+1
+        for y in secondObj.histValues:
+            if foundDiffs.get(y) == None:
+                if secondObj.histValues.get(y) != self.histValues.get(y):
+                    metricValue = metricValue+1
+        return metricValue
 
 #calculate generalized Levenshtein distance
 def calcLevGeneralization(str1, str2):
@@ -123,18 +136,34 @@ def findMatches(str1, str2):
         return bestMatch
 
 def main():
-    str1 = 'Wojskowa akademia techniczna im gen Jaroslawa Dąbrowskiego w warszawie'
+
+    str1 = 'Wojskowa akademia techniczna im gen Jaroslawa Dąbrowskiego w Warszawie'
     str2 = 'warszawie'
     
-    print('[Idx, DistVal]', findMatches(str1, str2))
+    str3 = "Piesasd"
+    str4 = "Biesdsa"
+
+    hist = Histogram()
+    hist2 = Histogram()
+    for char in str3:
+        hist.addToHist(char)
+
+    for char in str4:
+        hist2.addToHist(char)
+
+    hist.printHist()
+    hist2.printHist()
+    print(hist.computeSimilarity(hist2))
+
+    #print('[Idx, DistVal]', findMatches(str1, str2))
 
     """
     with open('data.txt', 'r') as myfile:
         data=myfile.read().replace('\n', ' ')
         print('[Idx, DistVal]', findMatches(data, str2))
         print('[Idx, DistVal]', findGeneralizedMatches(data, str2))
-        """
-
+       """ 
+    """
     hist = Histogram()
     hist.addToHist(5)
     hist.addToHist(5)
@@ -143,6 +172,7 @@ def main():
     hist.addToHist(8)
     hist.removeFromHist(8)
     hist.printHist()
-    
+    """
+
 if __name__ == '__main__':
     main()

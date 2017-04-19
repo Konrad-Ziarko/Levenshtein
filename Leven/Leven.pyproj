@@ -3,17 +3,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>c34b3971-ef55-40ea-a8a8-3fe066eaf48d</ProjectGuid>
+    <ProjectGuid>b65651a1-b917-4b3c-be17-32eea74f0bf6</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PythonCuda.py</StartupFile>
+    <StartupFile>Leven.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>PythonCuda</Name>
-    <RootNamespace>PythonCuda</RootNamespace>
-    <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
-    <InterpreterVersion>3.5</InterpreterVersion>
+    <Name>Leven</Name>
+    <RootNamespace>Leven</RootNamespace>
+    <InterpreterId>{057ccaf3-2450-409d-be36-c2c61c01d6d0}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,14 +24,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="PythonCuda.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="data.txt" />
+    <Compile Include="Leven.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{057ccaf3-2450-409d-be36-c2c61c01d6d0}\2.7" />
-    <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.5" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
