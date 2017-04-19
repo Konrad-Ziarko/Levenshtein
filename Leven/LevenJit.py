@@ -1,8 +1,8 @@
 from numba import cuda
 from numba import *
 import numpy as np
-from pylab import imshow, show
 from timeit import default_timer as timer
+
 
 def leven_dist(A, B):
     i = j = 0
@@ -41,7 +41,7 @@ def leven_jit(word, line, metric_values):
 
 
 def main():
-    string1 = "abcdefgh"
+    string1 = "123456"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
     string2 = string2*20
 
@@ -64,7 +64,7 @@ def main():
     leven_jit(A, B, values)
     dt = timer() - start
 
-    print (values, '\n', dt)
+    print (min(values), '\n', dt)
 
 
     

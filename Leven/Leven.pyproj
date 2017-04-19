@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b65651a1-b917-4b3c-be17-32eea74f0bf6</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>LevenGpu.py</StartupFile>
+    <StartupFile>Leven.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

@@ -1,14 +1,13 @@
 from numba import cuda
 from numba import *
 import numpy as np
-from pylab import imshow, show
 from timeit import default_timer as timer
 
-cuda.jit('uint32(uint32[:], uint32[:],uint32,uint32)', device=True)
-def leven(A, B, h, w, out_val):
+#cuda.jit('uint32(uint32[:], uint32[:],uint32,uint32,uint32[:,:,:])', device=True)
+def leven(A, B, w , h, M):
     i = j = 0
     
-    metric = [[0 for x in range(w)] for y in range(h)] 
+    metric = M[:][:][0]
 
     #start = timer()
     for i in range(0, len(A)+1):
@@ -28,22 +27,24 @@ def leven(A, B, h, w, out_val):
     #print("Time:%f" % vectoradd_time)
     #print(metric)
     return metric[len(A)][len(B)]   
-leven_gpu = cuda.jit(restype=uint32, argtypes=[uint32[:], uint32[:]], device=True)(leven)
+leven_gpu = cuda.jit(restype=uint32, argtypes=[uint32[:], uint32[:],uint32,uint32,uint32[:,:,:]], device=True)(leven)
 
 
 @cuda.jit(argtypes=[uint32[:], uint32[:], uint32[:]])
 def leven_kernel(word, line, metric_values):
     wordLen = len(word)
     maxPos = len(line)-wordLen+1
+
+    M = np.zeros((wordLen,wordLen,maxPos))
     for i in range(maxPos):
-        metric_values[i] = leven(word, line[i:i+wordLen])         
+        metric_values[i] = leven_gpu(word, line[i:i+wordLen], wordLen, len(line[i:i+wordLen]), M)         
         
 
 
 def main():
     string1 = "abcdefgh"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
-    string2 = string2*20000
+    string2 = string2*20
 
 
     list1 = []
@@ -55,8 +56,7 @@ def main():
 
     A = np.array(list1, dtype=np.uint32)
     B = np.array(list2, dtype=np.uint32)
-    h = A.shape[0]+1
-    w = B.shape[0]+1
+
     values = np.zeros((len(B)-len(A)+1), dtype = np.uint32)
 
     blockdim = (len(string2)-len(string1)+1, 1)
@@ -65,7 +65,7 @@ def main():
     start = timer()
 
     d_values = cuda.to_device(values)
-    leven_kernel[griddim, blockdim](A, B,h,w, values)
+    leven_kernel[griddim, blockdim](A, B,values)
     d_values.to_host()
     dt = timer() - start
     print ('\n', dt)

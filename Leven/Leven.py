@@ -1,7 +1,6 @@
 from numba import cuda
 from numba import *
 import numpy as np
-from pylab import imshow, show
 from timeit import default_timer as timer
 
 def leven_dist(A, B):
@@ -30,7 +29,7 @@ def leven_dist(A, B):
     return metric[len(A)][len(B)]      
 
 def main():
-    string1 = "abcdefgh"
+    string1 = "123456"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
     string2 = string2*20
 
@@ -44,7 +43,6 @@ def main():
 
     A = np.array(list1, dtype=np.uint32)
     B = np.array(list2, dtype=np.uint32)
-
 
     start = timer()
     metric = leven_dist(A,B)
