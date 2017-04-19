@@ -4,12 +4,9 @@ import numpy as np
 from timeit import default_timer as timer
 
 def leven_dist(A, B):
-    i = j = 0
-    #metric = np.zeros([A.shape[0]+1, B.shape[0]+1], dtype=np.int)
     h = len(A)+1
     w = len(B)+1
     metric = [[0 for x in range(w)] for y in range(h)] 
-    #start = timer()
     for i in range(0, len(A)+1):
         metric[i][0] = i
     for j in range(0, len(B)+1):
@@ -22,16 +19,12 @@ def leven_dist(A, B):
             else:
                 cost = 1
             metric[i][j] = min(metric[i-1][j]+1, metric[i][j-1]+1, metric[i-1][j-1] + cost)
-
-    #vectoradd_time = timer() - start
-    #print("Time:%f" % vectoradd_time)
-    #print(metric)
     return metric[len(A)][len(B)]      
 
 def main():
     string1 = "123456"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
-    string2 = string2*2000
+    string2 = string2*20000
 
 
     list1 = []

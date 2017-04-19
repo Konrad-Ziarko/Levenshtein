@@ -5,9 +5,7 @@ from timeit import default_timer as timer
 
 @autojit
 def leven_dist(A, B, w1, w2):
-    i = j = 0
     metric = np.zeros((w1, w1), dtype = np.uint32)
-    #start = timer()
     for i in range(0, w1):
         metric[i][0] = i
         metric[0][i] = i
@@ -19,15 +17,10 @@ def leven_dist(A, B, w1, w2):
             else:
                 cost = 1
             metric[i][j] = min(metric[i-1][j]+1, metric[i][j-1]+1, metric[i-1][j-1] + cost)
-
-    #vectoradd_time = timer() - start
-    #print("Time:%f" % vectoradd_time)
-    #print(metric)
     return metric[w2][w2]   
 
 @autojit
 def leven_jit(word, line, metric_values):
-    
     wordLen = len(word)
     maxPos = len(line)-wordLen+1
     for i in range(maxPos):
@@ -37,7 +30,7 @@ def leven_jit(word, line, metric_values):
 def main():
     string1 = "123456"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
-    string2 = string2*2000
+    string2 = string2*20000
 
 
     list1 = []
@@ -51,7 +44,6 @@ def main():
     B = np.array(list2, dtype=np.uint32)
 
     #jit
-    
     values = np.zeros((len(B)-len(A)+1), dtype = np.uint32)
 
     start = timer()
