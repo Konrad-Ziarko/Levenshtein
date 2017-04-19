@@ -5,15 +5,15 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b65651a1-b917-4b3c-be17-32eea74f0bf6</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Leven.py</StartupFile>
+    <StartupFile>LevenGpu.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Leven</Name>
     <RootNamespace>Leven</RootNamespace>
-    <InterpreterId>{057ccaf3-2450-409d-be36-c2c61c01d6d0}</InterpreterId>
-    <InterpreterVersion>2.7</InterpreterVersion>
+    <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,9 +25,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Leven.py" />
+    <Compile Include="LevenGpu.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LevenJit.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{057ccaf3-2450-409d-be36-c2c61c01d6d0}\2.7" />
+    <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.5" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
