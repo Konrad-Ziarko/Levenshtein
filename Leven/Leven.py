@@ -31,7 +31,7 @@ def leven_dist(A, B):
 def main():
     string1 = "123456"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
-    string2 = string2*20
+    string2 = string2*2000
 
 
     list1 = []

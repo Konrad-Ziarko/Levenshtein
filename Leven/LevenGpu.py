@@ -3,20 +3,19 @@ from numba import *
 import numpy as np
 from timeit import default_timer as timer
 
-#cuda.jit('uint32(uint32[:], uint32[:],uint32,uint32,uint32[:,:,:])', device=True)
-def leven(A, B, w , h, M):
+#cuda.jit('uint32(uint32[:], uint32[:],uint32, uint32)', device=True)
+def leven(A, B, w1, w2):
     i = j = 0
     
-    metric = M[:][:][0]
-
+    #metric = np.zeros((w1, w1), dtype = np.uint32)
+    metric = cuda.local.array(shape=(w1,w1), dtype=float32);
     #start = timer()
-    for i in range(0, len(A)+1):
+    for i in range(0, w1):
         metric[i][0] = i
-    for j in range(0, len(B)+1):
-        metric[0][j] = j
+        metric[0][i] = i
 
-    for i in range(1, len(A)+1):    
-        for j in range(1, len(B)+1):
+    for i in range(1, w1):    
+        for j in range(1, w1):
             if A[i-1] == B[j-1]:
                 cost = 0
             else:
@@ -26,8 +25,8 @@ def leven(A, B, w , h, M):
     #vectoradd_time = timer() - start
     #print("Time:%f" % vectoradd_time)
     #print(metric)
-    return metric[len(A)][len(B)]   
-leven_gpu = cuda.jit(restype=uint32, argtypes=[uint32[:], uint32[:],uint32,uint32,uint32[:,:,:]], device=True)(leven)
+    return metric[w2][w2]   
+leven_gpu = cuda.jit(restype=uint32, argtypes=[uint32[:], uint32[:],uint32 ,uint32], device=True)(leven)
 
 
 @cuda.jit(argtypes=[uint32[:], uint32[:], uint32[:]])
@@ -35,9 +34,8 @@ def leven_kernel(word, line, metric_values):
     wordLen = len(word)
     maxPos = len(line)-wordLen+1
 
-    M = np.zeros((wordLen,wordLen,maxPos))
     for i in range(maxPos):
-        metric_values[i] = leven_gpu(word, line[i:i+wordLen], wordLen, len(line[i:i+wordLen]), M)         
+        metric_values[i] = leven_gpu(word, line[i:i+wordLen], wordLen+1, wordLen)         
         
 
 
@@ -45,7 +43,6 @@ def main():
     string1 = "abcdefgh"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
     string2 = string2*20
-
 
     list1 = []
     list2 = []
@@ -65,7 +62,7 @@ def main():
     start = timer()
 
     d_values = cuda.to_device(values)
-    leven_kernel[griddim, blockdim](A, B,values)
+    leven_kernel[griddim, blockdim](A, B, d_values)
     d_values.to_host()
     dt = timer() - start
     print ('\n', dt)
