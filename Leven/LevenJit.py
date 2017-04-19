@@ -38,3 +38,35 @@ def leven_jit(word, line, metric_values):
 
     for i in range(maxPos):
         metric_values[i] = leven_dist(word, line[i:i+wordLen])
+
+
+def main():
+    string1 = "abcdefgh"
+    string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
+    string2 = string2*20
+
+
+    list1 = []
+    list2 = []
+    for i in string1:
+        list1.append(ord(i))
+    for i in string2:
+        list2.append(ord(i))
+
+    A = np.array(list1, dtype=np.uint32)
+    B = np.array(list2, dtype=np.uint32)
+
+    #jit
+    
+    values = np.zeros((len(B)-len(A)+1), dtype = np.uint32)
+
+    start = timer()
+    leven_jit(A, B, values)
+    dt = timer() - start
+
+    print (values, '\n', dt)
+
+
+    
+if __name__ == '__main__':
+    main()

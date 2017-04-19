@@ -29,3 +29,29 @@ def leven_dist(A, B):
     #print(metric)
     return metric[len(A)][len(B)]      
 
+def main():
+    string1 = "abcdefgh"
+    string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
+    string2 = string2*20
+
+
+    list1 = []
+    list2 = []
+    for i in string1:
+        list1.append(ord(i))
+    for i in string2:
+        list2.append(ord(i))
+
+    A = np.array(list1, dtype=np.uint32)
+    B = np.array(list2, dtype=np.uint32)
+
+
+    start = timer()
+    metric = leven_dist(A,B)
+    dt = timer() - start
+
+    print (metric, '\n', dt)
+
+    
+if __name__ == '__main__':
+    main()

@@ -4,13 +4,10 @@ import numpy as np
 from pylab import imshow, show
 from timeit import default_timer as timer
 
-cuda.jit('uint32(uint32[:], uint32[:])', device=True)
-def leven(A, B, out_val):
+cuda.jit('uint32(uint32[:], uint32[:],uint32,uint32)', device=True)
+def leven(A, B, h, w, out_val):
     i = j = 0
     
-    #metric = np.zeros([A.shape[0]+1, B.shape[0]+1], dtype=np.uint32)
-    h = A.shape[0]+1
-    w = B.shape[0]+1
     metric = [[0 for x in range(w)] for y in range(h)] 
 
     #start = timer()
@@ -31,7 +28,7 @@ def leven(A, B, out_val):
     #print("Time:%f" % vectoradd_time)
     #print(metric)
     return metric[len(A)][len(B)]   
-#leven_gpu = cuda.jit(restype=uint32, argtypes=[uint32[], uint32[]], device=True)(leven)
+leven_gpu = cuda.jit(restype=uint32, argtypes=[uint32[:], uint32[:]], device=True)(leven)
 
 
 @cuda.jit(argtypes=[uint32[:], uint32[:], uint32[:]])
@@ -58,6 +55,21 @@ def main():
 
     A = np.array(list1, dtype=np.uint32)
     B = np.array(list2, dtype=np.uint32)
+    h = A.shape[0]+1
+    w = B.shape[0]+1
+    values = np.zeros((len(B)-len(A)+1), dtype = np.uint32)
+
+    blockdim = (len(string2)-len(string1)+1, 1)
+    griddim = (32,16)
+
+    start = timer()
+
+    d_values = cuda.to_device(values)
+    leven_kernel[griddim, blockdim](A, B,h,w, values)
+    d_values.to_host()
+    dt = timer() - start
+    print ('\n', dt)
+    #print (d_values, '\n', dt)
 
 
 if __name__ == '__main__':

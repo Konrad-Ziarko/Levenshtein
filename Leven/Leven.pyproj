@@ -31,9 +31,6 @@
     <Compile Include="LevenJit.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="main.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{057ccaf3-2450-409d-be36-c2c61c01d6d0}\2.7" />
