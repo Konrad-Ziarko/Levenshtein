@@ -41,8 +41,8 @@ def main():
     #data for pattern search
     data_stream = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
     #making more data, to stress cpu/gpu
-    data_stream = data_stream*20 #*20000
-
+    data_stream = data_stream*20000 #*20000
+   
     pattern_array = []
     data_stream_array = []
 
@@ -55,10 +55,10 @@ def main():
     #python array to np.array
     pattern_array = np.array(pattern_array, dtype=np.uint32)
     data_stream_array = np.array(data_stream_array, dtype=np.uint32)
-
+    
     #array for metric values returned by gpu
     metric_values = np.zeros((len(data_stream_array)-len(pattern_array)+1), dtype = np.uint32)
-
+    print(metric_values.shape[0])
     #how many thread can work in parallel, also 3dim of M matrix (code below)
     maxPos = len(data_stream)-len(pattern)+1
     #??
@@ -77,7 +77,7 @@ def main():
     d_array2 = cuda.to_device(data_stream_array)
 
     #call kernel
-    leven_kernel[griddim, blockdim](d_array1, d_array2, d_values, d_M)
+    #leven_kernel[griddim, blockdim](d_array1, d_array2, d_values, d_M)
 
     #d_array1.copy_to_device()
     #d_array2.copy_to_device()

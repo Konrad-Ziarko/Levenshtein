@@ -30,7 +30,7 @@ def leven_jit(word, line, metric_values):
 def main():
     string1 = "123456"
     string2 = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
-    string2 = string2*20000
+    string2 = string2*5
 
 
     list1 = []
