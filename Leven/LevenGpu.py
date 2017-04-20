@@ -30,10 +30,11 @@ def leven_kernel(word, line, metric_values, metric):
     #how many thread can work in parallel
     maxPos = len(line)-wordLen+1
     #??
-    i = cuda.gridDim.x * cuda.blockDim.x + cuda.threadIdx.x;
+    i = cuda.grid(1)
+    #i = cuda.gridDim.x * cuda.blockDim.x + cuda.threadIdx.x;
     #call gpu function
     metric_values[i] = leven_gpu(word, line[i:i+wordLen], wordLen+1, wordLen, metric[:,:,i])#throws error
-        
+
 
 
 def main():
@@ -44,8 +45,7 @@ def main():
     #data for pattern search
     data_stream = "abcdef"
     #making more data, to stress cpu/gpu
-    data_stream = data_stream*12500 #*20000
-   
+    data_stream = data_stream*2 #*20000
     pattern_array = []
     data_stream_array = []
 
@@ -74,28 +74,38 @@ def main():
     threads_per_block = 32
     blocks_per_grid = (maxPos + (threads_per_block - 1)) # threadperblock
 
+    print(maxPos)
+    print(maxPos-len(pattern_array))
+    print(blocks_per_grid)
+
     #Levenshtein matrix for each thread => 3dim matrix => 2dim [(len(patern_array) x len(patern_array))] for each thread * num_of_threads
     M = np.zeros((len(pattern_array), len(pattern_array), len(data_stream_array)-len(pattern_array)+1), dtype = np.uint32)
 
     start = timer()
 
-    d_stream = cuda.stream()
+    #d_stream = cuda.stream()
+
+    stream = cuda.stream()
+    with stream.auto_synchronize():
+        d_metric_values = cuda.to_device(metric_values,stream)
+        d_M = cuda.to_device(M, stream) 
+        d_array1 = cuda.to_device(pattern_array, stream)
+        d_array2 = cuda.to_device(data_stream_array, stream)
+        leven_kernel[blocks_per_grid, threads_per_block, stream](d_array1, d_array2, d_metric_values, d_M)
+        d_metric_values.copy_to_host(metric_values, stream=stream)
+    
 
     #sending arrays to gpu
-    d_metric_values = cuda.to_device(metric_values, stream = d_stream)
-    d_M = cuda.to_device(M)
-    d_array1 = cuda.to_device(pattern_array)
-    d_array2 = cuda.to_device(data_stream_array)
-
+    #d_metric_values = cuda.to_device(metric_values, stream = d_stream)
+    
 
     #call kernel
-    leven_kernel[blocks_per_grid, threads_per_block](d_array1, d_array2, d_metric_values, d_M)
-
+    
     #d_array1.copy_to_device()
     #d_array2.copy_to_device()
-    d_metric_values.copy_to_host(metric_values, stream = d_stream)
+    #d_metric_values.copy_to_host(metric_values, stream = d_stream)
     #d_M.to_host()
-    d_stream.synchronize()
+    #d_stream.synchronize()
     dt = timer() - start
     print ('\n', dt)
     #print (d_values, '\n', dt)
