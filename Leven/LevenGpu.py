@@ -2,6 +2,7 @@ from numba import cuda
 from numba import *
 import numpy as np
 from timeit import default_timer as timer
+import math
 
 #cuda.jit('uint32(uint32[:], uint32[:],uint32, uint32, uint32[:,:])', device=True)
 def leven(A, B, w1, w2, metric):#Levenshtein algorithm len(A) = len(B)
@@ -36,12 +37,14 @@ def leven_kernel(word, line, metric_values, metric):
 
 
 def main():
+
+    print(cuda.detect())#is_available()
     #search patern
     pattern = "123456"
     #data for pattern search
-    data_stream = "abcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcbaabcdefghijklmnoprstuvwxyzzyxwvutsrponmlkjihgfedcba"
+    data_stream = "abcdef"
     #making more data, to stress cpu/gpu
-    data_stream = data_stream*20000 #*20000
+    data_stream = data_stream*12500 #*20000
    
     pattern_array = []
     data_stream_array = []
@@ -58,36 +61,46 @@ def main():
     
     #array for metric values returned by gpu
     metric_values = np.zeros((len(data_stream_array)-len(pattern_array)+1), dtype = np.uint32)
-    print(metric_values.shape[0])
+
     #how many thread can work in parallel, also 3dim of M matrix (code below)
     maxPos = len(data_stream)-len(pattern)+1
     #??
-    blockdim = (maxPos,1)
-    griddim = (1,1)
+    tmp = cuda.get_current_device()
+    #print(cuda.list_devices())
+    
+    #blockdim = (32,32)
+    #griddim = (maxPos/(32*32*16)+1,16)
+
+    threads_per_block = 32
+    blocks_per_grid = (maxPos + (threads_per_block - 1)) # threadperblock
 
     #Levenshtein matrix for each thread => 3dim matrix => 2dim [(len(patern_array) x len(patern_array))] for each thread * num_of_threads
     M = np.zeros((len(pattern_array), len(pattern_array), len(data_stream_array)-len(pattern_array)+1), dtype = np.uint32)
 
     start = timer()
 
+    d_stream = cuda.stream()
+
     #sending arrays to gpu
-    d_values = cuda.to_device(metric_values)
+    d_metric_values = cuda.to_device(metric_values, stream = d_stream)
     d_M = cuda.to_device(M)
     d_array1 = cuda.to_device(pattern_array)
     d_array2 = cuda.to_device(data_stream_array)
 
+
     #call kernel
-    #leven_kernel[griddim, blockdim](d_array1, d_array2, d_values, d_M)
+    leven_kernel[blocks_per_grid, threads_per_block](d_array1, d_array2, d_metric_values, d_M)
 
     #d_array1.copy_to_device()
     #d_array2.copy_to_device()
-    d_values.to_host()
+    d_metric_values.copy_to_host(metric_values, stream = d_stream)
     #d_M.to_host()
-
+    d_stream.synchronize()
     dt = timer() - start
     print ('\n', dt)
     #print (d_values, '\n', dt)
-
+    
+    print (min(metric_values))
 
 if __name__ == '__main__':
     main()
