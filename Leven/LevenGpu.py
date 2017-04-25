@@ -90,8 +90,9 @@ def main():
         d_array1 = cuda.to_device(pattern_array, stream)
         d_array2 = cuda.to_device(data_stream_array, stream)
         
-        new = np.zeros((metric_values.shape[0],) ,dtype=np.uint8)
         leven_kernel[blocks_per_grid, threads_per_block, stream](d_array1, d_array2, d_metric_values, d_M)
+
+        new = np.empty(shape=d_metric_values.shape, dtype=d_metric_values.dtype)
         d_metric_values.copy_to_host(new, stream=stream)
 
     dt = timer() - start
