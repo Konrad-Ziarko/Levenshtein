@@ -1,3 +1,5 @@
+#!C:/Program Files/Anaconda3/python.exe
+
 from numba import cuda
 from numba import *
 import numpy as np
@@ -38,68 +40,64 @@ def leven_kernel(word, line, metric_values, metric):
 
 
 
-def main():
 
-    print(cuda.detect())#is_available()
-    #search patern
-    pattern = "1234"
-    #data for pattern search
-    data_stream = "abcdefghijk"
-    #making more data, to stress cpu/gpu
-    data_stream = data_stream*20000 #800 #*1000 #unknown_cuda_error
-    pattern_array = []
-    data_stream_array = []
+print(cuda.detect())#is_available()
+#search patern
+pattern = "1234"
+#data for pattern search
+data_stream = "abcdefghijk"
+#making more data, to stress cpu/gpu
+data_stream = data_stream*20 #800 #*1000 #unknown_cuda_error
+pattern_array = []
+data_stream_array = []
     
-    #string to unicode array
-    for i in pattern:
-        pattern_array.append(ord(i))
-    for i in data_stream:
-        data_stream_array.append(ord(i))
+#string to unicode array
+for i in pattern:
+    pattern_array.append(ord(i))
+for i in data_stream:
+    data_stream_array.append(ord(i))
 
-    print(pattern_array)
-    #python array to np.array
-    pattern_array = np.array(pattern_array, dtype=np.uint8)
-    data_stream_array = np.array(data_stream_array, dtype=np.uint8)
+print(pattern_array)
+#python array to np.array
+pattern_array = np.array(pattern_array, dtype=np.uint8)
+data_stream_array = np.array(data_stream_array, dtype=np.uint8)
     
-    #array for metric values returned by gpu
-    metric_values = np.zeros((len(data_stream_array)-len(pattern_array)+1), dtype = np.uint8)
+#array for metric values returned by gpu
+metric_values = np.zeros((len(data_stream_array)-len(pattern_array)+1), dtype = np.uint8)
 
-    #how many thread can work in parallel, also 3dim of M matrix (code below)
-    maxPos = len(data_stream)-len(pattern)+1
-    #tmp = cuda.get_current_device()
-    #print(cuda.list_devices())
+#how many thread can work in parallel, also 3dim of M matrix (code below)
+maxPos = len(data_stream)-len(pattern)+1
+#tmp = cuda.get_current_device()
+#print(cuda.list_devices())
 
-    threads_per_block = 64
-    blocks_per_grid = (maxPos + (threads_per_block - 1)) # threadperblock
+threads_per_block = 64
+blocks_per_grid = (maxPos + (threads_per_block - 1)) # threadperblock
 
-    print(maxPos)
-    print(maxPos-len(pattern_array))
-    print(blocks_per_grid)
+print(maxPos)
+print(maxPos-len(pattern_array))
+print(blocks_per_grid)
 
-    #Levenshtein matrix for each thread => 3dim matrix => 2dim [(len(patern_array) x len(patern_array))] for each thread * num_of_threads
-    M = np.zeros((len(pattern_array), len(pattern_array), len(data_stream_array)-len(pattern_array)+1), dtype = np.uint8)
+#Levenshtein matrix for each thread => 3dim matrix => 2dim [(len(patern_array) x len(patern_array))] for each thread * num_of_threads
+M = np.zeros((len(pattern_array), len(pattern_array), len(data_stream_array)-len(pattern_array)+1), dtype = np.uint8)
 
-    start = timer()
+start = timer()
 
 
-    #d_stream = cuda.stream()
-    stream = cuda.stream()
-    with stream.auto_synchronize():
-        d_metric_values = cuda.to_device(metric_values,stream)
-        d_M = cuda.to_device(M, stream) 
-        d_array1 = cuda.to_device(pattern_array, stream)
-        d_array2 = cuda.to_device(data_stream_array, stream)
+#d_stream = cuda.stream()
+stream = cuda.stream()
+with stream.auto_synchronize():
+    d_metric_values = cuda.to_device(metric_values,stream)
+    d_M = cuda.to_device(M, stream) 
+    d_array1 = cuda.to_device(pattern_array, stream)
+    d_array2 = cuda.to_device(data_stream_array, stream)
         
-        leven_kernel[blocks_per_grid, threads_per_block, stream](d_array1, d_array2, d_metric_values, d_M)
+    leven_kernel[blocks_per_grid, threads_per_block, stream](d_array1, d_array2, d_metric_values, d_M)
 
-        new = np.empty(shape=d_metric_values.shape, dtype=d_metric_values.dtype)
-        d_metric_values.copy_to_host(new, stream=stream)
+    new = np.empty(shape=d_metric_values.shape, dtype=d_metric_values.dtype)
+    d_metric_values.copy_to_host(new, stream=stream)
 
-    dt = timer() - start
-    print ('\n', dt)
-    #print (d_values, '\n', dt)
+dt = timer() - start
+print ('\n', dt)
+#print (d_values, '\n', dt)
     
-    print (min(metric_values))
-
-if __name__ == '__main__':
-    main()
+print (min(metric_values))
