@@ -33,6 +33,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="utils.py" />
+    <Compile Include="Zniffer.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="data.txt" />
