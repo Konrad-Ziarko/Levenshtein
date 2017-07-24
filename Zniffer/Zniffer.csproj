@@ -39,6 +39,7 @@
     <Reference Include="presentationframework.aero2" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -57,6 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="KeyLogger.cs" />
     <Compile Include="Network\DNSHeader.cs" />
     <Compile Include="Network\IPHeader.cs" />
     <Compile Include="Network\Protocol.cs" />
@@ -74,7 +76,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Network\Sniffer.cs" />
+    <Compile Include="Sniffer.cs" />
     <Compile Include="Network\TCPHeader.cs" />
     <Compile Include="Network\UDPHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

@@ -67,7 +67,7 @@ Options:
 
 from NTFSstreams import NTFSDataStreams
 import os, sys, getopt
-
+"""
 def usage(code=0, msg=''):
     if msg:
         print(_("Error:"), msg, file=sys.stderr)
@@ -76,7 +76,7 @@ def usage(code=0, msg=''):
         print(__doc__ % globals(), file=sys.stderr)
 
     sys.exit(code)
-
+    """
 
 def main():
 
