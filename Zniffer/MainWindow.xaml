@@ -1086,9 +1086,8 @@
                     </LinearGradientBrush>
                 </Grid.Background>
 
-                <Viewbox Grid.Column="0" Stretch="Uniform" Margin="5,0,0,0" HorizontalAlignment="Left" Width="145">
-
-                    <TextBlock Text="Słowa kluczowe:" Foreground="#FFFFFFFF">
+                <Viewbox Grid.Column="0" Stretch="Uniform" StretchDirection="DownOnly" Margin="5,0,0,0" HorizontalAlignment="Left" Width="145">
+                    <TextBlock Text="Słowa kluczowe:" FontSize="20" Foreground="#FFFFFFFF">
                         <TextBlock.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0">
                                 <GradientStop Color="#FF474747" Offset="1"/>
@@ -1099,7 +1098,7 @@
 
                 </Viewbox>
                 <Viewbox Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Left">
-                    <TextBox  Text="{Binding Title}" HorizontalAlignment="Center" Foreground="#FFFFFFFF" SelectionBrush="#FFD70000" BorderBrush="#FFD70000" BorderThickness="1,0">
+                    <TextBox Name="SearchPhraseTextBox" Text="Zniffer" HorizontalAlignment="Center" Foreground="#FFFFFFFF" SelectionBrush="#FFD70000" BorderBrush="#FFD70000" BorderThickness="1,0" TextChanged="TextBox_TextChanged">
                         <TextBox.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0">
                                 <GradientStop Color="#FF474747" Offset="1"/>
@@ -1125,22 +1124,24 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Grid>
+                    <Grid Grid.Column="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*" />
                             <RowDefinition Height="5" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <TextBlock Name="NetworkTextBlock" FontSize="40" TextWrapping="Wrap" MouseWheel="NetworkOnMouseWheel">Top</TextBlock>
+
+                        <TextBlock Name="NetworkTextBlock" FontSize="40" TextWrapping="Wrap" Grid.Row="0"  MouseWheel="NetworkOnMouseWheel">Top</TextBlock>
+                        
                         <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Background="#FFF3FF00" />
                         <TextBlock Name="ClipboardTextBlock" Grid.Row="2" FontSize="40" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel">Bottom</TextBlock>
                     </Grid>
                     
                     <!--druga kolumna-->
                     <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" Background="#FFF3FF00" />
-                    <TextBlock Name="FilesTextBlock" Grid.Column="2" TextWrapping="Wrap" MouseWheel="FilesTextBlock_MouseWheel">asdasdasddds</TextBlock>
-                    
-                    
+                    <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap" Grid.Column="2" MouseWheel="FilesTextBlock_MouseWheel">asdasdasddds</TextBlock>
+
+
                 </Grid>
             </Grid>
         </Grid>

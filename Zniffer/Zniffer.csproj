@@ -67,9 +67,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Searcher.cs" />
     <Compile Include="KeyLogger.cs" />
     <Compile Include="Network\DNSHeader.cs" />
     <Compile Include="Network\IPHeader.cs" />
+    <Compile Include="SoundCatcher.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

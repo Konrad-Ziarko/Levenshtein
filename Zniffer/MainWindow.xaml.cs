@@ -6,12 +6,10 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Trinet.Core.IO.Ntfs;
-using Zniffer.Network;
 
 namespace Zniffer {
 
@@ -20,27 +18,7 @@ namespace Zniffer {
     /// </summary>
     public partial class MainWindow : Window {
 
-
-        #region DEBUG
-        public enum DebugLevels {
-            NO_DEBUG = 0,
-            CRITICAL = 1,
-            ERROR = 2,
-            WARNING = 3,
-            ALL_IO = 4
-        };
-        public static DebugLevels DEBUG_LEVEL = DebugLevels.CRITICAL;
-
-        public static void log(DebugLevels level, string format, params string[] values) {
-            if (DEBUG_LEVEL >= level) {
-                Console.Out.WriteLine(string.Format(format, values));
-            }
-        }
-        public static void printLine(string format, params string[] values) {
-            Console.Out.WriteLine(string.Format(format, values));
-        }
-        #endregion
-
+        public static string searchPhrase = string.Empty;
 
 
         #region TitleBar buttons
@@ -59,7 +37,6 @@ namespace Zniffer {
             WindowState = WindowState.Minimized;
         }
         #endregion
-
 
 
         #region ADS
@@ -175,97 +152,175 @@ namespace Zniffer {
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
-        public static extern bool ChangeClipboardChain(
-            IntPtr hWndRemove,  // handle to window to remove
-            IntPtr hWndNewNext  // handle to next window
-            );
+        public static extern bool ChangeClipboardChain( IntPtr hWndRemove, IntPtr hWndNewNext );
 
         IntPtr clipboardViewerNext;
 
         private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
             if (msg == 0x0308) {
-                printLine("Data retrived from clipboard");
+                //printLine("Data retrived from clipboard");
 
                 IDataObject iData = new DataObject();
 
                 try {
                     iData = Clipboard.GetDataObject();
                 } catch (ExternalException externEx) {
-                    printLine("InteropServices.ExternalException: {0}", externEx.Message);
+                    Console.Out.WriteLine("InteropServices.ExternalException: {0}", externEx.Message);
+                    
+                    //TODO zrobić obsługę schowka
+                    //print screen to też zmiana schowka
+
                     return IntPtr.Zero; ;
-                } catch (Exception ex) {
+                } catch (Exception) {
                     return IntPtr.Zero; ;
                 }
-
                 if (iData.GetDataPresent(DataFormats.Rtf)) {
-                    printLine((string)iData.GetData(DataFormats.Rtf));
+                    Console.Out.WriteLine((string)iData.GetData(DataFormats.Rtf));
 
                 }
-                if (iData.GetDataPresent(DataFormats.Text)) {
-                    printLine((string)iData.GetData(DataFormats.Text));
+                else if (iData.GetDataPresent(DataFormats.Text)) {
+                    Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
 
                 } else {
-                    printLine("(cannot display this format)");
+                    Console.Out.WriteLine("(cannot display this format)");
                 }
             }
             return IntPtr.Zero;
         }
         #endregion
 
+        public static System.Timers.Timer resetStringTimer = new System.Timers.Timer(5000);//5sec reset time
 
-        public Thread keyLogger;
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
         public Dictionary<string, string> avaliableNetworkAdapters = new Dictionary<string, string>();
 
+        public static string loggedKeyString = "";
+        public static long cursorPosition = 0;
 
         public MainWindow() {
             InitializeComponent();
+
+            resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
 
+        public static void OnResetTimerEvent(object source, System.Timers.ElapsedEventArgs e) {
+            cursorPosition = 0;
+            loggedKeyString = "";
+        }
 
-        public static void printTextInConsole(string s) {
+        public static void keyCapturedHandle(string s) {
+            
+            if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
+                s = s.Substring(1, s.Length - 2);
+                if (s.Equals("Backspace")) {
+                    resetStringTimer.Stop();
 
-            if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//znaki specjalne
-                ;
-            } else {//zwykle znaki
+                    loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);
+                    cursorPosition--;
+                } else if (s.Equals("Left")) {
+                    resetStringTimer.Stop();
 
-                Console.Out.WriteLine(s);
+                    if (cursorPosition > 0)
+                        cursorPosition--;
+                } else if (s.Equals("Right")) {
+                    resetStringTimer.Stop();
+
+                    if (cursorPosition < loggedKeyString.Length)
+                        cursorPosition++;
+                }
+            } else if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {//active window changed
+                resetStringTimer.Stop();
+
             }
+            else {//normal characters
+                resetStringTimer.Stop();
+
+                loggedKeyString += s;
+                cursorPosition++;
+
+                if (s.Equals("\n")) {//user returned(ended) string
+                    cursorPosition = 0;
+                    loggedKeyString = "";
+                }
+            }
+
+            Console.Out.WriteLine(Searcher.extractPhrase(loggedKeyString));
+
+            resetStringTimer.Start();
         }
 
-        private void newDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
+        //discovering new drives
+        private async void newDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
+
+            //TODO async scan files on newly attached devices (if ntfs +ADS)
+
             Console.Out.WriteLine(e.NewEvent.Properties["DriveName"].Value.ToString() + " inserted");
+
+            foreach (DriveInfo d in DriveInfo.GetDrives()) {
+                if (d.Name.Equals(e.NewEvent.Properties["DriveName"].Value.ToString() + "\\")) {
+                    List<string> directories = Searcher.GetDirectories(d.Name);
+
+                    foreach (string directory in directories) {
+                        Console.Out.WriteLine(directory);
+
+                        List<string> files = Searcher.GetFiles(directory);
+                        
+                        foreach (string file in files) {
+                            Console.Out.WriteLine(file);
+                            //Console.Out.WriteLine(File.ReadAllText(file));
+                            try {
+                                string arr = await Searcher.ReadTextAsync(file);
+                                //foreach(string str in File.ReadLines(file))
+                                Console.Out.WriteLine(arr);
+
+                            } catch (UnauthorizedAccessException) {
+                                Console.Out.WriteLine("Cannot access:"+file);
+                            }
+                            if (d.DriveFormat.Equals("NTFS")) {
+                                //search for ads
+                            }
+                        }
+                    }
+                }
+
+            }
         }
 
 
 
         private void Window_SourceInitialized(object sender, EventArgs e) {
-            //sniffer
+            //TODO implement sniffer
             Sniffer snf = new Sniffer();
 
 
-            //nasluchiwanie schowka
+
+            //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
             source.AddHook(new HwndSourceHook(WndProc));
 
 
 
-            //sprawdzenie systemów plików // dodac sprawdzanie czy jest ntfs
+            //check file system // if ntfs look for ADSs
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
-                printLine("Drive {0}", d.Name);
-                printLine("  Drive type: {0}", d.DriveType.ToString());
+                Console.Out.WriteLine("Drive {0}", d.Name);
+                Console.Out.WriteLine("  Drive type: {0}", d.DriveType.ToString());
                 if (d.IsReady == true) {
-                    printLine("  Volume label: {0}", d.VolumeLabel);
-                    printLine("  File system: {0}", d.DriveFormat);
-                    printLine("  Available space to current user:{0, 15} bytes", d.AvailableFreeSpace.ToString());
-                    printLine("  Total available space:          {0, 15} bytes", d.TotalFreeSpace.ToString());
-                    printLine("  Total size of drive:            {0, 15} bytes ", d.TotalSize.ToString());
+                    Console.Out.WriteLine("  Volume label: {0}", d.VolumeLabel);
+                    Console.Out.WriteLine("  File system: {0}", d.DriveFormat);
+                    Console.Out.WriteLine("  Available space to current user:{0, 15} bytes", d.AvailableFreeSpace.ToString());
+                    Console.Out.WriteLine("  Total available space:          {0, 15} bytes", d.TotalFreeSpace.ToString());
+                    Console.Out.WriteLine("  Total size of drive:            {0, 15} bytes ", d.TotalSize.ToString());
                 }
-                avaliableDrives.Add(d.Name, d.DriveFormat);
+                try {
+                    avaliableDrives.Add(d.Name, d.DriveFormat);
+                } catch (ArgumentException){
+                    //pojawił się dysk o tej samej literce
+                }
+
             }
 
-            //sprawdzenie czy jest karta graficzna
+            //check for GPU
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
             foreach (ManagementObject mo in searcher.Get()) {
                 //PropertyData currentBitsPerPixel = mo.Properties["CurrentBitsPerPixel"];
@@ -274,44 +329,46 @@ namespace Zniffer {
                     if (currentBitsPerPixel.Value != null)
                         ;
                 }*/
-                printLine(description.Value.ToString());
+                Console.Out.WriteLine(description.Value.ToString());
             }
 
-            //sprawdzenie ilosci ramu
+            //check for the amount of ram
             double amoutOfRam = new Microsoft.VisualBasic.Devices.ComputerInfo().TotalPhysicalMemory;
             double amountOfMBOfRam = amoutOfRam / 1024 / 1024;
-            printLine("" + amountOfMBOfRam);
+            Console.Out.WriteLine("" + amountOfMBOfRam);
 
-            //wykrywanie nowych polaczen sieciowych itp
+
+            //detect new network connections/interfaces
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
-
-
-            //sprawdzenie ile jest kart sieciowych
+            
+            //look for network adapters
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface adapter in adapters) {
                 string ipAddrList = string.Empty;
                 IPInterfaceProperties properties = adapter.GetIPProperties();
-                printLine(adapter.Description);
-                printLine("  DNS suffix .............................. : {0}", properties.DnsSuffix);
-                printLine("  DNS enabled ............................. : {0}", properties.IsDnsEnabled.ToString());
-                printLine("  Dynamically configured DNS .............. : {0}", properties.IsDynamicDnsEnabled.ToString());
+                Console.Out.WriteLine(adapter.Description);
+                Console.Out.WriteLine("  DNS suffix .............................. : {0}", properties.DnsSuffix);
+                Console.Out.WriteLine("  DNS enabled ............................. : {0}", properties.IsDnsEnabled.ToString());
+                Console.Out.WriteLine("  Dynamically configured DNS .............. : {0}", properties.IsDynamicDnsEnabled.ToString());
 
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                            printLine("Ip Addresses " + ip.Address.ToString());
+                            Console.Out.WriteLine("Ip Addresses " + ip.Address.ToString());
                 }
-                printLine("\n");
+                Console.Out.WriteLine("\n");
             }
 
-            printLine("\n");
-            printLine("User Domain Name: " + Environment.UserDomainName);
-            printLine("Machine Name: " + Environment.MachineName);
-            printLine("User Name " + Environment.UserName);
+
+            //Print more info
+            Console.Out.WriteLine("\n");
+            Console.Out.WriteLine("User Domain Name: " + Environment.UserDomainName);
+            Console.Out.WriteLine("Machine Name: " + Environment.MachineName);
+            Console.Out.WriteLine("User Name " + Environment.UserName);
 
 
 
-            //wykrywanie podlaczenia pamieci typu flash
+            //detect flash memory
             ManagementEventWatcher watcher = new ManagementEventWatcher();
             WqlEventQuery query = new WqlEventQuery("SELECT * FROM Win32_VolumeChangeEvent WHERE EventType = 2");
             watcher.EventArrived += new EventArrivedEventHandler(newDeviceDetectedEventArived);
@@ -319,9 +376,9 @@ namespace Zniffer {
             watcher.Start();
             //watcher.WaitForNextEvent();
 
-            //powolanie keyloggera
+            //run keylogger
             var obj = new KeyLogger();
-            obj.RaiseKeyCapturedEvent += new KeyLogger.keyCaptured(printTextInConsole);
+            obj.RaiseKeyCapturedEvent += new KeyLogger.keyCaptured(keyCapturedHandle);
 
 
         }
@@ -331,7 +388,7 @@ namespace Zniffer {
             foreach (NetworkInterface n in adapters) {
                 foreach (UnicastIPAddressInformation ip in n.GetIPProperties().UnicastAddresses)
                     if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                        printLine("   {0} is {1}", n.Name, n.OperationalStatus.ToString());
+                        Console.Out.WriteLine("   {0} is {1}", n.Name, n.OperationalStatus.ToString());
             }
         }
 
@@ -339,14 +396,17 @@ namespace Zniffer {
             ChangeClipboardChain(new WindowInteropHelper(this).Handle, clipboardViewerNext);
         }
 
-        private void NetworkOnMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e) {
+
+        #region MouseWheelFont
+
+        private void NetworkOnMouseWheel(object sender, MouseWheelEventArgs e) {
             bool handle = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
             if (!handle)
                 return;
-            if (e.Delta > 0 && NetworkTextBlock.FontSize < 40.0)
+            if (e.Delta > 0 && NetworkTextBlock.FontSize < 80.0)
                 NetworkTextBlock.FontSize++;
 
-            if (e.Delta < 0 && NetworkTextBlock.FontSize > 8.0)
+            if (e.Delta < 0 && NetworkTextBlock.FontSize > 12.0)
                 NetworkTextBlock.FontSize--;
         }
 
@@ -354,10 +414,10 @@ namespace Zniffer {
             bool handle = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
             if (!handle)
                 return;
-            if (e.Delta > 0 && FilesTextBlock.FontSize < 40.0)
+            if (e.Delta > 0 && FilesTextBlock.FontSize < 80.0)
                 FilesTextBlock.FontSize++;
 
-            if (e.Delta < 0 && FilesTextBlock.FontSize > 8.0)
+            if (e.Delta < 0 && FilesTextBlock.FontSize > 12.0)
                 FilesTextBlock.FontSize--;
         }
 
@@ -365,11 +425,20 @@ namespace Zniffer {
             bool handle = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
             if (!handle)
                 return;
-            if (e.Delta > 0 && ClipboardTextBlock.FontSize < 40.0)
+            if (e.Delta > 0 && ClipboardTextBlock.FontSize < 80.0)
                 ClipboardTextBlock.FontSize++;
 
-            if (e.Delta < 0 && ClipboardTextBlock.FontSize > 8.0)
+            if (e.Delta < 0 && ClipboardTextBlock.FontSize > 12.0)
                 ClipboardTextBlock.FontSize--;
+        }
+
+        #endregion
+
+        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            //search phrase changed
+
+            searchPhrase = SearchPhraseTextBox.Text;
+
         }
     }
 }
