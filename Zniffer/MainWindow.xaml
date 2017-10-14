@@ -1,5 +1,6 @@
 ﻿<Window
         x:Name="ZnifferWindow"
+        xmlns:properties="clr-namespace:Zniffer.Properties"
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -976,26 +977,13 @@
                         </LinearGradientBrush>
                     </Menu.Background>
                     <MenuItem Header="_Plik" FontFamily="Tahoma" FontSize="14" Foreground="#FF999999" Background="#FF2E2E2E" BorderBrush="#FF2E2E2E">
-                        <MenuItem Header="Nowy..." FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                        <MenuItem Header="Nowa sesja" Name="MINewSession" Click="MINewSession_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
                             <MenuItem.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
                                 </LinearGradientBrush>
                             </MenuItem.Background>
-                            <MenuItem Header="Plik..." FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                                <MenuItem.Background>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                    </LinearGradientBrush>
-                                </MenuItem.Background>
-                            </MenuItem>
-                            <MenuItem Header="Folder..." FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                                <MenuItem.Background>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                    </LinearGradientBrush>
-                                </MenuItem.Background>
-                            </MenuItem>
+                            
                         </MenuItem>
                         <Separator >
                             <Separator.Background>
@@ -1047,6 +1035,84 @@
                             </MenuItem.Background>
                         </MenuItem>
                     </MenuItem>
+
+                    <MenuItem Header="_Sieć" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
+                        <MenuItem.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                            </LinearGradientBrush>
+                        </MenuItem.Background>
+                        <MenuItem Header="Interfejsy źródłowe..." Name="MISourceInterfaces" Click="MISourceInterfaces_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                        </MenuItem>
+                        <MenuItem Header="Ignorowane źródła..." Name="MIIgnoredInterfaces" Click="MIIgnoredInterfaces_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="_Napędy" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
+                        <MenuItem.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                            </LinearGradientBrush>
+                        </MenuItem.Background>
+                        <MenuItem Header="Skanowanie" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+
+                            <MenuItem Header="Otwieranych plików" Name="MIFiles" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
+                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanOpenFiles, Mode=TwoWay}">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                            </MenuItem>
+                            <MenuItem Header="Podłączanych dysków" Name="MIDrives" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
+                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanNewDrives, Mode=TwoWay}">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                            </MenuItem>
+                            <MenuItem Header="Schowka" FontFamily="Tahoma" Name="MIClipBoard" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
+                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanClipBoard, Mode=TwoWay}">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                            </MenuItem>
+                            <MenuItem Header="Strumieni alternatywnych" Name="MIADS" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
+                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanADS, Mode=TwoWay}">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                            </MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="Rozszerzenia plików" Name="MIExtensions" Click="MIExtensions_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                        </MenuItem>
+                    </MenuItem>
+                    
                     <MenuItem Header="_Widok" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1061,15 +1127,20 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
-                        <MenuItem Header="Odznacz wszystko" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                        
+                    </MenuItem>
+                    <MenuItem Header="_Inne" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
+                        <MenuItem Header="Zapisuj dane w oddzielnych plikach" Name="MISaveMultipleFiles" Click="MISaveMultipleFiles_Click" IsCheckable="True"
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=MultipleFiles, Mode=TwoWay}"
+                                  FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
                             <MenuItem.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
+
                     </MenuItem>
-                    <MenuItem Header="_Inne" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E"/>
                 </Menu>
             </Grid>
 
@@ -1098,7 +1169,7 @@
 
                 </Viewbox>
                 <Viewbox Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Left">
-                    <TextBox Name="SearchPhraseTextBox" Text="Zniffer" HorizontalAlignment="Center" Foreground="#FFFFFFFF" SelectionBrush="#FFD70000" BorderBrush="#FFD70000" BorderThickness="1,0" TextChanged="TextBox_TextChanged">
+                    <TextBox Name="SearchPhraseTextBox" Text="{Binding Source={x:Static properties:Settings.Default}, Path=SearchPhrase, Mode=TwoWay}" HorizontalAlignment="Center" Foreground="#FFFFFFFF" SelectionBrush="#FFD70000" BorderBrush="#FFD70000" BorderThickness="1,0" TextChanged="TextBox_TextChanged">
                         <TextBox.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0">
                                 <GradientStop Color="#FF474747" Offset="1"/>

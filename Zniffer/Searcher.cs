@@ -40,9 +40,9 @@ namespace Zniffer {
             }
         }
 
-        public static string extractPhrase(string sourceText) {
+        public static string extractPhrase(string sourceText, string searchPhrase) {
             StringBuilder sb = new StringBuilder();
-            string phrase = MainWindow.searchPhrase;
+            string phrase = searchPhrase;
 
             sb.Append("<" + phrase + ">");
             int searchPhraseLength = phrase.Length;
@@ -77,7 +77,7 @@ namespace Zniffer {
             StringBuilder sb = new StringBuilder();
             string textFromFile = File.ReadAllText(filePath);
 
-            sb.Append(extractPhrase(textFromFile));
+            //sb.Append(extractPhrase(textFromFile));
 
             return sb.ToString();
         }

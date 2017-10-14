@@ -18,8 +18,6 @@ namespace Zniffer {
     /// </summary>
     public partial class MainWindow : Window {
 
-        public static string searchPhrase = string.Empty;
-
 
         #region TitleBar buttons
         private void button_Exit_Click(object sender, RoutedEventArgs e) {
@@ -159,7 +157,7 @@ namespace Zniffer {
         private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
             if (msg == 0x0308) {
                 //printLine("Data retrived from clipboard");
-
+                //wyciąganie danych z obrazów i dźwięków
                 IDataObject iData = new DataObject();
 
                 try {
@@ -199,6 +197,7 @@ namespace Zniffer {
 
         public MainWindow() {
             InitializeComponent();
+            this.DataContext = this;
 
             resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
@@ -244,7 +243,7 @@ namespace Zniffer {
                 }
             }
 
-            Console.Out.WriteLine(Searcher.extractPhrase(loggedKeyString));
+            //Console.Out.WriteLine(Searcher.extractPhrase(loggedKeyString, _SearchPhrase));
 
             resetStringTimer.Start();
         }
@@ -394,6 +393,8 @@ namespace Zniffer {
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
             ChangeClipboardChain(new WindowInteropHelper(this).Handle, clipboardViewerNext);
+
+            Properties.Settings.Default.Save();
         }
 
 
@@ -437,8 +438,37 @@ namespace Zniffer {
         private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
             //search phrase changed
 
-            searchPhrase = SearchPhraseTextBox.Text;
+            
 
         }
+
+        #region MenuItemClick
+
+        private void MIExtensions_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MIIgnoredInterfaces_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MISourceInterfaces_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MINewSession_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void MISaveMultipleFiles_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        #endregion
     }
 }
