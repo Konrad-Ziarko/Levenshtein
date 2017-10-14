@@ -456,7 +456,10 @@ namespace Zniffer {
 
         private void MISourceInterfaces_Click(object sender, RoutedEventArgs e)
         {
+            Window wnd = new NetworkSettings();
+            wnd.ShowDialog();
 
+            
         }
 
         private void MINewSession_Click(object sender, RoutedEventArgs e)

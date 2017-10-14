@@ -1,0 +1,51 @@
+﻿<Window x:Class="Zniffer.NetworkSettings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Zniffer"
+        mc:Ignorable="d"
+        Title="NetworkSettings" Height="300" Width="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="8*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Dostępne interfejsy" HorizontalAlignment="Center"/>
+            <ListBox Grid.Row="1">
+                <ListBoxItem>192.168.0.15</ListBoxItem>
+            </ListBox>
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="3*"/>
+            </Grid.RowDefinitions>
+
+            <Button Grid.Row="1"><![CDATA[>>]]></Button>
+            <Button Grid.Row="2"><![CDATA[<<]]></Button>
+        </Grid>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="8*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Nasłuchiwane" HorizontalAlignment="Center"/>
+            <ListBox Grid.Row="1">
+                <ListBoxItem>10.6.120.5:8080</ListBoxItem>
+            </ListBox>
+        </Grid>
+        
+    </Grid>
+</Window>
