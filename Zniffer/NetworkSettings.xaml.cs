@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,9 +20,91 @@ namespace Zniffer
     /// </summary>
     public partial class NetworkSettings : Window
     {
+        public ObservableCollection<InterfaceClass> usedInterfaces = new ObservableCollection<InterfaceClass>();
+        public ObservableCollection<InterfaceClass> avaliableInterfaces = new ObservableCollection<InterfaceClass>();
+
+        public event Action<InterfaceClass> addedUsedInterface;
+        public event Action<InterfaceClass> removedUsedInterface;
+        public event Action<InterfaceClass> addedAvaliableInterface;
+        public event Action<InterfaceClass> removedAvaliableInterface;
+        public event Action<InterfaceClass> modyfiedUsedInterface;
+
+        public void addAvaliableInterface(InterfaceClass interfaceClass)
+        {
+            avaliableInterfaces.Add(interfaceClass);
+        }
+        public void addUsedInterface(InterfaceClass interfaceClass)
+        {
+            usedInterfaces.Add(interfaceClass);
+        }
+
+
+        public ObservableCollection<InterfaceClass> UsedFaces {
+            get {
+                return usedInterfaces;
+            }
+            set {
+            }
+        }
+        public ObservableCollection<InterfaceClass> AvaliableFaces {
+            get {
+                return avaliableInterfaces;
+            }
+        }
+
         public NetworkSettings()
         {
             InitializeComponent();
+            DataContext = this;
+        }
+
+        private void Avaliable_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (LBAvaliable.SelectedItem != null)
+            {
+                //dodać do używanych
+                //MessageBox.Show(LBAvaliable.SelectedItem.ToString());
+                InterfaceClass li = null;
+                foreach(var iface in avaliableInterfaces)
+                {
+                    if (iface.ToString().Equals(LBAvaliable.SelectedItem.ToString()))
+                    {
+                        usedInterfaces.Add(iface);
+                        addedUsedInterface(iface);
+                        removedAvaliableInterface(iface);
+                        avaliableInterfaces.Remove(iface);
+                        break;
+                    }
+                }
+               
+
+            }
+
+        }
+
+        private void Used_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            //allow to edit ports and save that
+
+            //((LocalInterface)LBUsed.SelectedItem).ports = "1337";
+
+            /*
+            string[] split = LBUsed.SelectedItem.ToString().Split(':');
+
+            foreach(var item in UsedFaces)
+            {
+                if (item.addres.Equals(split[0]))
+                {
+                    item.ports = "1337";
+                    break;
+                }
+            }*/
+
+            EditInterface editInterfaceWindow = new EditInterface();
+            editInterfaceWindow.ShowDialog();
+
+
+
         }
     }
 }

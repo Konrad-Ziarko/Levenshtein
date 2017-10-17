@@ -67,6 +67,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converter.cs" />
+    <Compile Include="EditInterface.xaml.cs">
+      <DependentUpon>EditInterface.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LolcalInterface.cs" />
     <Compile Include="NetworkSettings.xaml.cs">
       <DependentUpon>NetworkSettings.xaml</DependentUpon>
     </Compile>
@@ -75,6 +80,10 @@
     <Compile Include="Network\DNSHeader.cs" />
     <Compile Include="Network\IPHeader.cs" />
     <Compile Include="SoundCatcher.cs" />
+    <Page Include="EditInterface.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

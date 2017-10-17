@@ -5,7 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Zniffer"
         mc:Ignorable="d"
-        Title="NetworkSettings" Height="300" Width="300">
+        Title="NetworkSettings" Height="353.347" Width="507.113"
+        FontFamily="Tahoma">
+    <Window.Resources>
+        <local:Converter x:Key="converter"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
@@ -18,10 +22,41 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="8*"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Dostępne interfejsy" HorizontalAlignment="Center"/>
-            <ListBox Grid.Row="1">
-                <ListBoxItem>192.168.0.15</ListBoxItem>
-            </ListBox>
+            <Viewbox>
+                <TextBlock Grid.Row="0" Text="Dostępne interfejsy" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            </Viewbox>
+            <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" ItemsSource="{Binding AvaliableFaces, UpdateSourceTrigger=PropertyChanged}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.1" ScaleY="1.1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Viewbox StretchDirection="Both">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=addres}"/>
+                                <TextBlock Grid.Column="1" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text=":"/>
+                                <TextBlock Grid.Column="2" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=ports}"/>
+                            </Grid>
+                        </Viewbox>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
 
         <Grid Grid.Column="1">
@@ -29,11 +64,19 @@
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
                 <RowDefinition Height="3*"/>
             </Grid.RowDefinitions>
-
-            <Button Grid.Row="1"><![CDATA[>>]]></Button>
-            <Button Grid.Row="2"><![CDATA[<<]]></Button>
+            <Viewbox Grid.Row="1" Stretch="Fill">
+                <Button  Margin="1">
+                    <![CDATA[>>]]>
+                </Button>
+            </Viewbox>
+            <Viewbox Grid.Row="3" Stretch="Fill">
+                <Button  Margin="1">
+                    <![CDATA[<<]]>
+                </Button>
+            </Viewbox>
         </Grid>
 
         <Grid Grid.Column="2">
@@ -41,11 +84,42 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="8*"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Nasłuchiwane" HorizontalAlignment="Center"/>
-            <ListBox Grid.Row="1">
-                <ListBoxItem>10.6.120.5:8080</ListBoxItem>
-            </ListBox>
+            <Viewbox>
+                <TextBlock Grid.Row="0" Text="Nasłuchiwane" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Viewbox>
+            <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" ItemsSource="{Binding UsedFaces, UpdateSourceTrigger=PropertyChanged}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.1" ScaleY="1.1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=addres}"/>
+                            <TextBlock Grid.Column="1" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text=":"/>
+                            <TextBlock Grid.Column="2" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=ports}"/>
+                            </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
         </Grid>
-        
+
     </Grid>
 </Window>

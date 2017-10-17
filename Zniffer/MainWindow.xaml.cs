@@ -150,7 +150,7 @@ namespace Zniffer {
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
-        public static extern bool ChangeClipboardChain( IntPtr hWndRemove, IntPtr hWndNewNext );
+        public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
 
         IntPtr clipboardViewerNext;
 
@@ -162,14 +162,16 @@ namespace Zniffer {
 
                 try {
                     iData = Clipboard.GetDataObject();
-                } catch (ExternalException externEx) {
+                }
+                catch (ExternalException externEx) {
                     Console.Out.WriteLine("InteropServices.ExternalException: {0}", externEx.Message);
-                    
+
                     //TODO zrobić obsługę schowka
                     //print screen to też zmiana schowka
 
                     return IntPtr.Zero; ;
-                } catch (Exception) {
+                }
+                catch (Exception) {
                     return IntPtr.Zero; ;
                 }
                 if (iData.GetDataPresent(DataFormats.Rtf)) {
@@ -179,7 +181,8 @@ namespace Zniffer {
                 else if (iData.GetDataPresent(DataFormats.Text)) {
                     Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
 
-                } else {
+                }
+                else {
                     Console.Out.WriteLine("(cannot display this format)");
                 }
             }
@@ -190,7 +193,11 @@ namespace Zniffer {
         public static System.Timers.Timer resetStringTimer = new System.Timers.Timer(5000);//5sec reset time
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
-        public Dictionary<string, string> avaliableNetworkAdapters = new Dictionary<string, string>();
+
+        public static Dictionary<string, string> avaliableNetworkAdapters = new Dictionary<string, string>();
+        public static List<InterfaceClass> usedInterfaces = new List<InterfaceClass>();
+        public static List<InterfaceClass> avaliableInterfaces = new List<InterfaceClass>();
+
 
         public static string loggedKeyString = "";
         public static long cursorPosition = 0;
@@ -208,7 +215,7 @@ namespace Zniffer {
         }
 
         public static void keyCapturedHandle(string s) {
-            
+
             if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
                 s = s.Substring(1, s.Length - 2);
                 if (s.Equals("Backspace")) {
@@ -216,18 +223,21 @@ namespace Zniffer {
 
                     loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);
                     cursorPosition--;
-                } else if (s.Equals("Left")) {
+                }
+                else if (s.Equals("Left")) {
                     resetStringTimer.Stop();
 
                     if (cursorPosition > 0)
                         cursorPosition--;
-                } else if (s.Equals("Right")) {
+                }
+                else if (s.Equals("Right")) {
                     resetStringTimer.Stop();
 
                     if (cursorPosition < loggedKeyString.Length)
                         cursorPosition++;
                 }
-            } else if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {//active window changed
+            }
+            else if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {//active window changed
                 resetStringTimer.Stop();
 
             }
@@ -263,7 +273,7 @@ namespace Zniffer {
                         Console.Out.WriteLine(directory);
 
                         List<string> files = Searcher.GetFiles(directory);
-                        
+
                         foreach (string file in files) {
                             Console.Out.WriteLine(file);
                             //Console.Out.WriteLine(File.ReadAllText(file));
@@ -272,8 +282,9 @@ namespace Zniffer {
                                 //foreach(string str in File.ReadLines(file))
                                 Console.Out.WriteLine(arr);
 
-                            } catch (UnauthorizedAccessException) {
-                                Console.Out.WriteLine("Cannot access:"+file);
+                            }
+                            catch (UnauthorizedAccessException) {
+                                Console.Out.WriteLine("Cannot access:" + file);
                             }
                             if (d.DriveFormat.Equals("NTFS")) {
                                 //search for ads
@@ -313,7 +324,8 @@ namespace Zniffer {
                 }
                 try {
                     avaliableDrives.Add(d.Name, d.DriveFormat);
-                } catch (ArgumentException){
+                }
+                catch (ArgumentException) {
                     //pojawił się dysk o tej samej literce
                 }
 
@@ -339,9 +351,10 @@ namespace Zniffer {
 
             //detect new network connections/interfaces
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChangedCallback);
-            
+
             //look for network adapters
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            //timer do szukania nowych interfejsów sieciowych albo nasłuchiwanie eventów o nowym interfejsie
             foreach (NetworkInterface adapter in adapters) {
                 string ipAddrList = string.Empty;
                 IPInterfaceProperties properties = adapter.GetIPProperties();
@@ -352,8 +365,10 @@ namespace Zniffer {
 
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
-                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
                             Console.Out.WriteLine("Ip Addresses " + ip.Address.ToString());
+                            avaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
+                        }
                 }
                 Console.Out.WriteLine("\n");
             }
@@ -438,37 +453,52 @@ namespace Zniffer {
         private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
             //search phrase changed
 
-            
+
 
         }
 
         #region MenuItemClick
 
-        private void MIExtensions_Click(object sender, RoutedEventArgs e)
-        {
+        private void MIExtensions_Click(object sender, RoutedEventArgs e) {
 
         }
 
-        private void MIIgnoredInterfaces_Click(object sender, RoutedEventArgs e)
-        {
+        private void MIIgnoredInterfaces_Click(object sender, RoutedEventArgs e) {
 
         }
 
-        private void MISourceInterfaces_Click(object sender, RoutedEventArgs e)
-        {
-            Window wnd = new NetworkSettings();
-            wnd.ShowDialog();
+        private void MISourceInterfaces_Click(object sender, RoutedEventArgs e) {
+            NetworkSettings networkSettingsWindow = new NetworkSettings();
+            networkSettingsWindow.addedUsedInterface += NetworkSettingsWindow_addedUsedInterface;
+            networkSettingsWindow.removedUsedInterface += NetworkSettingsWindow_removedUsedInterface;
+            networkSettingsWindow.modyfiedUsedInterface += NetworkSettingsWindow_modyfiedUsedInterface;
 
-            
+            foreach (var interfaceObj in avaliableInterfaces) {
+                networkSettingsWindow.addAvaliableInterface(interfaceObj);
+            }
+
+                networkSettingsWindow.ShowDialog();
+
+
         }
 
-        private void MINewSession_Click(object sender, RoutedEventArgs e)
-        {
-            
+        private void NetworkSettingsWindow_modyfiedUsedInterface(InterfaceClass obj) {
+            throw new NotImplementedException();
         }
 
-        private void MISaveMultipleFiles_Click(object sender, RoutedEventArgs e)
-        {
+        private void NetworkSettingsWindow_removedUsedInterface(InterfaceClass obj) {
+            throw new NotImplementedException();
+        }
+
+        private void NetworkSettingsWindow_addedUsedInterface(InterfaceClass obj) {
+            throw new NotImplementedException();
+        }
+
+        private void MINewSession_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void MISaveMultipleFiles_Click(object sender, RoutedEventArgs e) {
 
         }
 
