@@ -12,19 +12,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Zniffer
-{
+namespace Zniffer {
     /// <summary>
-    /// Interaction logic for EditInterface.xaml
+    /// Interaction logic for BaseWindow.xaml
     /// </summary>
-    public partial class EditInterface : Window
-    {
-        private void button_Exit_Click(object sender, RoutedEventArgs e) {
-            Close();
-        }
-
-        public EditInterface()
-        {
+    public partial class BaseWindow : Window {
+        public BaseWindow() {
             InitializeComponent();
         }
     }

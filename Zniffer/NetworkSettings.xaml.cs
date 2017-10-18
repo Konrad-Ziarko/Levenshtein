@@ -34,6 +34,9 @@ namespace Zniffer
             }
         }
 
+        private void button_Exit_Click(object sender, RoutedEventArgs e) {
+            Close();
+        }
         public NetworkSettings(ref ObservableCollection<InterfaceClass> UsedInterfaces, ref ObservableCollection<InterfaceClass> AvaliableInterfaces)
         {
             InitializeComponent();
