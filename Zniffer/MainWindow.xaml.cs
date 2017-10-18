@@ -337,7 +337,7 @@ namespace Zniffer {
 
 
 
-        private void Window_SourceInitialized(object sender, EventArgs e) {
+        public void Window_SourceInitialized(object sender, EventArgs e) {
             //TODO implement sniffer
             Sniffer snf = new Sniffer();
 

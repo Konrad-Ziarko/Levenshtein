@@ -66,6 +66,7 @@ namespace Zniffer
 
         private void Used_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+
             //allow to edit ports and save that
 
             //((LocalInterface)LBUsed.SelectedItem).ports = "1337";
@@ -81,9 +82,12 @@ namespace Zniffer
                     break;
                 }
             }*/
-
-            EditInterface editInterfaceWindow = new EditInterface() { Owner = this };
-            editInterfaceWindow.ShowDialog();
+            if (LBUsed.SelectedItem != null) {
+                BaseWindow editInterfaceWindow = new BaseWindow() { Owner = this };
+                //editInterfaceWindow.Content = new EditInterface();
+                editInterfaceWindow.DataContext = new EditInterface();
+                editInterfaceWindow.ShowDialog();
+            }
 
 
 

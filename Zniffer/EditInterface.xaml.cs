@@ -10,21 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Zniffer
-{
+namespace Zniffer {
     /// <summary>
     /// Interaction logic for EditInterface.xaml
     /// </summary>
-    public partial class EditInterface : Window
-    {
-        private void button_Exit_Click(object sender, RoutedEventArgs e) {
-            Close();
-        }
+    public partial class EditInterface : UserControl {
 
-        public EditInterface()
-        {
+
+        public EditInterface() {
             InitializeComponent();
         }
     }

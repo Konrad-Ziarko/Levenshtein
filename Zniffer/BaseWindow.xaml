@@ -1,24 +1,23 @@
-﻿<Window x:Class="Zniffer.BaseWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Zniffer"
-        mc:Ignorable="d"
-        Title="BaseWindow" Height="300" Width="300"
-        x:Name="ZnifferWindow"
-        xmlns:properties="clr-namespace:Zniffer.Properties"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-        xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
-        mc:Ignorable="d"
-        WindowStyle="None"
-        BorderThickness="2" 
-        BorderBrush="Black"
-        FontFamily="Tahoma"
+﻿<Window 
+    x:Class="Zniffer.BaseWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Zniffer"
+    mc:Ignorable="d"
+    Title="BaseWindow" Height="300" Width="300"
+    x:Name="ZnifferWindow"
+    xmlns:properties="clr-namespace:Zniffer.Properties"
+    xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+    xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
+    WindowStyle="None"
+    BorderThickness="2" 
+    BorderBrush="Black"
+    FontFamily="Tahoma"
     Foreground="Yellow"
-        DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}" 
-        SourceInitialized="Window_SourceInitialized" 
-        Closing="Window_Closing"
+    SourceInitialized="Window_SourceInitialized" 
+    Closing="Window_Closing"
         >
     <Window.Resources>
         <LinearGradientBrush x:Key="MenuItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
@@ -970,7 +969,7 @@
             <Button x:Name="button_Max" WindowChrome.IsHitTestVisibleInChrome="True" Content="▢" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,25,0" Click="button_Max_Click" BorderBrush="#3F707070"/>
         </Grid>
 
-        <DockPanel Name="ClientArea"/>
+        <DockPanel Name="ClientArea" DataContext="{Binding}"/>
 
     </DockPanel>
 
