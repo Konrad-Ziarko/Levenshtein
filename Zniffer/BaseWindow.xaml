@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:Zniffer"
     mc:Ignorable="d"
-    Title="BaseWindow" Height="300" Width="300"
+    Title="BaseWindow" Height="427.846" Width="464.435"
     x:Name="ZnifferWindow"
     xmlns:properties="clr-namespace:Zniffer.Properties"
     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
@@ -968,9 +968,7 @@
             <Button x:Name="button_Exit" WindowChrome.IsHitTestVisibleInChrome="True" Content="X" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="#59FF0000" Style="{DynamicResource ButtonStyle2}" RenderTransformOrigin="2,0.583" Click="button_Exit_Click" BorderBrush="#3F707070"/>
             <Button x:Name="button_Max" WindowChrome.IsHitTestVisibleInChrome="True" Content="▢" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,25,0" Click="button_Max_Click" BorderBrush="#3F707070"/>
         </Grid>
-
-        <DockPanel Name="ClientArea" DataContext="{Binding}"/>
-
+        <ContentControl Name="ClientArea" Content="" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </DockPanel>
 
 </Window>

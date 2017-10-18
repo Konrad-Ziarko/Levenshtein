@@ -35,7 +35,7 @@ namespace Zniffer {
             }
         }
 
-        NetworkSettings networkSettingsWindow;
+        BaseWindow networkSettingsWindow;
 
         //Not used
         public void SearchForNewNetworkInterfaces() {
@@ -260,7 +260,7 @@ namespace Zniffer {
                 if (s.Equals("Backspace")) {
                     resetStringTimer.Stop();
 
-                    loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);
+                    loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);//wyjatek jesli backspace wiecej niz bylo nacisniete
                     cursorPosition--;
                 }
                 else if (s.Equals("Left")) {
@@ -507,10 +507,9 @@ namespace Zniffer {
         }
 
         private void MISourceInterfaces_Click(object sender, RoutedEventArgs e) {
-            networkSettingsWindow = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces) { Owner = this };
-
+            networkSettingsWindow = new BaseWindow() { Owner = this };
+            networkSettingsWindow.ClientArea.Content = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces, ref networkSettingsWindow);
             networkSettingsWindow.ShowDialog();
-
 
         }
 

@@ -18,10 +18,18 @@ namespace Zniffer {
     /// Interaction logic for EditInterface.xaml
     /// </summary>
     public partial class EditInterface : UserControl {
+        private BaseWindow MyBaseWindow;
 
-
-        public EditInterface() {
+        public EditInterface(ref BaseWindow MyBaseWindow) {
             InitializeComponent();
+            this.MyBaseWindow = MyBaseWindow;
+
+            MyBaseWindow.SizeChanged += MyBaseWindow_SizeChanged;
+        }
+
+        private void MyBaseWindow_SizeChanged(object sender, SizeChangedEventArgs e) {
+            Height = MyBaseWindow.Height;
+            Width = MyBaseWindow.Width;
         }
     }
 }
