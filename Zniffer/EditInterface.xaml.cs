@@ -29,8 +29,8 @@ namespace Zniffer {
             MyBaseWindow.SizeChanged += MyBaseWindow_SizeChanged;
 
             this.interfaceObj = interfaceObj;
-            strIP.Text = interfaceObj.addres;
-            strPort.Text = interfaceObj.ports;
+            strIP.Text = interfaceObj.Addres;
+            strPort.Text = interfaceObj.Ports;
         }
 
         private void MyBaseWindow_SizeChanged(object sender, SizeChangedEventArgs e) {

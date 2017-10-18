@@ -94,5 +94,27 @@ namespace Zniffer.Properties {
                 this["SearchPhrase"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection AvaliableExtensions {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["AvaliableExtensions"]));
+            }
+            set {
+                this["AvaliableExtensions"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection UsedExtensions {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["UsedExtensions"]));
+            }
+            set {
+                this["UsedExtensions"] = value;
+            }
+        }
     }
 }

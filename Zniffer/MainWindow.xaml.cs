@@ -35,7 +35,8 @@ namespace Zniffer {
             }
         }
 
-        BaseWindow networkSettingsWindow;
+        BaseWindow networkSettingsWindow, fileExtensionsWindow;
+
 
         //Not used
         public void SearchForNewNetworkInterfaces() {
@@ -243,6 +244,11 @@ namespace Zniffer {
         public MainWindow() {
             InitializeComponent();
             this.DataContext = this;
+
+            if (Properties.Settings.Default.UsedExtensions == null)
+                Properties.Settings.Default.UsedExtensions = new System.Collections.Specialized.StringCollection();
+            if (Properties.Settings.Default.AvaliableExtensions == null)
+                Properties.Settings.Default.AvaliableExtensions = new System.Collections.Specialized.StringCollection();
 
             resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
@@ -499,6 +505,9 @@ namespace Zniffer {
         #region MenuItemClick
 
         private void MIExtensions_Click(object sender, RoutedEventArgs e) {
+            fileExtensionsWindow = new BaseWindow() { Owner = this };
+            fileExtensionsWindow.ClientArea.Content = new FileExtensions(ref fileExtensionsWindow);
+            fileExtensionsWindow.ShowDialog();
 
         }
 

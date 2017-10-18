@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -49,6 +51,33 @@ namespace Zniffer
 
             MyBaseWindow.SizeChanged += MyBaseWindow_SizeChanged;
 
+
+            List<string> networkInterfaces = new List<string>();
+            foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces()) {
+                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
+                    foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
+                            networkInterfaces.Add(ip.Address.ToString());
+                            if (!AvaliableFaces.Any(x => x.Addres.Equals(ip.Address.ToString())) && !UsedFaces.Any(x => x.Addres.Equals(ip.Address.ToString())))
+                                AvaliableFaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
+                        }
+                }
+            }
+            foreach (var interfaceObj in UsedFaces) {
+                if (networkInterfaces.Contains(interfaceObj.Addres))
+                    interfaceObj.InterfaceIsUp = true;
+                else
+                    interfaceObj.InterfaceIsUp = false;
+            }
+            foreach (var interfaceObj in AvaliableFaces) {
+                if (networkInterfaces.Contains(interfaceObj.Addres))
+                    interfaceObj.InterfaceIsUp = true;
+                else
+                    interfaceObj.InterfaceIsUp = false;
+            }
+
+
+
             new ListViewDragDropManager<InterfaceClass>(LBAvaliable);
             new ListViewDragDropManager<InterfaceClass>(LBUsed);
 
@@ -91,7 +120,7 @@ namespace Zniffer
                         editInterfaceWindow.ClientArea.Content = editInterface;
 
                         editInterfaceWindow.Closing += new CancelEventHandler(delegate (object o, System.ComponentModel.CancelEventArgs cancelEventArgs) {
-                            iface.ports = editInterface.getPorts();
+                            iface.Ports = editInterface.getPorts();
                             removeInterfaceFromUsed = !(bool)editInterface.checkBox.IsChecked;
 
                         });

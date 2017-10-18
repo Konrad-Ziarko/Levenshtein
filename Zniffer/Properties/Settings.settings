@@ -20,5 +20,11 @@
     <Setting Name="SearchPhrase" Type="System.String" Scope="User">
       <Value Profile="(Default)">Zniffer</Value>
     </Setting>
+    <Setting Name="AvaliableExtensions" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="UsedExtensions" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

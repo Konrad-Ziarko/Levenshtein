@@ -74,6 +74,9 @@
     <Compile Include="EditInterface.xaml.cs">
       <DependentUpon>EditInterface.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FileExtensions.xaml.cs">
+      <DependentUpon>FileExtensions.xaml</DependentUpon>
+    </Compile>
     <Compile Include="InterfaceClass.cs" />
     <Compile Include="ListViewManager\DragAdorner.cs" />
     <Compile Include="ListViewManager\ListViewDragDropManager.cs" />
@@ -91,6 +94,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="EditInterface.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FileExtensions.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

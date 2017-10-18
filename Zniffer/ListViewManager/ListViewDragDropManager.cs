@@ -391,7 +391,7 @@ namespace WPF.JoshSmith.ServiceProviders.UI
                         InterfaceClass obj = null;
                         foreach (InterfaceClass item in itemsSource) {
                             obj = data as InterfaceClass;
-                            if (item.addres.Equals(obj.addres)) {
+                            if (item.Addres.Equals(obj.Addres)) {
 
                                 break;
                             }

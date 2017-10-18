@@ -1,65 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Media;
 
-namespace Zniffer
-{
+namespace Zniffer {
     [Serializable()]
-    public class InterfaceClass : INotifyPropertyChanged
-    {
+    public class InterfaceClass : INotifyPropertyChanged {
         public string _ports;
         public string _addres;
         public bool _used;
+        public bool _interfaceIsUp;
 
-        public string addres {
-            get;set;
+        public string Addres {
+            get; set;
         }
-        public string ports {
+        public string Ports {
             get {
                 return _ports;
             }
             set {
-                if (_ports != value)
-                {
+                if (_ports != value) {
                     _ports = value;
                     OnPropertyChanged("ports");
                 }
             }
         }
-        public bool used {
-            get;set;
+        public bool Used {
+            get; set;
+        }
+        public bool InterfaceIsUp {
+            get {
+                return _interfaceIsUp;
+            }
+            set {
+                if (_interfaceIsUp != value) {
+                    _interfaceIsUp = value;
+                    OnPropertyChanged("statusUp");
+                }
+            }
         }
 
-        public InterfaceClass(string addres, string ports)
-        {
-            this.addres = addres;
-            this.ports = ports;
-            this.used = false;
+        public InterfaceClass(string addres, string ports) {
+            this.Addres = addres;
+            this.Ports = ports;
+            this.Used = false;
+            InterfaceIsUp = false;
         }
-        public InterfaceClass(string addres, string ports, bool used)
-        {
-            this.addres = addres;
-            this.ports = ports;
-            this.used = used;
+        public InterfaceClass(string addres, string ports, bool used) {
+            this.Addres = addres;
+            this.Ports = ports;
+            this.Used = used;
+            InterfaceIsUp = false;
         }
-        private void OnPropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+        private void OnPropertyChanged(string propertyName) {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public override string ToString()
-        {
-            return addres + ":" + ports;
-             
+        public override string ToString() {
+            return Addres + ":" + Ports;
         }
     }
 }
