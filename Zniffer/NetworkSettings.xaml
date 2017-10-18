@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Zniffer"
         mc:Ignorable="d"
         Title="NetworkSettings" Height="353.347" Width="507.113"
-        FontFamily="Tahoma">
+        FontFamily="Tahoma"
+        WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <local:Converter x:Key="converter"/>
     </Window.Resources>

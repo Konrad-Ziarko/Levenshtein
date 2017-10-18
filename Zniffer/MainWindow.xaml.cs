@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Management;
 using System.Net.NetworkInformation;
@@ -17,6 +18,45 @@ namespace Zniffer {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+
+        #region Networking
+        public static Dictionary<string, string> AvaliableNetworkAdapters = new Dictionary<string, string>();
+        public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
+        public ObservableCollection<InterfaceClass> AvaliableInterfaces = new ObservableCollection<InterfaceClass>();
+
+        public ObservableCollection<InterfaceClass> UsedFaces {
+            get {
+                return UsedInterfaces;
+            }
+        }
+        public ObservableCollection<InterfaceClass> AvaliableFaces {
+            get {
+                return AvaliableInterfaces;
+            }
+        }
+
+        NetworkSettings networkSettingsWindow;
+
+        //Not used
+        public void SearchForNewNetworkInterfaces() {
+            //szukaj nowych interfejsow co pewien interwal
+            // jesli okno networksettings jest otwarte wyrzuci wyjatek (dostep z innego watku))
+
+            if (networkSettingsWindow != null) {
+                try {
+                    //networkSettingsWindow.addAvaliableInterface(new InterfaceClass("1232132132", ""));
+                }
+                catch {
+                    AvaliableFaces.Add(new InterfaceClass("1232132132", ""));
+                }
+            }
+            else {
+                AvaliableFaces.Add(new InterfaceClass("1232132132", ""));
+            }
+        }
+
+
+        #endregion
 
 
         #region TitleBar buttons
@@ -194,9 +234,7 @@ namespace Zniffer {
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
 
-        public static Dictionary<string, string> avaliableNetworkAdapters = new Dictionary<string, string>();
-        public static List<InterfaceClass> usedInterfaces = new List<InterfaceClass>();
-        public static List<InterfaceClass> avaliableInterfaces = new List<InterfaceClass>();
+
 
 
         public static string loggedKeyString = "";
@@ -209,9 +247,10 @@ namespace Zniffer {
             resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
 
-        public static void OnResetTimerEvent(object source, System.Timers.ElapsedEventArgs e) {
+        public void OnResetTimerEvent(object source, System.Timers.ElapsedEventArgs e) {
             cursorPosition = 0;
             loggedKeyString = "";
+            
         }
 
         public static void keyCapturedHandle(string s) {
@@ -367,7 +406,7 @@ namespace Zniffer {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
                             Console.Out.WriteLine("Ip Addresses " + ip.Address.ToString());
-                            avaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
+                            AvaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
                         }
                 }
                 Console.Out.WriteLine("\n");
@@ -468,16 +507,9 @@ namespace Zniffer {
         }
 
         private void MISourceInterfaces_Click(object sender, RoutedEventArgs e) {
-            NetworkSettings networkSettingsWindow = new NetworkSettings();
-            networkSettingsWindow.addedUsedInterface += NetworkSettingsWindow_addedUsedInterface;
-            networkSettingsWindow.removedUsedInterface += NetworkSettingsWindow_removedUsedInterface;
-            networkSettingsWindow.modyfiedUsedInterface += NetworkSettingsWindow_modyfiedUsedInterface;
+            networkSettingsWindow = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces) { Owner = this };
 
-            foreach (var interfaceObj in avaliableInterfaces) {
-                networkSettingsWindow.addAvaliableInterface(interfaceObj);
-            }
-
-                networkSettingsWindow.ShowDialog();
+            networkSettingsWindow.ShowDialog();
 
 
         }

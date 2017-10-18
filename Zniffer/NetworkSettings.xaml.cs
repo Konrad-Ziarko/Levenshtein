@@ -20,41 +20,26 @@ namespace Zniffer
     /// </summary>
     public partial class NetworkSettings : Window
     {
-        public ObservableCollection<InterfaceClass> usedInterfaces = new ObservableCollection<InterfaceClass>();
-        public ObservableCollection<InterfaceClass> avaliableInterfaces = new ObservableCollection<InterfaceClass>();
 
-        public event Action<InterfaceClass> addedUsedInterface;
-        public event Action<InterfaceClass> removedUsedInterface;
-        public event Action<InterfaceClass> addedAvaliableInterface;
-        public event Action<InterfaceClass> removedAvaliableInterface;
-        public event Action<InterfaceClass> modyfiedUsedInterface;
-
-        public void addAvaliableInterface(InterfaceClass interfaceClass)
-        {
-            avaliableInterfaces.Add(interfaceClass);
-        }
-        public void addUsedInterface(InterfaceClass interfaceClass)
-        {
-            usedInterfaces.Add(interfaceClass);
-        }
-
-
+        public ObservableCollection<InterfaceClass> UsedInterfaces;
+        public ObservableCollection<InterfaceClass> AvaliableInterfaces;
         public ObservableCollection<InterfaceClass> UsedFaces {
             get {
-                return usedInterfaces;
-            }
-            set {
+                return UsedInterfaces;
             }
         }
         public ObservableCollection<InterfaceClass> AvaliableFaces {
             get {
-                return avaliableInterfaces;
+                return AvaliableInterfaces;
             }
         }
 
-        public NetworkSettings()
+        public NetworkSettings(ref ObservableCollection<InterfaceClass> UsedInterfaces, ref ObservableCollection<InterfaceClass> AvaliableInterfaces)
         {
             InitializeComponent();
+            this.UsedInterfaces = UsedInterfaces;
+            this.AvaliableInterfaces = AvaliableInterfaces;
+
             DataContext = this;
         }
 
@@ -65,19 +50,13 @@ namespace Zniffer
                 //dodać do używanych
                 //MessageBox.Show(LBAvaliable.SelectedItem.ToString());
                 InterfaceClass li = null;
-                foreach(var iface in avaliableInterfaces)
-                {
-                    if (iface.ToString().Equals(LBAvaliable.SelectedItem.ToString()))
-                    {
-                        usedInterfaces.Add(iface);
-                        addedUsedInterface(iface);
-                        removedAvaliableInterface(iface);
-                        avaliableInterfaces.Remove(iface);
+                foreach (var iface in AvaliableFaces) {
+                    if (iface.ToString().Equals(LBAvaliable.SelectedItem.ToString())) {
+                        UsedFaces.Add(iface);
+                        AvaliableFaces.Remove(iface);
                         break;
                     }
                 }
-               
-
             }
 
         }
@@ -100,7 +79,7 @@ namespace Zniffer
                 }
             }*/
 
-            EditInterface editInterfaceWindow = new EditInterface();
+            EditInterface editInterfaceWindow = new EditInterface() { Owner = this };
             editInterfaceWindow.ShowDialog();
 
 

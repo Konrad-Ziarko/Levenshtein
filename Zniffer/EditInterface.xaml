@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Zniffer"
         mc:Ignorable="d"
-        Title="EditInterface" Height="300" Width="300">
+        Title="EditInterface" Height="300" Width="300"
+        WindowStartupLocation="CenterOwner">
     <Grid>
         
     </Grid>
