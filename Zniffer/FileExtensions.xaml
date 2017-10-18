@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Zniffer"
+             xmlns:properties="clr-namespace:Zniffer.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Foreground="Yellow">
@@ -16,13 +17,15 @@
 
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="11*"/>
+                <RowDefinition MinHeight="25"/>
             </Grid.RowDefinitions>
-            <Viewbox>
-                <TextBlock Grid.Row="0" Text="Dostępne" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            <Viewbox Grid.Row="0" StretchDirection="Both" Stretch="Uniform">
+                <TextBlock Text="Dostępne" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Height="auto" Width="auto"/>
             </Viewbox>
-            <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" ItemsSource="{Binding AvaliableFaces, UpdateSourceTrigger=PropertyChanged}">
+            <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" 
+                      ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=AvaliableExtensions, Mode=TwoWay}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
@@ -64,6 +67,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <TextBox Grid.Row="2" Text="" TextWrapping="Wrap" MinHeight="25" MaxHeight="25" VerticalContentAlignment="Center" Width="Auto" />
         </Grid>
 
         <Grid Grid.Column="1">
@@ -91,10 +95,11 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="8*"/>
             </Grid.RowDefinitions>
-            <Viewbox>
-                <TextBlock Grid.Row="0" Text="Nasłuchiwane" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Viewbox Grid.Row="0" StretchDirection="Both" Stretch="Uniform" >
+                <TextBlock Text="Nasłuchiwane" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Viewbox>
-            <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" ItemsSource="{Binding UsedFaces, UpdateSourceTrigger=PropertyChanged}">
+            <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" 
+                      ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=UsedExtensions, Mode=TwoWay}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>

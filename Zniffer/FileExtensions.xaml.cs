@@ -37,8 +37,8 @@ namespace Zniffer {
         }
 
         private void MyBaseWindow_SizeChanged(object sender, SizeChangedEventArgs e) {
-            Height = MyBaseWindow.Height;
-            Width = MyBaseWindow.Width;
+            Height = MyBaseWindow.ClientArea.Height;
+            Width = MyBaseWindow.ClientArea.Width;
         }
 
 

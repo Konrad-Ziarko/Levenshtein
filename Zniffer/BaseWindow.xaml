@@ -945,6 +945,7 @@
         </DockPanel.Background>
         <Grid Name="MenuBarGrid" DockPanel.Dock="Top" Height="25" >
             <Border  Height="25"  x:Name="titlebar">
+                
                 <Border.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FF474747" Offset="0"/>
