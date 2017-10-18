@@ -18,6 +18,7 @@
     Foreground="Yellow"
     SourceInitialized="Window_SourceInitialized" 
     Closing="Window_Closing"
+    WindowStartupLocation="CenterOwner"
         >
     <Window.Resources>
         <LinearGradientBrush x:Key="MenuItemSelectionFill" EndPoint="0,1" StartPoint="0,0">

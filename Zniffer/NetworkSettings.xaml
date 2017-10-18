@@ -28,7 +28,7 @@
                 <RowDefinition Height="8*"/>
             </Grid.RowDefinitions>
             <Viewbox>
-                <TextBlock Grid.Row="0" Text="Dostępne interfejsy" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="0" Text="Dostępne" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
             </Viewbox>
             <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" ItemsSource="{Binding AvaliableFaces, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemContainerStyle>
@@ -73,12 +73,12 @@
                 <RowDefinition Height="3*"/>
             </Grid.RowDefinitions>
             <Viewbox Grid.Row="1" Stretch="Fill">
-                <Button  Margin="1">
+                <Button  Margin="1" Click="Button_Right_Click">
                     <![CDATA[>>]]>
                 </Button>
             </Viewbox>
             <Viewbox Grid.Row="3" Stretch="Fill">
-                <Button  Margin="1">
+                <Button  Margin="1" Click="Button_Left_Click">
                     <![CDATA[<<]]>
                 </Button>
             </Viewbox>
