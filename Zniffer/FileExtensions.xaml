@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Zniffer"
-             xmlns:properties="clr-namespace:Zniffer.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Foreground="Yellow">
@@ -25,7 +24,7 @@
                 <TextBlock Text="Dostępne" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Height="auto" Width="auto"/>
             </Viewbox>
             <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" 
-                      ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=AvaliableExtensions, Mode=TwoWay}">
+                      ItemsSource="{Binding AvaliableExtensions, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
@@ -44,30 +43,14 @@
                     <DataTemplate>
                         <Viewbox StretchDirection="Both">
                             <Grid>
-                                <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0} : {1}">
-                                            <Binding Path="Addres" />
-                                            <Binding Path="Ports" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                    <TextBlock.Style>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Path=InterfaceIsUp}" Value="False">
-                                                    <Setter Property="Foreground" Value="Red" />
-                                                    <Setter Property="Background" Value="Yellow"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Extension}"/>
                             </Grid>
                         </Viewbox>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+
             </ListView>
-            <TextBox Grid.Row="2" Text="" TextWrapping="Wrap" MinHeight="25" MaxHeight="25" VerticalContentAlignment="Center" Width="Auto" />
+            <TextBox Name="TextBox_Extension"  Grid.Row="2" Text="" TextWrapping="Wrap" MinHeight="25" MaxHeight="25" VerticalContentAlignment="Center" Width="Auto" KeyDown="TextBox_KeyDown" />
         </Grid>
 
         <Grid Grid.Column="1">
@@ -92,14 +75,15 @@
 
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="33*"/>
+                <RowDefinition Height="79*"/>
+                <RowDefinition Height="188*"/>
             </Grid.RowDefinitions>
             <Viewbox Grid.Row="0" StretchDirection="Both" Stretch="Uniform" >
                 <TextBlock Text="Nasłuchiwane" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Viewbox>
             <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" 
-                      ItemsSource="{Binding Source={x:Static properties:Settings.Default}, Path=UsedExtensions, Mode=TwoWay}">
+                      ItemsSource="{Binding UsedExtensions, UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
@@ -116,17 +100,11 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=Addres}"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text=":"/>
-                            <TextBlock Grid.Column="2" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=Ports}"/>
-                        </Grid>
+                        <Viewbox StretchDirection="Both">
+                            <Grid>
+                                <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Extension}"/>
+                            </Grid>
+                        </Viewbox>
                     </DataTemplate>
                 </ListView.ItemTemplate>
 

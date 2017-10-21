@@ -24,6 +24,7 @@ namespace Zniffer {
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
         public ObservableCollection<InterfaceClass> AvaliableInterfaces = new ObservableCollection<InterfaceClass>();
 
+
         public ObservableCollection<InterfaceClass> UsedFaces {
             get {
                 return UsedInterfaces;
@@ -56,6 +57,23 @@ namespace Zniffer {
             }
         }
 
+
+        #endregion
+
+        #region File Extension
+
+        public ObservableCollection<FileExtensionClass> UsedExtensions = new ObservableCollection<FileExtensionClass>();
+        public ObservableCollection<FileExtensionClass> AvaliableExtensions = new ObservableCollection<FileExtensionClass>();
+        public ObservableCollection<FileExtensionClass> UsedExt {
+            get {
+                return UsedExtensions;
+            }
+        }
+        public ObservableCollection<FileExtensionClass> AvaliableExt {
+            get {
+                return AvaliableExtensions;
+            }
+        }
 
         #endregion
 
@@ -249,6 +267,13 @@ namespace Zniffer {
                 Properties.Settings.Default.UsedExtensions = new System.Collections.Specialized.StringCollection();
             if (Properties.Settings.Default.AvaliableExtensions == null)
                 Properties.Settings.Default.AvaliableExtensions = new System.Collections.Specialized.StringCollection();
+
+            foreach (string ext in Properties.Settings.Default.AvaliableExtensions) {
+                AvaliableExt.Add(new FileExtensionClass(ext));
+            }
+            foreach (string ext in Properties.Settings.Default.UsedExtensions) {
+                UsedExt.Add(new FileExtensionClass(ext));
+            }
 
             resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
@@ -506,7 +531,7 @@ namespace Zniffer {
 
         private void MIExtensions_Click(object sender, RoutedEventArgs e) {
             fileExtensionsWindow = new BaseWindow() { Owner = this };
-            fileExtensionsWindow.ClientArea.Content = new FileExtensions(ref fileExtensionsWindow);
+            fileExtensionsWindow.ClientArea.Content = new FileExtensions(ref UsedExtensions, ref AvaliableExtensions, ref fileExtensionsWindow);
             fileExtensionsWindow.ShowDialog();
 
         }

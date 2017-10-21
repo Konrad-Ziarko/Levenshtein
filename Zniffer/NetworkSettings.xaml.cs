@@ -24,18 +24,18 @@ namespace Zniffer
     /// </summary>
     public partial class NetworkSettings : UserControl {
 
-        public ObservableCollection<InterfaceClass> UsedInterfaces;
-        public ObservableCollection<InterfaceClass> AvaliableInterfaces;
+        private ObservableCollection<InterfaceClass> _UsedInterfaces;
+        private ObservableCollection<InterfaceClass> _AvaliableInterfaces;
         private BaseWindow MyBaseWindow;
 
-        public ObservableCollection<InterfaceClass> UsedFaces {
+        public ObservableCollection<InterfaceClass> UsedInterfaces {
             get {
-                return UsedInterfaces;
+                return _UsedInterfaces;
             }
         }
-        public ObservableCollection<InterfaceClass> AvaliableFaces {
+        public ObservableCollection<InterfaceClass> AvaliableInterfaces {
             get {
-                return AvaliableInterfaces;
+                return _AvaliableInterfaces;
             }
         }
 
@@ -44,8 +44,8 @@ namespace Zniffer
         }
         public NetworkSettings(ref ObservableCollection<InterfaceClass> UsedInterfaces, ref ObservableCollection<InterfaceClass> AvaliableInterfaces, ref BaseWindow MyBaseWindow) {
             InitializeComponent();
-            this.UsedInterfaces = UsedInterfaces;
-            this.AvaliableInterfaces = AvaliableInterfaces;
+            this._UsedInterfaces = UsedInterfaces;
+            this._AvaliableInterfaces = AvaliableInterfaces;
             this.MyBaseWindow = MyBaseWindow;
             MyBaseWindow.Title = "Interfejsy sieciowe";
 
@@ -58,18 +58,18 @@ namespace Zniffer
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
                             networkInterfaces.Add(ip.Address.ToString());
-                            if (!AvaliableFaces.Any(x => x.Addres.Equals(ip.Address.ToString())) && !UsedFaces.Any(x => x.Addres.Equals(ip.Address.ToString())))
-                                AvaliableFaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
+                            if (!this.AvaliableInterfaces.Any(x => x.Addres.Equals(ip.Address.ToString())) && !this.UsedInterfaces.Any(x => x.Addres.Equals(ip.Address.ToString())))
+                                this.AvaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
                         }
                 }
             }
-            foreach (var interfaceObj in UsedFaces) {
+            foreach (var interfaceObj in this.UsedInterfaces) {
                 if (networkInterfaces.Contains(interfaceObj.Addres))
                     interfaceObj.InterfaceIsUp = true;
                 else
                     interfaceObj.InterfaceIsUp = false;
             }
-            foreach (var interfaceObj in AvaliableFaces) {
+            foreach (var interfaceObj in this.AvaliableInterfaces) {
                 if (networkInterfaces.Contains(interfaceObj.Addres))
                     interfaceObj.InterfaceIsUp = true;
                 else
@@ -96,10 +96,10 @@ namespace Zniffer
             {
                 //dodać do używanych
                 //MessageBox.Show(LBAvaliable.SelectedItem.ToString());
-                foreach (var iface in AvaliableFaces) {
+                foreach (var iface in AvaliableInterfaces) {
                     if (iface.ToString().Equals(LBAvaliable.SelectedItem.ToString())) {
-                        UsedFaces.Add(iface);
-                        AvaliableFaces.Remove(iface);
+                        UsedInterfaces.Add(iface);
+                        AvaliableInterfaces.Remove(iface);
                         break;
                     }
                 }
@@ -111,7 +111,7 @@ namespace Zniffer
             //allow to edit ports and save that
             InterfaceClass li = null;
             bool removeInterfaceFromUsed = false;
-            foreach (var iface in UsedFaces) {
+            foreach (var iface in UsedInterfaces) {
                 if (iface.ToString().Equals(LBUsed.SelectedItem.ToString())) {
                     li = iface;
                     if (LBUsed.SelectedItem != null) {
@@ -130,24 +130,24 @@ namespace Zniffer
                 }
             }
             if (removeInterfaceFromUsed && li != null ) {
-                AvaliableFaces.Add(li);
-                UsedFaces.Remove(li);
+                AvaliableInterfaces.Add(li);
+                UsedInterfaces.Remove(li);
             }
         }
 
         private void Button_Left_Click(object sender, RoutedEventArgs e) {
-            foreach (var iface in UsedFaces) {
-                AvaliableFaces.Add(iface);
+            foreach (var iface in UsedInterfaces) {
+                AvaliableInterfaces.Add(iface);
             }
-            UsedFaces.Clear();
+            UsedInterfaces.Clear();
         }
 
         private void Button_Right_Click(object sender, RoutedEventArgs e) {       
-            foreach (var iface in AvaliableFaces) {
-                UsedFaces.Add(iface);
+            foreach (var iface in AvaliableInterfaces) {
+                UsedInterfaces.Add(iface);
                 
             }
-            AvaliableFaces.Clear();
+            AvaliableInterfaces.Clear();
         }
     }
 }

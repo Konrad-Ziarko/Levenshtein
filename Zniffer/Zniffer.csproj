@@ -74,6 +74,7 @@
     <Compile Include="EditInterface.xaml.cs">
       <DependentUpon>EditInterface.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FileExtensionClass.cs" />
     <Compile Include="FileExtensions.xaml.cs">
       <DependentUpon>FileExtensions.xaml</DependentUpon>
     </Compile>

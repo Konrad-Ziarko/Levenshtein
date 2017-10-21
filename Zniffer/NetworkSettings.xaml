@@ -28,7 +28,11 @@
             <Viewbox>
                 <TextBlock Grid.Row="0" Text="Dostępne" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
             </Viewbox>
-            <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" ItemsSource="{Binding AvaliableFaces, UpdateSourceTrigger=PropertyChanged}">
+            <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" 
+                      VerticalAlignment="Stretch"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ItemsSource="{Binding AvaliableInterfaces, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
@@ -100,7 +104,11 @@
             <Viewbox>
                 <TextBlock Grid.Row="0" Text="Nasłuchiwane" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Viewbox>
-            <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" ItemsSource="{Binding UsedFaces, UpdateSourceTrigger=PropertyChanged}">
+            <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" 
+                      VerticalAlignment="Stretch"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ItemsSource="{Binding UsedInterfaces, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
@@ -117,17 +125,28 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=Addres}"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text=":"/>
-                            <TextBlock Grid.Column="2" TextAlignment="Left" FontSize="18" FontStretch="Normal" Text="{Binding Path=Ports}"/>
-                        </Grid>
+                        <Viewbox StretchDirection="Both">
+                            <Grid>
+                                <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="18" FontStretch="Normal">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} : {1}">
+                                            <Binding Path="Addres" />
+                                            <Binding Path="Ports" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=InterfaceIsUp}" Value="False">
+                                                    <Setter Property="Foreground" Value="Red" />
+                                                    <Setter Property="Background" Value="Yellow"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Viewbox>
                     </DataTemplate>
                 </ListView.ItemTemplate>
 
