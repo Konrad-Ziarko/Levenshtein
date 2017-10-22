@@ -1205,16 +1205,16 @@
                             <RowDefinition Height="5" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-
-                        <TextBlock Name="NetworkTextBlock" FontSize="40" TextWrapping="Wrap" Grid.Row="0"  MouseWheel="NetworkOnMouseWheel">Top</TextBlock>
-
+                        <Viewbox StretchDirection="Both" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <TextBlock Name="NetworkTextBlock" FontSize="26" TextWrapping="Wrap" Grid.Row="0"  MouseWheel="NetworkOnMouseWheel"></TextBlock>
+                        </Viewbox>
                         <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
-                        <TextBlock Name="ClipboardTextBlock" Grid.Row="2" FontSize="40" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel">Bottom</TextBlock>
+                        <TextBlock Name="ClipboardTextBlock" Grid.Row="2" FontSize="40" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel"></TextBlock>
                     </Grid>
                     
                     <!--druga kolumna-->
                     <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
-                    <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap" Grid.Column="2" MouseWheel="FilesTextBlock_MouseWheel">asdasdasddds</TextBlock>
+                    <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap" Grid.Column="2" MouseWheel="FilesTextBlock_MouseWheel" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBlock>
 
 
                 </Grid>

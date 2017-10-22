@@ -40,11 +40,11 @@ namespace Zniffer {
             }
         }
 
-        public static string extractPhrase(string sourceText, string searchPhrase) {
+        public static string ExtractPhrase(string sourceText) {
             StringBuilder sb = new StringBuilder();
-            string phrase = searchPhrase;
+            string phrase = MainWindow.searchPhrase;
 
-            sb.Append("<" + phrase + ">");
+            //sb.Append("<" + phrase + ">");
             int searchPhraseLength = phrase.Length;
             //
             //implement Levensthein metric
@@ -77,7 +77,7 @@ namespace Zniffer {
             StringBuilder sb = new StringBuilder();
             string textFromFile = File.ReadAllText(filePath);
 
-            //sb.Append(extractPhrase(textFromFile));
+            sb.Append(ExtractPhrase(textFromFile));
 
             return sb.ToString();
         }

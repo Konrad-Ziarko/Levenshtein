@@ -8,8 +8,11 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Threading;
 using Trinet.Core.IO.Ntfs;
 
 namespace Zniffer {
@@ -231,6 +234,7 @@ namespace Zniffer {
 
         public static string loggedKeyString = "";
         public static long cursorPosition = 0;
+        public static string searchPhrase = "Zniffer";
 
         public MainWindow() {
             InitializeComponent();
@@ -254,7 +258,7 @@ namespace Zniffer {
         public void OnResetTimerEvent(object source, System.Timers.ElapsedEventArgs e) {
             cursorPosition = 0;
             loggedKeyString = "";
-            
+
         }
 
         public static void KeyCapturedHandle(string s) {
@@ -307,27 +311,58 @@ namespace Zniffer {
             //TODO async scan files on newly attached devices (if ntfs +ADS)
 
             Console.Out.WriteLine(e.NewEvent.Properties["DriveName"].Value.ToString() + " inserted");
-
+            Run run;
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
                 if (d.Name.Equals(e.NewEvent.Properties["DriveName"].Value.ToString() + "\\")) {
                     List<string> directories = Searcher.GetDirectories(d.Name);
 
+                    List<string> files = Searcher.GetFiles(d.Name);
+
+                    foreach (string file in files) {
+                        run = new Run(file + "\r\n");
+                        AddTextToFileBox(run);
+                        //Console.Out.WriteLine(File.ReadAllText(file));
+                        try {
+                            string arr = await Searcher.ReadTextAsync(file);
+                            //foreach(string str in File.ReadLines(file))
+                            run = new Run(arr + "\r\n") { Foreground = Brushes.Red };
+                            AddTextToFileBox(run);
+
+                        }
+                        catch (UnauthorizedAccessException) {
+                            run = new Run("Cannot access:" + file + "\r\n") { Foreground = Brushes.Orange };
+                            AddTextToFileBox(run);
+                        }
+                        catch (IOException) {
+                            //odłączenie urządzenia np
+                        }
+                        if (d.DriveFormat.Equals("NTFS")) {
+                            //search for ads
+                        }
+                    }
+
                     foreach (string directory in directories) {
                         Console.Out.WriteLine(directory);
 
-                        List<string> files = Searcher.GetFiles(directory);
+                        files = Searcher.GetFiles(directory);
 
                         foreach (string file in files) {
-                            Console.Out.WriteLine(file);
+                            run = new Run(file + "\r\n");
+                            AddTextToFileBox(run);
                             //Console.Out.WriteLine(File.ReadAllText(file));
                             try {
                                 string arr = await Searcher.ReadTextAsync(file);
                                 //foreach(string str in File.ReadLines(file))
-                                Console.Out.WriteLine(arr);
+                                run = new Run(arr + "\r\n") { Foreground = Brushes.Red };
+                                AddTextToFileBox(run);
 
                             }
                             catch (UnauthorizedAccessException) {
-                                Console.Out.WriteLine("Cannot access:" + file);
+                                run = new Run("Cannot access:" + file + "\r\n") { Foreground = Brushes.Orange };
+                                AddTextToFileBox(run);
+                            }
+                            catch (IOException) {
+                                //odłączenie urządzenia np
                             }
                             if (d.DriveFormat.Equals("NTFS")) {
                                 //search for ads
@@ -494,17 +529,54 @@ namespace Zniffer {
         #endregion
 
         private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
-            //search phrase changed
+            searchPhrase = SearchPhraseTextBox.Text;
 
 
 
         }
 
-        public void AddTextToNetworkBox(string txt) {
-            NetworkTextBlock.Text += txt + "\n";
+        public void AddTextToNetworkBox(string txt, SolidColorBrush brushe = null) {
+            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
+                if (brushe != null) {
+                    if (!NetworkTextBlock.Dispatcher.CheckAccess())
+                        NetworkTextBlock.Dispatcher.Invoke(() => { NetworkTextBlock.Text += txt + "\n"; });
+                    else
+                        NetworkTextBlock.Text += txt + "\n";
 
+                }
+                else {
+
+                }
+
+            }
         }
 
+        public void AddTextToClipBoardBox(string txt, SolidColorBrush brushe = null) {
+            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals(""))
+                if (!ClipboardTextBlock.Dispatcher.CheckAccess())
+                    ClipboardTextBlock.Dispatcher.Invoke(() => { ClipboardTextBlock.Text += txt + "\n"; });
+                else
+                    ClipboardTextBlock.Text += txt + "\n";
+        }
+
+        public void AddTextToFileBox(Run txt) {
+            /*FilesTextBlock.Dispatcher.Invoke(() => {
+                Run run = new Run(txt + "\r\n");
+                if (brushe != null)
+                    run.Foreground = brushe;
+                FilesTextBlock.Inlines.Add(run);
+            });*/
+
+            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
+                if (!FilesTextBlock.Dispatcher.CheckAccess()) {
+                    FilesTextBlock.Dispatcher.Invoke(() => { FilesTextBlock.Inlines.Add(txt); });
+                }
+                else {
+                    FilesTextBlock.Inlines.Add(txt);
+                }
+
+            }
+        }
 
         #region MenuItemClick
 

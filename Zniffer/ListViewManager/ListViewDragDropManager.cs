@@ -357,48 +357,34 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                 e.Effects = args.Effects;
             }
             else {
-
-                if (removeOld && data is InterfaceClass) {
-                    foreach (ListView lv in allListViews) {
-                        ObservableCollection<InterfaceClass> itemsSource = lv.ItemsSource as ObservableCollection<InterfaceClass>;
-                        InterfaceClass obj = null;
+                foreach (ListView lv in allListViews) {
+                    ObservableCollection<InterfaceClass> itemsSource = lv.ItemsSource as ObservableCollection<InterfaceClass>;
+                    InterfaceClass obj = null;
+                    if (itemsSource != null)
                         foreach (InterfaceClass item in itemsSource) {
                             obj = data as InterfaceClass;
                             if (item.Addres.Equals(obj.Addres)) {
                                 break;
                             }
                         }
-                        if (obj != null && itemsSource != null)
-                            itemsSource.Remove(obj);
-                    }
+                    if (obj != null && itemsSource != null)
+                        itemsSource.Remove(obj);
                 }
-                else if (removeOld && data is FileExtensionClass) {
-                    foreach (ListView lv in allListViews) {
-                        ObservableCollection<FileExtensionClass> itemsSource = lv.ItemsSource as ObservableCollection<FileExtensionClass>;
-                        FileExtensionClass obj = null;
+                foreach (ListView lv in allListViews) {
+                    ObservableCollection<FileExtensionClass> itemsSource = lv.ItemsSource as ObservableCollection<FileExtensionClass>;
+                    FileExtensionClass obj = null;
+                    if (itemsSource != null)
                         foreach (FileExtensionClass item in itemsSource) {
                             obj = data as FileExtensionClass;
                             if (item.Extension.Equals(obj.Extension)) {
                                 break;
                             }
                         }
-                        if (obj != null && itemsSource != null)
-                            itemsSource.Remove(obj);
-                    }
-
+                    if (obj != null && itemsSource != null)
+                        itemsSource.Remove(obj);
                 }
-                else { 
-                    // Move the dragged data object from it's original index to the
-                    // new index (according to where the mouse cursor is).  If it was
-                    // not previously in the ListBox, then insert the item.
-                    if (oldIndex > -1)
-                        itemsDestination.Move(oldIndex, newIndex);
-                    else
-                        itemsDestination.Insert(newIndex, data);
-                }
-                
 
-                
+                itemsDestination.Insert(newIndex, data);
 
                 // Set the Effects property so that the call to DoDragDrop will return 'Move'.
                 e.Effects = DragDropEffects.Move;
@@ -479,7 +465,7 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                     return false;
 
                 ListViewItem item = this.GetListViewItem(this.indexToSelect);
-                if(item != null) {
+                if (item != null) {
                     Rect bounds = VisualTreeHelper.GetDescendantBounds(item);
                     Point ptInItem = this.listViewDestination.TranslatePoint(this.ptMouseDown, item);
 
