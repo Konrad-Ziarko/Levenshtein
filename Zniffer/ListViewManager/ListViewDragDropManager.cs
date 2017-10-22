@@ -322,27 +322,28 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
 
             int oldIndex = itemsDestination.IndexOf(data);
             int newIndex = this.IndexUnderDragCursor;
-            bool removeOld = false;
+            bool removeOld = true;
             if (newIndex < 0) {
                 // The drag started somewhere else, and our ListView is empty
                 // so make the new item the first in the list.
                 if (itemsDestination.Count == 0) {
                     newIndex = 0;
-                    removeOld = true;
                 }
 
                 // The drag started somewhere else, but our ListView has items
                 // so make the new item the last in the list.
                 else if (oldIndex < 0) {
                     newIndex = itemsDestination.Count;
-                    removeOld = true;
                 }
 
                 // The user is trying to drop an item from our ListView into
                 // our ListView, but the mouse is not over an item, so don't
                 // let them drop it.
-                else
+                else {
+                    removeOld = false;
                     return;
+
+                }
             }
 
             // Dropping an item back onto itself is not considered an actual 'drop'.
@@ -356,6 +357,7 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                 e.Effects = args.Effects;
             }
             else {
+
                 if (removeOld && data is InterfaceClass) {
                     foreach (ListView lv in allListViews) {
                         ObservableCollection<InterfaceClass> itemsSource = lv.ItemsSource as ObservableCollection<InterfaceClass>;
@@ -363,7 +365,6 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                         foreach (InterfaceClass item in itemsSource) {
                             obj = data as InterfaceClass;
                             if (item.Addres.Equals(obj.Addres)) {
-
                                 break;
                             }
                         }
@@ -372,18 +373,32 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                     }
                 }
                 else if (removeOld && data is FileExtensionClass) {
-                    //usuwanie rozszerzen
+                    foreach (ListView lv in allListViews) {
+                        ObservableCollection<FileExtensionClass> itemsSource = lv.ItemsSource as ObservableCollection<FileExtensionClass>;
+                        FileExtensionClass obj = null;
+                        foreach (FileExtensionClass item in itemsSource) {
+                            obj = data as FileExtensionClass;
+                            if (item.Extension.Equals(obj.Extension)) {
+                                break;
+                            }
+                        }
+                        if (obj != null && itemsSource != null)
+                            itemsSource.Remove(obj);
+                    }
+
                 }
+                else { 
+                    // Move the dragged data object from it's original index to the
+                    // new index (according to where the mouse cursor is).  If it was
+                    // not previously in the ListBox, then insert the item.
+                    if (oldIndex > -1)
+                        itemsDestination.Move(oldIndex, newIndex);
+                    else
+                        itemsDestination.Insert(newIndex, data);
+                }
+                
 
-                // Move the dragged data object from it's original index to the
-                // new index (according to where the mouse cursor is).  If it was
-                // not previously in the ListBox, then insert the item.
-                if (oldIndex > -1)
-                    itemsDestination.Move(oldIndex, newIndex);
-                else
-                    itemsDestination.Insert(newIndex, data);
-
-
+                
 
                 // Set the Effects property so that the call to DoDragDrop will return 'Move'.
                 e.Effects = DragDropEffects.Move;
@@ -464,24 +479,27 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                     return false;
 
                 ListViewItem item = this.GetListViewItem(this.indexToSelect);
-                Rect bounds = VisualTreeHelper.GetDescendantBounds(item);
-                Point ptInItem = this.listViewDestination.TranslatePoint(this.ptMouseDown, item);
+                if(item != null) {
+                    Rect bounds = VisualTreeHelper.GetDescendantBounds(item);
+                    Point ptInItem = this.listViewDestination.TranslatePoint(this.ptMouseDown, item);
 
-                // In case the cursor is at the very top or bottom of the ListViewItem
-                // we want to make the vertical threshold very small so that dragging
-                // over an adjacent item does not select it.
-                double topOffset = Math.Abs(ptInItem.Y);
-                double btmOffset = Math.Abs(bounds.Height - ptInItem.Y);
-                double vertOffset = Math.Min(topOffset, btmOffset);
+                    // In case the cursor is at the very top or bottom of the ListViewItem
+                    // we want to make the vertical threshold very small so that dragging
+                    // over an adjacent item does not select it.
+                    double topOffset = Math.Abs(ptInItem.Y);
+                    double btmOffset = Math.Abs(bounds.Height - ptInItem.Y);
+                    double vertOffset = Math.Min(topOffset, btmOffset);
 
-                double width = SystemParameters.MinimumHorizontalDragDistance * 2;
-                double height = Math.Min(SystemParameters.MinimumVerticalDragDistance, vertOffset) * 2;
-                Size szThreshold = new Size(width, height);
+                    double width = SystemParameters.MinimumHorizontalDragDistance * 2;
+                    double height = Math.Min(SystemParameters.MinimumVerticalDragDistance, vertOffset) * 2;
+                    Size szThreshold = new Size(width, height);
 
-                Rect rect = new Rect(this.ptMouseDown, szThreshold);
-                rect.Offset(szThreshold.Width / -2, szThreshold.Height / -2);
-                Point ptInListView = MouseUtilities.GetMousePosition(this.listViewDestination);
-                return !rect.Contains(ptInListView);
+                    Rect rect = new Rect(this.ptMouseDown, szThreshold);
+                    rect.Offset(szThreshold.Width / -2, szThreshold.Height / -2);
+                    Point ptInListView = MouseUtilities.GetMousePosition(this.listViewDestination);
+                    return !rect.Contains(ptInListView);
+                }
+                return false;
             }
         }
 

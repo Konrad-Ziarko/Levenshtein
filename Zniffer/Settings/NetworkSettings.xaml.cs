@@ -149,5 +149,10 @@ namespace Zniffer
             }
             AvaliableInterfaces.Clear();
         }
+
+        private void UserControl_KeyDown(object sender, KeyEventArgs e) {
+            if (e.Key == Key.Escape)
+                MyBaseWindow.Close();
+        }
     }
 }

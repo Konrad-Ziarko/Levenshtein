@@ -31,6 +31,7 @@ namespace Zniffer {
             this.interfaceObj = interfaceObj;
             strIP.Text = interfaceObj.Addres;
             strPort.Text = interfaceObj.Ports;
+
         }
 
         private void MyBaseWindow_SizeChanged(object sender, SizeChangedEventArgs e) {
@@ -40,6 +41,16 @@ namespace Zniffer {
 
         public string getPorts() {
             return strPort.Text;
+        }
+
+        private void strPort_KeyDown(object sender, KeyEventArgs e) {
+            if(e.Key == Key.Enter || e.Key == Key.Escape)
+                MyBaseWindow.Close();
+        }
+
+        private void EditIFace_Loaded(object sender, RoutedEventArgs e) {
+            strPort.Focus();
+
         }
     }
 }

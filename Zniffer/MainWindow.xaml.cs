@@ -38,26 +38,6 @@ namespace Zniffer {
 
         BaseWindow networkSettingsWindow, fileExtensionsWindow;
 
-
-        //Not used
-        public void SearchForNewNetworkInterfaces() {
-            //szukaj nowych interfejsow co pewien interwal
-            // jesli okno networksettings jest otwarte wyrzuci wyjatek (dostep z innego watku))
-
-            if (networkSettingsWindow != null) {
-                try {
-                    //networkSettingsWindow.addAvaliableInterface(new InterfaceClass("1232132132", ""));
-                }
-                catch {
-                    AvaliableFaces.Add(new InterfaceClass("1232132132", ""));
-                }
-            }
-            else {
-                AvaliableFaces.Add(new InterfaceClass("1232132132", ""));
-            }
-        }
-
-
         #endregion
 
         #region File Extension
@@ -77,24 +57,22 @@ namespace Zniffer {
 
         #endregion
 
-
         #region TitleBar buttons
-        private void button_Exit_Click(object sender, RoutedEventArgs e) {
+        private void Button_Exit_Click(object sender, RoutedEventArgs e) {
             Close();
         }
 
-        private void button_Max_Click(object sender, RoutedEventArgs e) {
+        private void Button_Max_Click(object sender, RoutedEventArgs e) {
             if (WindowState == WindowState.Maximized)
                 WindowState = WindowState.Normal;
             else
                 WindowState = WindowState.Maximized;
         }
 
-        private void button_Min_Click(object sender, RoutedEventArgs e) {
+        private void Button_Min_Click(object sender, RoutedEventArgs e) {
             WindowState = WindowState.Minimized;
         }
         #endregion
-
 
         #region ADS
         private const int GENERIC_WRITE = 1073741824;
@@ -114,7 +92,7 @@ namespace Zniffer {
         private static extern bool CloseHandle(IntPtr handle);
 
         [Obsolete("Do not use")]
-        public void tempPisanie() {
+        public void TempPisanie() {
             string textToAddToFile = "text to add to file";
             string fileName = "";
             if (fileName != string.Empty) {
@@ -148,7 +126,7 @@ namespace Zniffer {
         }
 
         [Obsolete("Do not use")]
-        public void tempCzytanie() {
+        public void TempCzytanie() {
             string pathToFile = "";
             bool toReturn = false;
             uint crcFromFile;
@@ -172,8 +150,6 @@ namespace Zniffer {
 
 
         #endregion
-
-
 
         #region Clipboard
 
@@ -253,9 +229,6 @@ namespace Zniffer {
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
 
-
-
-
         public static string loggedKeyString = "";
         public static long cursorPosition = 0;
 
@@ -263,17 +236,17 @@ namespace Zniffer {
             InitializeComponent();
             this.DataContext = this;
 
+            //initialize settings collections if needed
             if (Properties.Settings.Default.UsedExtensions == null)
                 Properties.Settings.Default.UsedExtensions = new System.Collections.Specialized.StringCollection();
             if (Properties.Settings.Default.AvaliableExtensions == null)
                 Properties.Settings.Default.AvaliableExtensions = new System.Collections.Specialized.StringCollection();
 
-            foreach (string ext in Properties.Settings.Default.AvaliableExtensions) {
+            //load collections from settings
+            foreach (string ext in Properties.Settings.Default.AvaliableExtensions)
                 AvaliableExt.Add(new FileExtensionClass(ext));
-            }
-            foreach (string ext in Properties.Settings.Default.UsedExtensions) {
+            foreach (string ext in Properties.Settings.Default.UsedExtensions)
                 UsedExt.Add(new FileExtensionClass(ext));
-            }
 
             resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
@@ -284,7 +257,7 @@ namespace Zniffer {
             
         }
 
-        public static void keyCapturedHandle(string s) {
+        public static void KeyCapturedHandle(string s) {
 
             if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
                 s = s.Substring(1, s.Length - 2);
@@ -329,7 +302,7 @@ namespace Zniffer {
         }
 
         //discovering new drives
-        private async void newDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
+        private async void NewDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
 
             //TODO async scan files on newly attached devices (if ntfs +ADS)
 
@@ -455,14 +428,14 @@ namespace Zniffer {
             //detect flash memory
             ManagementEventWatcher watcher = new ManagementEventWatcher();
             WqlEventQuery query = new WqlEventQuery("SELECT * FROM Win32_VolumeChangeEvent WHERE EventType = 2");
-            watcher.EventArrived += new EventArrivedEventHandler(newDeviceDetectedEventArived);
+            watcher.EventArrived += new EventArrivedEventHandler(NewDeviceDetectedEventArived);
             watcher.Query = query;
             watcher.Start();
             //watcher.WaitForNextEvent();
 
             //run keylogger
             var obj = new KeyLogger();
-            obj.RaiseKeyCapturedEvent += new KeyLogger.keyCaptured(keyCapturedHandle);
+            obj.RaiseKeyCapturedEvent += new KeyLogger.keyCaptured(KeyCapturedHandle);
 
 
         }
@@ -527,6 +500,12 @@ namespace Zniffer {
 
         }
 
+        public void AddTextToNetworkBox(string txt) {
+            NetworkTextBlock.Text += txt + "\n";
+
+        }
+
+
         #region MenuItemClick
 
         private void MIExtensions_Click(object sender, RoutedEventArgs e) {
@@ -545,18 +524,6 @@ namespace Zniffer {
             networkSettingsWindow.ClientArea.Content = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces, ref networkSettingsWindow);
             networkSettingsWindow.ShowDialog();
 
-        }
-
-        private void NetworkSettingsWindow_modyfiedUsedInterface(InterfaceClass obj) {
-            throw new NotImplementedException();
-        }
-
-        private void NetworkSettingsWindow_removedUsedInterface(InterfaceClass obj) {
-            throw new NotImplementedException();
-        }
-
-        private void NetworkSettingsWindow_addedUsedInterface(InterfaceClass obj) {
-            throw new NotImplementedException();
         }
 
         private void MINewSession_Click(object sender, RoutedEventArgs e) {

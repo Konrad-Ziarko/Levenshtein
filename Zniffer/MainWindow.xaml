@@ -964,9 +964,9 @@
                     </TextBlock.Effect>
                 </TextBlock>
             </Border>
-            <Button x:Name="button_Min" WindowChrome.IsHitTestVisibleInChrome="True" Content="_" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,50,0" Click="button_Min_Click" BorderBrush="#3F707070"/>
-            <Button x:Name="button_Exit" WindowChrome.IsHitTestVisibleInChrome="True" Content="X" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="#59FF0000" Style="{DynamicResource ButtonStyle2}" RenderTransformOrigin="2,0.583" Click="button_Exit_Click" BorderBrush="#3F707070"/>
-            <Button x:Name="button_Max" WindowChrome.IsHitTestVisibleInChrome="True" Content="▢" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,25,0" Click="button_Max_Click" BorderBrush="#3F707070"/>
+            <Button x:Name="button_Min" WindowChrome.IsHitTestVisibleInChrome="True" Content="_" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,50,0" Click="Button_Min_Click" BorderBrush="#3F707070"/>
+            <Button x:Name="button_Exit" WindowChrome.IsHitTestVisibleInChrome="True" Content="X" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="#59FF0000" Style="{DynamicResource ButtonStyle2}" RenderTransformOrigin="2,0.583" Click="Button_Exit_Click" BorderBrush="#3F707070"/>
+            <Button x:Name="button_Max" WindowChrome.IsHitTestVisibleInChrome="True" Content="▢" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,25,0" Click="Button_Max_Click" BorderBrush="#3F707070"/>
         </Grid>
         
         

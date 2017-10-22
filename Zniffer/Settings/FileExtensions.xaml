@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Zniffer"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             Foreground="Yellow">
+             Foreground="Yellow" KeyDown="UserControl_KeyDown" Loaded="UserControl_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
@@ -24,7 +24,7 @@
                 <TextBlock Text="Dostępne" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Height="auto" Width="auto"/>
             </Viewbox>
             <ListView Grid.Row="1" Name="LBAvaliable" FontSize="18" MouseDoubleClick="Avaliable_MouseDoubleClick" 
-                      ItemsSource="{Binding AvaliableExtensions, UpdateSourceTrigger=PropertyChanged}">
+                      ItemsSource="{Binding AvaliableExtensions, UpdateSourceTrigger=PropertyChanged}" KeyDown="LBAvaliable_KeyDown">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
@@ -50,7 +50,33 @@
                 </ListView.ItemTemplate>
 
             </ListView>
-            <TextBox Name="TextBox_Extension"  Grid.Row="2" Text="" TextWrapping="Wrap" MinHeight="25" MaxHeight="25" VerticalContentAlignment="Center" Width="Auto" KeyDown="TextBox_KeyDown" />
+            <TextBox Name="TextBox_Extension"  Grid.Row="2" Text="" TextWrapping="Wrap" MinHeight="25" MaxHeight="25" VerticalContentAlignment="Center" Width="Auto" KeyDown="TextBox_KeyDown" >
+                <TextBox.Style>
+                    <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                        <Style.Resources>
+                            <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                <VisualBrush.Visual>
+                                    <Label Content="Rozszerzenie np. exe" Foreground="LightGray" />
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Style.Resources>
+                        <Style.Triggers>
+                            <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                            </Trigger>
+                            <Trigger Property="Text" Value="{x:Null}">
+                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                            </Trigger>
+                            <Trigger Property="Text" Value="">
+                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="Background" Value="White" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
         </Grid>
 
         <Grid Grid.Column="1">
@@ -83,7 +109,7 @@
                 <TextBlock Text="Nasłuchiwane" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Viewbox>
             <ListView Grid.Row="1" Name="LBUsed" FontSize="18" MouseDoubleClick="Used_MouseDoubleClick" 
-                      ItemsSource="{Binding UsedExtensions, UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2">
+                      ItemsSource="{Binding UsedExtensions, UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2" KeyDown="LBUsed_KeyDown">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Style.Triggers>
