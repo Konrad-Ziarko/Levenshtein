@@ -311,7 +311,7 @@ namespace Zniffer {
             //TODO async scan files on newly attached devices (if ntfs +ADS)
 
             Console.Out.WriteLine(e.NewEvent.Properties["DriveName"].Value.ToString() + " inserted");
-            Run run;
+
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
                 if (d.Name.Equals(e.NewEvent.Properties["DriveName"].Value.ToString() + "\\")) {
                     List<string> directories = Searcher.GetDirectories(d.Name);
@@ -319,19 +319,16 @@ namespace Zniffer {
                     List<string> files = Searcher.GetFiles(d.Name);
 
                     foreach (string file in files) {
-                        run = new Run(file + "\r\n");
-                        AddTextToFileBox(run);
+                        AddTextToFileBox(file);
                         //Console.Out.WriteLine(File.ReadAllText(file));
                         try {
                             string arr = await Searcher.ReadTextAsync(file);
                             //foreach(string str in File.ReadLines(file))
-                            run = new Run(arr + "\r\n") { Foreground = Brushes.Red };
-                            AddTextToFileBox(run);
+                            AddTextToFileBox(arr, Brushes.Red);
 
                         }
                         catch (UnauthorizedAccessException) {
-                            run = new Run("Cannot access:" + file + "\r\n") { Foreground = Brushes.Orange };
-                            AddTextToFileBox(run);
+                            AddTextToFileBox("Cannot access:" + file);
                         }
                         catch (IOException) {
                             //odłączenie urządzenia np
@@ -347,19 +344,16 @@ namespace Zniffer {
                         files = Searcher.GetFiles(directory);
 
                         foreach (string file in files) {
-                            run = new Run(file + "\r\n");
-                            AddTextToFileBox(run);
+                            AddTextToFileBox(file);
                             //Console.Out.WriteLine(File.ReadAllText(file));
                             try {
                                 string arr = await Searcher.ReadTextAsync(file);
                                 //foreach(string str in File.ReadLines(file))
-                                run = new Run(arr + "\r\n") { Foreground = Brushes.Red };
-                                AddTextToFileBox(run);
+                                AddTextToFileBox(arr, Brushes.Red);
 
                             }
                             catch (UnauthorizedAccessException) {
-                                run = new Run("Cannot access:" + file + "\r\n") { Foreground = Brushes.Orange };
-                                AddTextToFileBox(run);
+                                AddTextToFileBox("Cannot access:" + file);
                             }
                             catch (IOException) {
                                 //odłączenie urządzenia np
@@ -537,44 +531,56 @@ namespace Zniffer {
 
         public void AddTextToNetworkBox(string txt, SolidColorBrush brushe = null) {
             if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
-                if (brushe != null) {
-                    if (!NetworkTextBlock.Dispatcher.CheckAccess())
-                        NetworkTextBlock.Dispatcher.Invoke(() => { NetworkTextBlock.Text += txt + "\n"; });
-                    else
-                        NetworkTextBlock.Text += txt + "\n";
-
+                if (!NetworkTextBlock.Dispatcher.CheckAccess()) {
+                    NetworkTextBlock.Dispatcher.Invoke(() => {
+                        Run run = new Run(txt + "\r\n");
+                        if (brushe != null)
+                            run.Foreground = brushe;
+                        NetworkTextBlock.Inlines.Add(run);
+                    });
                 }
                 else {
-
+                    Run run = new Run(txt + "\r\n");
+                    if (brushe != null)
+                        run.Foreground = brushe;
+                    NetworkTextBlock.Inlines.Add(run);
                 }
-
             }
         }
 
         public void AddTextToClipBoardBox(string txt, SolidColorBrush brushe = null) {
             if (txt != null && !txt.Equals(string.Empty) && !txt.Equals(""))
-                if (!ClipboardTextBlock.Dispatcher.CheckAccess())
-                    ClipboardTextBlock.Dispatcher.Invoke(() => { ClipboardTextBlock.Text += txt + "\n"; });
-                else
-                    ClipboardTextBlock.Text += txt + "\n";
-        }
-
-        public void AddTextToFileBox(Run txt) {
-            /*FilesTextBlock.Dispatcher.Invoke(() => {
-                Run run = new Run(txt + "\r\n");
-                if (brushe != null)
-                    run.Foreground = brushe;
-                FilesTextBlock.Inlines.Add(run);
-            });*/
-
-            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
-                if (!FilesTextBlock.Dispatcher.CheckAccess()) {
-                    FilesTextBlock.Dispatcher.Invoke(() => { FilesTextBlock.Inlines.Add(txt); });
+                if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
+                    ClipboardTextBlock.Dispatcher.Invoke(() => {
+                        Run run = new Run(txt + "\r\n");
+                        if (brushe != null)
+                            run.Foreground = brushe;
+                        ClipboardTextBlock.Inlines.Add(run);
+                    });
                 }
                 else {
-                    FilesTextBlock.Inlines.Add(txt);
+                    Run run = new Run(txt + "\r\n");
+                    if (brushe != null)
+                        run.Foreground = brushe;
+                    ClipboardTextBlock.Inlines.Add(run);
                 }
+        }
 
+        public void AddTextToFileBox(string txt, SolidColorBrush brushe = null) {
+            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
+                if (!FilesTextBlock.Dispatcher.CheckAccess()) {
+                    FilesTextBlock.Dispatcher.Invoke(() => {
+                        Run run = new Run(txt + "\r\n");
+                        if (brushe != null)
+                            run.Foreground = brushe;
+                        FilesTextBlock.Inlines.Add(run); });
+                }
+                else {
+                    Run run = new Run(txt + "\r\n");
+                    if (brushe != null)
+                        run.Foreground = brushe;
+                    FilesTextBlock.Inlines.Add(run);
+                }
             }
         }
 
