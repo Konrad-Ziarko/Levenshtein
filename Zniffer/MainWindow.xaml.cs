@@ -22,6 +22,8 @@ namespace Zniffer {
     /// </summary>
     public partial class MainWindow : Window {
 
+        public static string TAG = "!@#RED$%^";
+
         #region Networking
         public static Dictionary<string, string> AvaliableNetworkAdapters = new Dictionary<string, string>();
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
@@ -570,16 +572,35 @@ namespace Zniffer {
             if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
                 if (!FilesTextBlock.Dispatcher.CheckAccess()) {
                     FilesTextBlock.Dispatcher.Invoke(() => {
-                        Run run = new Run(txt + "\r\n");
-                        if (brushe != null)
-                            run.Foreground = brushe;
-                        FilesTextBlock.Inlines.Add(run); });
+                        List<Run> runs = new List<Run>();
+                        string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                        int i = 0;
+                        foreach (string s in parts) {
+                            i = (i + 1) % 3;
+                            if (i == 2)
+                                runs.Add(new Run(s) { Foreground = brushe });
+                            else
+                                runs.Add(new Run(s));
+                        }
+                        foreach(var item in runs)
+                            FilesTextBlock.Inlines.Add(item);
+                        FilesTextBlock.Inlines.Add(new Run("\r\n"));
+                    });
                 }
                 else {
-                    Run run = new Run(txt + "\r\n");
-                    if (brushe != null)
-                        run.Foreground = brushe;
-                    FilesTextBlock.Inlines.Add(run);
+                    List<Run> runs = new List<Run>();
+                    string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                    int i = 0;
+                    foreach (string s in parts) {
+                        i = (i + 1) % 3;
+                        if (i == 2)
+                            runs.Add(new Run(s) { Foreground = brushe });
+                        else
+                            runs.Add(new Run(s));
+                    }
+                    foreach (var item in runs)
+                        FilesTextBlock.Inlines.Add(item);
+                    FilesTextBlock.Inlines.Add(new Run("\r\n"));
                 }
             }
         }

@@ -26,7 +26,8 @@ namespace Zniffer {
         private static List<string> GetDirectories(string path, string searchPattern) {
             try {
                 return Directory.GetDirectories(path, searchPattern).ToList();
-            } catch (UnauthorizedAccessException) {
+            }
+            catch (UnauthorizedAccessException) {
                 return new List<string>();
             }
         }
@@ -35,7 +36,8 @@ namespace Zniffer {
             string searchPattern = "*";
             try {
                 return Directory.GetFiles(path, searchPattern).ToList();
-            } catch (UnauthorizedAccessException) {
+            }
+            catch (UnauthorizedAccessException) {
                 return new List<string>();
             }
         }
@@ -44,13 +46,11 @@ namespace Zniffer {
             StringBuilder sb = new StringBuilder();
             string phrase = MainWindow.searchPhrase;
 
-            //sb.Append("<" + phrase + ">");
             int searchPhraseLength = phrase.Length;
             //
             //implement Levensthein metric
             //
             List<int> allStrings = AllIndexesOf(sourceText, phrase);
-            //
             //
 
             int charCount = 0;
@@ -65,20 +65,21 @@ namespace Zniffer {
                 tmpPosition = position + 10 + searchPhraseLength;
                 if (tmpPosition >= sourceText.Length)
                     tmpPosition = sourceText.Length;
-                charCount = tmpPosition - position;
-                sb.Append(sourceText.Substring(position, charCount));
 
+                sb.Append("<"+MainWindow.TAG+">");
+                sb.Append(sourceText.Substring(position, searchPhraseLength));
+                sb.Append("</" + MainWindow.TAG + ">");
+
+                charCount = tmpPosition - (position + searchPhraseLength);
+                sb.Append(sourceText.Substring(position + searchPhraseLength, charCount));
             }
-
             return sb.ToString();
         }
 
         public static async Task<string> ReadTextAsync(string filePath) {
             StringBuilder sb = new StringBuilder();
             string textFromFile = File.ReadAllText(filePath);
-
             sb.Append(ExtractPhrase(textFromFile));
-
             return sb.ToString();
         }
 
