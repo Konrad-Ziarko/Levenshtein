@@ -1,7 +1,9 @@
-﻿using System;
+﻿using CustomExtensions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -369,14 +371,27 @@ namespace Zniffer {
             }
         }
 
-
+        
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
             //TODO implement sniffer
             Sniffer snf = new Sniffer();
 
+            string s = "xcjavxzcbvmrmummuuutmtumuumtryumtryumtrutryumtryumtrymutryumtyumtryumtrmutyumtrurtmutymurtmyutrymut";
+
+            s = string.Concat(Enumerable.Repeat(s, 40000));
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var ret = s.LevenshteinSingleThread("jas", 1);
+            watch.Stop();
+
+            var watch2 = System.Diagnostics.Stopwatch.StartNew();
+            var ret2 = s.Levenshtein("jas", 1);
+            watch2.Stop();
 
 
+            var elapsedMs = watch.ElapsedMilliseconds;
+            var elapsedMs2 = watch2.ElapsedMilliseconds;
             //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);

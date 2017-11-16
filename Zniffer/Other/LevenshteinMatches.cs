@@ -13,7 +13,11 @@ namespace Zniffer {
         public LevenshteinMatches() {
             foundMatches = new List<LevenshteinMatch>();
         }
-
+        public LevenshteinMatches(LevenshteinMatch match) {
+            foundMatches = new List<LevenshteinMatch>();
+            foundMatches.Add(match);
+            hasMatches = true;
+        }
         public LevenshteinMatches(List<LevenshteinMatch> matches) {
             foundMatches = matches;
             hasMatches = true;
@@ -25,6 +29,13 @@ namespace Zniffer {
             var newMatch = new LevenshteinMatch(match, percentage, position, len, dist);
 
             foundMatches.Add(newMatch);
+            hasMatches = true;
+        }
+        public void addMatch(LevenshteinMatch match) {
+            if (foundMatches == null)
+                foundMatches = new List<LevenshteinMatch>();
+
+            foundMatches.Add(match);
             hasMatches = true;
         }
     }
