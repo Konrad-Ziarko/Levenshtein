@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using CustomExtensions;
 
 namespace Zniffer {
     public enum Protocol {
@@ -30,7 +31,8 @@ namespace Zniffer {
 
         public Sniffer() {
 
-            
+
+            Console.Out.WriteLine();
         }
     }
 }

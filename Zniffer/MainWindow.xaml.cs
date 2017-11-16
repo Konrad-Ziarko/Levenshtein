@@ -21,8 +21,10 @@ namespace Zniffer {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-
+        private static MainWindow THISREF = null;
         public static string TAG = "!@#RED$%^";
+
+        private static bool AutoScrollClipboard = true;
 
         #region Networking
         public static Dictionary<string, string> AvaliableNetworkAdapters = new Dictionary<string, string>();
@@ -239,6 +241,7 @@ namespace Zniffer {
         public static string searchPhrase = "Zniffer";
 
         public MainWindow() {
+            THISREF = this;
             InitializeComponent();
             this.DataContext = this;
 
@@ -269,9 +272,10 @@ namespace Zniffer {
                 s = s.Substring(1, s.Length - 2);
                 if (s.Equals("Backspace")) {
                     resetStringTimer.Stop();
-
-                    loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);//wyjatek jesli backspace wiecej niz bylo nacisniete
-                    cursorPosition--;
+                    if (loggedKeyString.Length > 0) {
+                        loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);
+                        cursorPosition--;
+                    }
                 }
                 else if (s.Equals("Left")) {
                     resetStringTimer.Stop();
@@ -301,69 +305,64 @@ namespace Zniffer {
                     loggedKeyString = "";
                 }
             }
+            //Console.Out.WriteLine(loggedKeyString);
+            //THISREF.AddTextToClipBoardBox(Searcher.ExtractPhrase(loggedKeyString));
 
-            //Console.Out.WriteLine(Searcher.extractPhrase(loggedKeyString, _SearchPhrase));
+            string result = Searcher.ExtractPhrase(loggedKeyString);
+            if (!result.Equals(""))
+                THISREF.AddTextToClipBoardBox(result, Brushes.Red);
+
 
             resetStringTimer.Start();
         }
 
+
+        private async void SearchFiles(List<string> files, DriveInfo drive) {
+            foreach (string file in files) {
+                //Console.Out.WriteLine(File.ReadAllText(file));
+                try {
+                    string arr = await Searcher.ReadTextAsync(file);
+                    //foreach(string str in File.ReadLines(file))
+                    if (!arr.Equals("")) {
+                        AddTextToFileBox(file);
+                        AddTextToFileBox(arr, Brushes.Red);
+                        AddTextToFileBox("");
+                    }
+                }
+                catch (UnauthorizedAccessException) {
+                    AddTextToFileBox("Cannot access:" + file);
+                }
+                catch (IOException) {
+                    //odłączenie urządzenia np
+                }
+                catch (ArgumentException) {
+
+                }
+                if (drive.DriveFormat.Equals("NTFS")) {
+                    //search for ads
+                }
+            }
+        }
+
         //discovering new drives
-        private async void NewDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
+        private void NewDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
 
             //TODO async scan files on newly attached devices (if ntfs +ADS)
 
             Console.Out.WriteLine(e.NewEvent.Properties["DriveName"].Value.ToString() + " inserted");
 
-            foreach (DriveInfo d in DriveInfo.GetDrives()) {
-                if (d.Name.Equals(e.NewEvent.Properties["DriveName"].Value.ToString() + "\\")) {
-                    List<string> directories = Searcher.GetDirectories(d.Name);
+            foreach (DriveInfo drive in DriveInfo.GetDrives()) {
+                if (drive.Name.Equals(e.NewEvent.Properties["DriveName"].Value.ToString() + "\\")) {
+                    List<string> directories = Searcher.GetDirectories(drive.Name);
 
-                    List<string> files = Searcher.GetFiles(d.Name);
-
-                    foreach (string file in files) {
-                        AddTextToFileBox(file);
-                        //Console.Out.WriteLine(File.ReadAllText(file));
-                        try {
-                            string arr = await Searcher.ReadTextAsync(file);
-                            //foreach(string str in File.ReadLines(file))
-                            AddTextToFileBox(arr, Brushes.Red);
-
-                        }
-                        catch (UnauthorizedAccessException) {
-                            AddTextToFileBox("Cannot access:" + file);
-                        }
-                        catch (IOException) {
-                            //odłączenie urządzenia np
-                        }
-                        if (d.DriveFormat.Equals("NTFS")) {
-                            //search for ads
-                        }
-                    }
+                    List<string> files = Searcher.GetFiles(drive.Name);
+                    SearchFiles(files, drive);
 
                     foreach (string directory in directories) {
-                        Console.Out.WriteLine(directory);
+                        //Console.Out.WriteLine(directory);
 
                         files = Searcher.GetFiles(directory);
-
-                        foreach (string file in files) {
-                            AddTextToFileBox(file);
-                            //Console.Out.WriteLine(File.ReadAllText(file));
-                            try {
-                                string arr = await Searcher.ReadTextAsync(file);
-                                //foreach(string str in File.ReadLines(file))
-                                AddTextToFileBox(arr, Brushes.Red);
-
-                            }
-                            catch (UnauthorizedAccessException) {
-                                AddTextToFileBox("Cannot access:" + file);
-                            }
-                            catch (IOException) {
-                                //odłączenie urządzenia np
-                            }
-                            if (d.DriveFormat.Equals("NTFS")) {
-                                //search for ads
-                            }
-                        }
+                        SearchFiles(files, drive);
                     }
                 }
 
@@ -527,51 +526,16 @@ namespace Zniffer {
         private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
             searchPhrase = SearchPhraseTextBox.Text;
 
+        }
 
+        public void AddTextTo() {
 
         }
 
         public void AddTextToNetworkBox(string txt, SolidColorBrush brushe = null) {
-            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
+            if (txt != null) {
                 if (!NetworkTextBlock.Dispatcher.CheckAccess()) {
                     NetworkTextBlock.Dispatcher.Invoke(() => {
-                        Run run = new Run(txt + "\r\n");
-                        if (brushe != null)
-                            run.Foreground = brushe;
-                        NetworkTextBlock.Inlines.Add(run);
-                    });
-                }
-                else {
-                    Run run = new Run(txt + "\r\n");
-                    if (brushe != null)
-                        run.Foreground = brushe;
-                    NetworkTextBlock.Inlines.Add(run);
-                }
-            }
-        }
-
-        public void AddTextToClipBoardBox(string txt, SolidColorBrush brushe = null) {
-            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals(""))
-                if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
-                    ClipboardTextBlock.Dispatcher.Invoke(() => {
-                        Run run = new Run(txt + "\r\n");
-                        if (brushe != null)
-                            run.Foreground = brushe;
-                        ClipboardTextBlock.Inlines.Add(run);
-                    });
-                }
-                else {
-                    Run run = new Run(txt + "\r\n");
-                    if (brushe != null)
-                        run.Foreground = brushe;
-                    ClipboardTextBlock.Inlines.Add(run);
-                }
-        }
-
-        public void AddTextToFileBox(string txt, SolidColorBrush brushe = null) {
-            if (txt != null && !txt.Equals(string.Empty) && !txt.Equals("")) {
-                if (!FilesTextBlock.Dispatcher.CheckAccess()) {
-                    FilesTextBlock.Dispatcher.Invoke(() => {
                         List<Run> runs = new List<Run>();
                         string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
                         int i = 0;
@@ -582,9 +546,9 @@ namespace Zniffer {
                             else
                                 runs.Add(new Run(s));
                         }
-                        foreach(var item in runs)
-                            FilesTextBlock.Inlines.Add(item);
-                        FilesTextBlock.Inlines.Add(new Run("\r\n"));
+                        foreach (var item in runs)
+                            NetworkTextBlock.Inlines.Add(item);
+                        NetworkTextBlock.Inlines.Add(new Run("\r\n"));
                     });
                 }
                 else {
@@ -594,6 +558,80 @@ namespace Zniffer {
                     foreach (string s in parts) {
                         i = (i + 1) % 3;
                         if (i == 2)
+                            runs.Add(new Run(s) { Foreground = brushe });
+                        else
+                            runs.Add(new Run(s));
+                    }
+                    foreach (var item in runs)
+                        NetworkTextBlock.Inlines.Add(item);
+                    NetworkTextBlock.Inlines.Add(new Run("\r\n"));
+                }
+            }
+        }
+
+        public void AddTextToClipBoardBox(string txt, SolidColorBrush brushe = null) {
+            if (txt != null) {
+                if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
+                    ClipboardTextBlock.Dispatcher.Invoke(() => {
+                        List<Run> runs = new List<Run>();
+                        string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                        int i = 0;
+                        foreach (string s in parts) {
+                            i = (i + 1) % 2;
+                            if (i == 0)
+                                runs.Add(new Run(s) { Foreground = brushe });
+                            else
+                                runs.Add(new Run(s));
+                        }
+                        foreach (var item in runs)
+                            ClipboardTextBlock.Inlines.Add(item);
+                        ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
+                    });
+                }
+                else {
+                    List<Run> runs = new List<Run>();
+                    string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                    int i = 0;
+                    foreach (string s in parts) {
+                        i = (i + 1) % 2;
+                        if (i == 0)
+                            runs.Add(new Run(s) { Foreground = brushe });
+                        else
+                            runs.Add(new Run(s));
+                    }
+                    foreach (var item in runs)
+                        ClipboardTextBlock.Inlines.Add(item);
+                    ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
+                }
+            }
+        }
+
+        public void AddTextToFileBox(string txt, SolidColorBrush brushe = null) {
+            if (txt != null) {
+                if (!FilesTextBlock.Dispatcher.CheckAccess()) {
+                    FilesTextBlock.Dispatcher.Invoke(() => {
+                        List<Run> runs = new List<Run>();
+                        string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                        int i = 0;
+                        foreach (string s in parts) {
+                            i = (i + 1) % 2;
+                            if (i == 0)
+                                runs.Add(new Run(s) { Foreground = brushe });
+                            else
+                                runs.Add(new Run(s));
+                        }
+                        foreach (var item in runs)
+                            FilesTextBlock.Inlines.Add(item);
+                        FilesTextBlock.Inlines.Add(new Run("\r\n"));
+                    });
+                }
+                else {
+                    List<Run> runs = new List<Run>();
+                    string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                    int i = 0;
+                    foreach (string s in parts) {
+                        i = (i + 1) % 2;
+                        if (i == 0)
                             runs.Add(new Run(s) { Foreground = brushe });
                         else
                             runs.Add(new Run(s));
@@ -626,6 +664,24 @@ namespace Zniffer {
         }
 
         private void MINewSession_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void ClipboardScrollViewer_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
+            if (e.ExtentHeightChange == 0) {
+                if (ClipboardScrollViewer.VerticalOffset == ClipboardScrollViewer.ScrollableHeight) {
+                    AutoScrollClipboard = true;
+                }
+                else {
+                    AutoScrollClipboard = false;
+                }
+            }
+            if (AutoScrollClipboard && e.ExtentHeightChange != 0) {
+                ClipboardScrollViewer.ScrollToVerticalOffset(ClipboardScrollViewer.ExtentHeight);
+            }
+        }
+
+        private void NetworkScrollViewr_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
 
         }
 

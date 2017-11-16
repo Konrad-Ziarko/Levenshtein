@@ -968,10 +968,10 @@
             <Button x:Name="button_Exit" WindowChrome.IsHitTestVisibleInChrome="True" Content="X" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="#59FF0000" Style="{DynamicResource ButtonStyle2}" RenderTransformOrigin="2,0.583" Click="Button_Exit_Click" BorderBrush="#3F707070"/>
             <Button x:Name="button_Max" WindowChrome.IsHitTestVisibleInChrome="True" Content="▢" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,25,0" Click="Button_Max_Click" BorderBrush="#3F707070"/>
         </Grid>
-        
-        
-        
-        
+
+
+
+
         <Grid>
             <Grid Name="ClientAreaGrid">
                 <Menu x:Name="menu" Height="22" VerticalAlignment="Top" FontFamily="Tahoma">
@@ -987,7 +987,7 @@
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
                                 </LinearGradientBrush>
                             </MenuItem.Background>
-                            
+
                         </MenuItem>
                         <Separator >
                             <Separator.Background>
@@ -1116,7 +1116,7 @@
                             </MenuItem.Background>
                         </MenuItem>
                     </MenuItem>
-                    
+
                     <MenuItem Header="_Widok" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1131,7 +1131,7 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
-                        
+
                     </MenuItem>
                     <MenuItem Header="_Inne" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem Header="Zapisuj dane w oddzielnych plikach" Name="MISaveMultipleFiles" Click="MISaveMultipleFiles_Click" IsCheckable="True"
@@ -1205,17 +1205,24 @@
                             <RowDefinition Height="5" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Viewbox StretchDirection="Both" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left">
-                        <TextBlock Name="NetworkTextBlock" FontSize="26" TextWrapping="Wrap" Grid.Row="0"  MouseWheel="NetworkOnMouseWheel"></TextBlock>
-                        </Viewbox>
+                        <ScrollViewer Name="NetworkScrollViewr" ScrollChanged="NetworkScrollViewr_ScrollChanged" VerticalScrollBarVisibility="Auto">
+                            <Viewbox StretchDirection="Both" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" >
+                                <TextBlock Name="NetworkTextBlock" FontSize="20" TextWrapping="Wrap" Grid.Row="0" 
+                                           MouseWheel="NetworkOnMouseWheel" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBlock>
+                            </Viewbox>
+                        </ScrollViewer>
                         <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
-                        <TextBlock Name="ClipboardTextBlock" Grid.Row="2" FontSize="40" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel"></TextBlock>
+
+                        <ScrollViewer Name="ClipboardScrollViewer"  Grid.Row="2" ScrollChanged="ClipboardScrollViewer_ScrollChanged" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Name="ClipboardTextBlock"  FontSize="20" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel" ></TextBlock>
+                        </ScrollViewer>
                     </Grid>
-                    
+
                     <!--druga kolumna-->
                     <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
-                    <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap" Grid.Column="2" MouseWheel="FilesTextBlock_MouseWheel" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBlock>
-
+                    <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                        <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap"  MouseWheel="FilesTextBlock_MouseWheel" ></TextBlock>
+                    </ScrollViewer>
 
                 </Grid>
             </Grid>
