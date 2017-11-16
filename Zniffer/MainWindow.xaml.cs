@@ -9,6 +9,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -371,27 +372,26 @@ namespace Zniffer {
             }
         }
 
-        
+
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
             //TODO implement sniffer
             Sniffer snf = new Sniffer();
 
             string s = "xcjavxzcbvmrmummuuutmtumuumtryumtryumtrutryumtryumtrymutryumtyumtryumtrmutyumtrurtmutymurtmyutrymut";
-
             s = string.Concat(Enumerable.Repeat(s, 40000));
 
+            var expression = "bfgbgf";
+
+
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            var ret = s.LevenshteinSingleThread("jas", 1);
+            var res = s.LevenshteinSingleThread(expression, 1);
             watch.Stop();
 
-            var watch2 = System.Diagnostics.Stopwatch.StartNew();
-            var ret2 = s.Levenshtein("jas", 1);
-            watch2.Stop();
-
-
             var elapsedMs = watch.ElapsedMilliseconds;
-            var elapsedMs2 = watch2.ElapsedMilliseconds;
+
+            
+            
             //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);

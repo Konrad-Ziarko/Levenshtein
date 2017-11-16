@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Zniffer;
 
@@ -14,10 +15,11 @@ namespace CustomExtensions {
 
         #endregion
 
+        
         public static LevenshteinMatches LevenshteinSingleThread(this string str, string expression, int maxDistance) {
             if (str.Length > expression.Length + 1) {
                 int len = expression.Length;
-                long strLen = str.Length - len + 1;
+                int strLen = str.Length - len + 1;
                 int[] results = new int[strLen];
                 int[][,] dimension = new int[strLen][,];
                 for (int i = 0; i < strLen; i++) {
@@ -28,61 +30,20 @@ namespace CustomExtensions {
                 source = source.ToUpper();
                 expression = expression.ToUpper();
 
-                for (int i = 0; i < strLen; i++) {
-                    results[i] = SqueareLevenshtein(ref dimension[i], str.Substring(i, len).ToUpper(), expression, len);
-                }
+                Parallel.For(0, strLen, i => {
+                    results[i] = SqueareLevenshtein(dimension[i], str.Substring(i, len).ToUpper(), expression, len);
+                });
 
                 LevenshteinMatches matches = new LevenshteinMatches();
 
-                for (int i = 0; i < strLen; i++) {
+                
+                Parallel.For(0, strLen, i => {
                     if (results[i] <= maxDistance) {
-                        matches.addMatch(str.Substring(i, len), Math.Round((1.0 - ((double)results[i] / len)) * 100.0, 2), i, len, results[i]);
+                        lock (matches)
+                            matches.addMatch(str.Substring(i, len), i, len, results[i]);
                     }
-                }
+                });
 
-                return matches;
-            }
-            else {
-                LevenshteinMatch match = str.LevenshteinCPU(expression, maxDistance);
-                if (match != null)
-                    return new LevenshteinMatches(match);
-                else
-                    return new LevenshteinMatches();
-            }
-        }
-
-        //lowers efficiency
-        public static LevenshteinMatches Levenshtein(this string str, string expression, int maxDistance) {
-            if (str.Length > expression.Length + 1) {
-                int len = expression.Length;
-                long strLen = str.Length - len+ 1;
-                int[] results = new int[strLen];
-                int[][,] dimension = new int[strLen][,];
-                for (int i = 0; i < strLen; i++) {
-                    dimension[i] = new int[len + 1, len + 1];
-                }
-
-                string source = str;
-                source = source.ToUpper();
-                expression = expression.ToUpper();
-
-                Task[] tasks = new Task[strLen];
-                for (int i = 0; i < strLen; i++) {
-                    int idx = i;
-                    tasks[idx] = new Task(() => {
-                        int index = idx;
-                        results[index] = SqueareLevenshtein(ref dimension[index], str.Substring(index, len).ToUpper(), expression, len);
-                    });
-                    tasks[idx].Start();
-                }
-
-                LevenshteinMatches matches = new LevenshteinMatches();
-
-                for (int i = 0; i < strLen; i++) {
-                    if (results[i] <= maxDistance) {
-                        matches.addMatch(str.Substring(i, len), Math.Round((1.0 - ((double)results[i] / len)) * 100.0, 2), i, len, results[i]);
-                    }
-                }
                 return matches;
             }
             else {
@@ -131,10 +92,8 @@ namespace CustomExtensions {
                 }
             }
 
-            double percentage = Math.Round((1.0 - ((double)dimension[source.Length, expression.Length] / (double)Math.Max(source.Length, expression.Length))) * 100.0, 2);
-
             if (dimension[source.Length, expression.Length] <= maxDistance)
-                return new LevenshteinMatch(str, percentage, 0, source.Length, dimension[source.Length, expression.Length]);
+                return new LevenshteinMatch(str, 0, source.Length, dimension[source.Length, expression.Length]);
             else
                 return null;
         }
@@ -150,18 +109,16 @@ namespace CustomExtensions {
             int len = source.Length;
 
             int[,] dimension = new int[len + 1, len + 1];
-            
-            SqueareLevenshtein(ref dimension, source, expression, len);
 
-            double percentage = Math.Round((1.0 - ((double)dimension[len, len] / len)) * 100.0, 2);
+            SqueareLevenshtein(dimension, source, expression, len);
 
             if (dimension[len, len] <= maxDistance)
-                return new LevenshteinMatch(str, percentage, 0, len, dimension[len, len]);
+                return new LevenshteinMatch(str, 0, len, dimension[len, len]);
             else
                 return null;
         }
 
-        public static int SqueareLevenshtein(ref int[,] arr, string str1, string str2, int len) {
+        public static int SqueareLevenshtein(int[,] arr, string str1, string str2, int len) {
             for (int i = 0; i <= len; i++) {
                 arr[i, 0] = i;
                 arr[0, i] = i;
