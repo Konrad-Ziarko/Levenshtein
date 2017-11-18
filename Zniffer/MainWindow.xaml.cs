@@ -378,20 +378,24 @@ namespace Zniffer {
             //TODO implement sniffer
             Sniffer snf = new Sniffer();
 
-            string s = "xcjavxzcbvmrmummuuutmtumuumtryumtryumtrutryumtryumtrymutryumtyumtryumtrmutyumtrurtmutymurtmyutrymut";
-            s = string.Concat(Enumerable.Repeat(s, 40000));
+            string s = "dududbongoaaondgiuvbihuabifbbomdo";
+            //s = string.Concat(Enumerable.Repeat(s, 5000000));
 
-            var expression = "bfgbgf";
+            var expression = "bomba";
 
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            var res = s.LevenshteinSingleThread(expression, 1);
+            long memory = GC.GetTotalMemory(true);
+            var res = s.LevenshteinSingleThread(expression, 3, onlyBestResults: true);
+            long memory2 = GC.GetTotalMemory(true);
             watch.Stop();
 
             var elapsedMs = watch.ElapsedMilliseconds;
 
+
             
-            
+
+
             //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
