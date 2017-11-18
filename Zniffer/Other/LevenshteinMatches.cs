@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomExtensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,10 +30,10 @@ namespace Zniffer {
             Lenght = foundMatches.Count;
         }
 
-        public void addMatch(string match, int position, int len, int dist) {
+        public void addMatch(string context, int position, int len, int dist) {
             if (foundMatches == null)
                 foundMatches = new List<LevenshteinMatch>();
-            var newMatch = new LevenshteinMatch(match, position, len, dist);
+            var newMatch = new LevenshteinMatch(context, position, len, dist);
 
             foundMatches.Add(newMatch);
             Lenght++;
@@ -65,14 +66,12 @@ namespace Zniffer {
     }
 
     public class LevenshteinMatch {
-        public string match { get; }
-        public int position { get; }
+        public string context { get; }
         public int length { get; }
         public int distance { get; }
 
-        public LevenshteinMatch(string match, int position, int length, int distance) {
-            this.match = match;
-            this.position = position;
+        public LevenshteinMatch(string context, int position, int length, int distance) {
+            this.context = context.GetContext(position, length);
             this.length = length;
             this.distance = distance;
         }

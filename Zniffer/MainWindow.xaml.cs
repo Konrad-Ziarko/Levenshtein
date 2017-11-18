@@ -239,9 +239,12 @@ namespace Zniffer {
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
 
+        #region Keylogger
         public static string loggedKeyString = "";
         public static long cursorPosition = 0;
         public static string searchPhrase = "Zniffer";
+
+        #endregion
 
         public MainWindow() {
             THISREF = this;
@@ -270,6 +273,8 @@ namespace Zniffer {
         }
 
         public static void KeyCapturedHandle(string s) {
+            //limit number of chars in string
+            //limit exceeded = slice string and overlap two parts for Levenshtein
 
             if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
                 s = s.Substring(1, s.Length - 2);
@@ -378,24 +383,7 @@ namespace Zniffer {
             //TODO implement sniffer
             Sniffer snf = new Sniffer();
 
-            string s = "dududbongoaaondgiuvbihuabifbbomdo";
-            //s = string.Concat(Enumerable.Repeat(s, 5000000));
-
-            var expression = "bomba";
-
-
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            long memory = GC.GetTotalMemory(true);
-            var res = s.LevenshteinSingleThread(expression, 3, onlyBestResults: true);
-            long memory2 = GC.GetTotalMemory(true);
-            watch.Stop();
-
-            var elapsedMs = watch.ElapsedMilliseconds;
-
-
             
-
-
             //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
