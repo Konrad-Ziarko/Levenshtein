@@ -25,7 +25,7 @@ namespace Zniffer {
     /// </summary>
     public partial class MainWindow : Window {
         private static MainWindow THISREF = null;
-        public static string TAG = "!@#RED$%^";
+        public static string COLORTAG = "!@#RED$%^";
 
         private static bool AutoScrollClipboard = true;
 
@@ -316,8 +316,8 @@ namespace Zniffer {
             //Console.Out.WriteLine(loggedKeyString);
             //THISREF.AddTextToClipBoardBox(Searcher.ExtractPhrase(loggedKeyString));
 
-            string result = Searcher.ExtractPhrase(loggedKeyString);
-            if (!result.Equals(""))
+            LevenshteinMatches result = Searcher.ExtractPhrase(loggedKeyString);
+            if (result.hasMatches)
                 THISREF.AddTextToClipBoardBox(result, Brushes.Red);
 
 
@@ -383,7 +383,30 @@ namespace Zniffer {
             //TODO implement sniffer
             Sniffer snf = new Sniffer();
 
-            
+            ////
+            string s = "1234567890";
+            //s = string.Concat(Enumerable.Repeat(s, 5000));
+
+            var expression = "456";
+
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            //long memory = GC.GetTotalMemory(true);
+            var res = s.LevenshteinMultiMatrixParallel(expression);
+            //long memory2 = GC.GetTotalMemory(true);
+            watch.Stop();
+
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            var watch2 = System.Diagnostics.Stopwatch.StartNew();
+            //long memory = GC.GetTotalMemory(true);
+            var res2 = s.LevenshteinMultiMatrixSingleThread(expression);
+            //long memory2 = GC.GetTotalMemory(true);
+            watch2.Stop();
+
+            var elapsedMs2 = watch2.ElapsedMilliseconds;
+            ////
+
             //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
@@ -535,16 +558,13 @@ namespace Zniffer {
 
         }
 
-        public void AddTextTo() {
-
-        }
-
+        #region AddTextTo
         public void AddTextToNetworkBox(string txt, SolidColorBrush brushe = null) {
             if (txt != null) {
                 if (!NetworkTextBlock.Dispatcher.CheckAccess()) {
                     NetworkTextBlock.Dispatcher.Invoke(() => {
                         List<Run> runs = new List<Run>();
-                        string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                        string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
                         int i = 0;
                         foreach (string s in parts) {
                             i = (i + 1) % 3;
@@ -560,7 +580,7 @@ namespace Zniffer {
                 }
                 else {
                     List<Run> runs = new List<Run>();
-                    string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                    string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
                     int i = 0;
                     foreach (string s in parts) {
                         i = (i + 1) % 3;
@@ -576,12 +596,50 @@ namespace Zniffer {
             }
         }
 
-        public void AddTextToClipBoardBox(string txt, SolidColorBrush brushe = null) {
-            if (txt != null) {
+        public void AddTextToClipBoardBox(LevenshteinMatches matches, SolidColorBrush brushe = null) {
+            if (matches.hasMatches) {
                 if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
                     ClipboardTextBlock.Dispatcher.Invoke(() => {
                         List<Run> runs = new List<Run>();
-                        string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                        foreach (LevenshteinMatch match in matches.foundMatches) {
+                            string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                            int i = 0;
+                            foreach (string s in parts) {
+                                i = (i + 1) % 2;
+                                if (i == 0)
+                                    runs.Add(new Run(s) { Foreground = brushe });
+                                else
+                                    runs.Add(new Run(s));
+                            }
+                            foreach (var item in runs)
+                                ClipboardTextBlock.Inlines.Add(item);
+                            ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
+                        }
+                    });
+                }
+                else {
+                    List<Run> runs = new List<Run>();
+                    foreach (LevenshteinMatch match in matches.foundMatches) {
+                        string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                        int i = 0;
+                        foreach (string s in parts) {
+                            i = (i + 1) % 2;
+                            if (i == 0)
+                                runs.Add(new Run(s) { Foreground = brushe });
+                            else
+                                runs.Add(new Run(s));
+                        }
+                        foreach (var item in runs)
+                            ClipboardTextBlock.Inlines.Add(item);
+                        ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
+                    }
+                }
+            }
+            /*
+                if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
+                    ClipboardTextBlock.Dispatcher.Invoke(() => {
+                        List<Run> runs = new List<Run>();
+                        string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
                         int i = 0;
                         foreach (string s in parts) {
                             i = (i + 1) % 2;
@@ -597,7 +655,7 @@ namespace Zniffer {
                 }
                 else {
                     List<Run> runs = new List<Run>();
-                    string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                    string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
                     int i = 0;
                     foreach (string s in parts) {
                         i = (i + 1) % 2;
@@ -610,7 +668,7 @@ namespace Zniffer {
                         ClipboardTextBlock.Inlines.Add(item);
                     ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
                 }
-            }
+                */
         }
 
         public void AddTextToFileBox(string txt, SolidColorBrush brushe = null) {
@@ -618,7 +676,7 @@ namespace Zniffer {
                 if (!FilesTextBlock.Dispatcher.CheckAccess()) {
                     FilesTextBlock.Dispatcher.Invoke(() => {
                         List<Run> runs = new List<Run>();
-                        string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                        string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
                         int i = 0;
                         foreach (string s in parts) {
                             i = (i + 1) % 2;
@@ -634,7 +692,7 @@ namespace Zniffer {
                 }
                 else {
                     List<Run> runs = new List<Run>();
-                    string[] parts = txt.Split(new string[] { "<" + TAG + ">", "</" + TAG + ">" }, StringSplitOptions.None);
+                    string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
                     int i = 0;
                     foreach (string s in parts) {
                         i = (i + 1) % 2;
@@ -649,6 +707,7 @@ namespace Zniffer {
                 }
             }
         }
+        #endregion
 
         #region MenuItemClick
 

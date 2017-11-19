@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Zniffer;
+using CustomExtensions;
+
 
 namespace Zniffer {
     class Searcher {
@@ -42,38 +43,12 @@ namespace Zniffer {
             }
         }
 
-        public static string ExtractPhrase(string sourceText) {
-            StringBuilder sb = new StringBuilder();
+        public static LevenshteinMatches ExtractPhrase(string sourceText) {
+            //StringBuilder sb = new StringBuilder();
             string phrase = MainWindow.searchPhrase;
+            LevenshteinMatches matches = sourceText.LevenshteinMultiMatrixParallel(phrase);
 
-            int searchPhraseLength = phrase.Length;
-            //
-            //implement Levensthein metric
-            //
-            List<int> allStrings = AllIndexesOf(sourceText, phrase);
-            //
-
-            int charCount = 0;
-            int tmpPosition = 0;
-            foreach (int position in allStrings) {
-                tmpPosition = position - 10;
-                if (tmpPosition < 0)
-                    tmpPosition = 0;
-                charCount = position - tmpPosition;
-                sb.Append(sourceText.Substring(tmpPosition, charCount));
-
-                tmpPosition = position + 10 + searchPhraseLength;
-                if (tmpPosition >= sourceText.Length)
-                    tmpPosition = sourceText.Length;
-
-                sb.Append("<"+MainWindow.TAG+">");
-                sb.Append(sourceText.Substring(position, searchPhraseLength));
-                sb.Append("</" + MainWindow.TAG + ">");
-
-                charCount = tmpPosition - (position + searchPhraseLength);
-                sb.Append(sourceText.Substring(position + searchPhraseLength, charCount));
-            }
-            return sb.ToString();
+            return matches;
         }
 
         public static async Task<string> ReadTextAsync(string filePath) {
@@ -82,7 +57,7 @@ namespace Zniffer {
             sb.Append(ExtractPhrase(textFromFile));
             return sb.ToString();
         }
-
+        /*
         public static List<int> AllIndexesOf(string str, string value) {
             if (String.IsNullOrEmpty(value))
                 throw new ArgumentException("the string to find can not be empty", "value");
@@ -93,6 +68,6 @@ namespace Zniffer {
                     return indexes;
                 indexes.Add(index);
             }
-        }
+        }*/
     }
 }
