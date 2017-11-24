@@ -317,8 +317,9 @@ namespace Zniffer {
             //THISREF.AddTextToClipBoardBox(Searcher.ExtractPhrase(loggedKeyString));
 
             LevenshteinMatches result = Searcher.ExtractPhrase(loggedKeyString);
-            if (result.hasMatches)
-                THISREF.AddTextToClipBoardBox(result, Brushes.Red);
+            if (result.hasMatches) {
+                THISREF.AddTextToClipBoardBox(result);
+            }
 
 
             resetStringTimer.Start();
@@ -329,11 +330,11 @@ namespace Zniffer {
             foreach (string file in files) {
                 //Console.Out.WriteLine(File.ReadAllText(file));
                 try {
-                    string arr = await Searcher.ReadTextAsync(file);
+                    LevenshteinMatches matches = Searcher.ReadTextFromFile(file);
                     //foreach(string str in File.ReadLines(file))
-                    if (!arr.Equals("")) {
+                    if (matches.hasMatches) {
                         AddTextToFileBox(file);
-                        AddTextToFileBox(arr, Brushes.Red);
+                        AddTextToFileBox(matches);
                         AddTextToFileBox("");
                     }
                 }
@@ -573,6 +574,7 @@ namespace Zniffer {
                             else
                                 runs.Add(new Run(s));
                         }
+                        runs.Add(new Run("\r\n"));
                         foreach (var item in runs)
                             NetworkTextBlock.Inlines.Add(item);
                         NetworkTextBlock.Inlines.Add(new Run("\r\n"));
@@ -589,6 +591,7 @@ namespace Zniffer {
                         else
                             runs.Add(new Run(s));
                     }
+                    runs.Add(new Run("\r\n"));
                     foreach (var item in runs)
                         NetworkTextBlock.Inlines.Add(item);
                     NetworkTextBlock.Inlines.Add(new Run("\r\n"));
@@ -596,7 +599,7 @@ namespace Zniffer {
             }
         }
 
-        public void AddTextToClipBoardBox(LevenshteinMatches matches, SolidColorBrush brushe = null) {
+        public void AddTextToClipBoardBox(LevenshteinMatches matches) {
             if (matches.hasMatches) {
                 if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
                     ClipboardTextBlock.Dispatcher.Invoke(() => {
@@ -607,10 +610,11 @@ namespace Zniffer {
                             foreach (string s in parts) {
                                 i = (i + 1) % 2;
                                 if (i == 0)
-                                    runs.Add(new Run(s) { Foreground = brushe });
+                                    runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
                                 else
                                     runs.Add(new Run(s));
                             }
+                            runs.Add(new Run("\r\n"));
                             foreach (var item in runs)
                                 ClipboardTextBlock.Inlines.Add(item);
                             ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
@@ -625,85 +629,71 @@ namespace Zniffer {
                         foreach (string s in parts) {
                             i = (i + 1) % 2;
                             if (i == 0)
-                                runs.Add(new Run(s) { Foreground = brushe });
+                                runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
                             else
                                 runs.Add(new Run(s));
                         }
+                        runs.Add(new Run("\r\n"));
                         foreach (var item in runs)
                             ClipboardTextBlock.Inlines.Add(item);
                         ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
                     }
                 }
             }
-            /*
-                if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
-                    ClipboardTextBlock.Dispatcher.Invoke(() => {
-                        List<Run> runs = new List<Run>();
-                        string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
-                        int i = 0;
-                        foreach (string s in parts) {
-                            i = (i + 1) % 2;
-                            if (i == 0)
-                                runs.Add(new Run(s) { Foreground = brushe });
-                            else
-                                runs.Add(new Run(s));
-                        }
-                        foreach (var item in runs)
-                            ClipboardTextBlock.Inlines.Add(item);
-                        ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
-                    });
-                }
-                else {
-                    List<Run> runs = new List<Run>();
-                    string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
-                    int i = 0;
-                    foreach (string s in parts) {
-                        i = (i + 1) % 2;
-                        if (i == 0)
-                            runs.Add(new Run(s) { Foreground = brushe });
-                        else
-                            runs.Add(new Run(s));
-                    }
-                    foreach (var item in runs)
-                        ClipboardTextBlock.Inlines.Add(item);
-                    ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
-                }
-                */
         }
-
-        public void AddTextToFileBox(string txt, SolidColorBrush brushe = null) {
-            if (txt != null) {
+        public void AddTextToFileBox(string txt) {
+            if (txt != null && txt.Length!=0) {
                 if (!FilesTextBlock.Dispatcher.CheckAccess()) {
                     FilesTextBlock.Dispatcher.Invoke(() => {
-                        List<Run> runs = new List<Run>();
-                        string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
-                        int i = 0;
-                        foreach (string s in parts) {
-                            i = (i + 1) % 2;
-                            if (i == 0)
-                                runs.Add(new Run(s) { Foreground = brushe });
-                            else
-                                runs.Add(new Run(s));
-                        }
-                        foreach (var item in runs)
-                            FilesTextBlock.Inlines.Add(item);
+                        FilesTextBlock.Inlines.Add(new Run(txt));
                         FilesTextBlock.Inlines.Add(new Run("\r\n"));
                     });
                 }
                 else {
-                    List<Run> runs = new List<Run>();
-                    string[] parts = txt.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
-                    int i = 0;
-                    foreach (string s in parts) {
-                        i = (i + 1) % 2;
-                        if (i == 0)
-                            runs.Add(new Run(s) { Foreground = brushe });
-                        else
-                            runs.Add(new Run(s));
-                    }
-                    foreach (var item in runs)
-                        FilesTextBlock.Inlines.Add(item);
+                    FilesTextBlock.Inlines.Add(new Run(txt));
                     FilesTextBlock.Inlines.Add(new Run("\r\n"));
+                }
+            }
+        }
+        public void AddTextToFileBox(LevenshteinMatches matches) {
+            if (matches.hasMatches) {
+                if (!FilesTextBlock.Dispatcher.CheckAccess()) {
+                    FilesTextBlock.Dispatcher.Invoke(() => {
+                        List<Run> runs = new List<Run>();
+                        foreach (LevenshteinMatch match in matches.foundMatches) {
+                            string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                            int i = 0;
+                            foreach (string s in parts) {
+                                i = (i + 1) % 2;
+                                if (i == 0)
+                                    runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
+                                else
+                                    runs.Add(new Run(s));
+                            }
+                            runs.Add(new Run("\r\n"));
+                            foreach (var item in runs)
+                                FilesTextBlock.Inlines.Add(item);
+                            FilesTextBlock.Inlines.Add(new Run("\r\n"));
+                        }
+                    });
+                }
+                else {
+                    List<Run> runs = new List<Run>();
+                    foreach (LevenshteinMatch match in matches.foundMatches) {
+                        string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                        int i = 0;
+                        foreach (string s in parts) {
+                            i = (i + 1) % 2;
+                            if (i == 0)
+                                runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
+                            else
+                                runs.Add(new Run(s));
+                        }
+                        runs.Add(new Run("\r\n"));
+                        foreach (var item in runs)
+                            FilesTextBlock.Inlines.Add(item);
+                        FilesTextBlock.Inlines.Add(new Run("\r\n"));
+                    }
                 }
             }
         }

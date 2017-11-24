@@ -51,23 +51,9 @@ namespace Zniffer {
             return matches;
         }
 
-        public static async Task<string> ReadTextAsync(string filePath) {
-            StringBuilder sb = new StringBuilder();
+        public static LevenshteinMatches ReadTextFromFile(string filePath) {
             string textFromFile = File.ReadAllText(filePath);
-            sb.Append(ExtractPhrase(textFromFile));
-            return sb.ToString();
+            return ExtractPhrase(textFromFile);
         }
-        /*
-        public static List<int> AllIndexesOf(string str, string value) {
-            if (String.IsNullOrEmpty(value))
-                throw new ArgumentException("the string to find can not be empty", "value");
-            List<int> indexes = new List<int>();
-            for (int index = 0; ; index += value.Length) {
-                index = str.IndexOf(value, index);
-                if (index == -1)
-                    return indexes;
-                indexes.Add(index);
-            }
-        }*/
     }
 }

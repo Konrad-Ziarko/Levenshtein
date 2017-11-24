@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 using Zniffer;
 
 namespace CustomExtensions {
+
+    public static class ExtensionMethods {
+        public static int Map(this int value, int fromSource, int toSource, int fromTarget =0, int toTarget =255) {
+            return (int)((float)(value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget);
+        }
+    }
     public static class StringExtension {
 
         #region CUDA
@@ -103,18 +109,19 @@ namespace CustomExtensions {
         #endregion
 
 
-        public static string GetContext(this string str, int position, int length, int paddingLength = 10, char emptyChar = ' ') {
+        public static string GetContext(this string str, ref int position, int length, int paddingLength = 10) {
+            int startPosition = position >= paddingLength ? position - paddingLength : 0;
+            int endPosition = str.Length;
+
             string tmp = str;
-            int startPosition = position >= paddingLength ? position : paddingLength;
-            if (position < paddingLength)
-                tmp = new string(emptyChar, paddingLength - position) + str;
-            if (position + length + paddingLength > str.Length - position)
-                tmp = tmp + new string(emptyChar, paddingLength - (str.Length - (position + length)));
+            int tmpPosition = position;
 
-            tmp = tmp.Substring(startPosition - paddingLength, length + paddingLength * 2);
-            tmp = tmp.Insert(length + paddingLength, "</" + MainWindow.COLORTAG + ">");
-            tmp = tmp.Insert(paddingLength, "<" + MainWindow.COLORTAG + ">");
+            if (position + length + paddingLength <= str.Length)
+                endPosition = position + length + paddingLength;
 
+            tmp = tmp.Substring(startPosition, position - startPosition) + "<" + MainWindow.COLORTAG + ">" + tmp.Substring(position, length) +"</" + MainWindow.COLORTAG + ">" + tmp.Substring(position + length, endPosition - (position + length));
+            if (position > paddingLength)
+                position = position - startPosition;
             return tmp;
         }
 
