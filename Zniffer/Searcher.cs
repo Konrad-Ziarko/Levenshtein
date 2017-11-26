@@ -9,9 +9,40 @@ using CustomExtensions;
 
 namespace Zniffer {
     class Searcher {
+        private MainWindow window;
 
+        public Searcher(MainWindow window) {
+            this.window = window;
+        }
 
-        public static List<string> GetDirectories(string path, string searchPattern = "*",
+        public void SearchFiles(List<string> files, DriveInfo drive) {
+            foreach (string file in files) {
+                //Console.Out.WriteLine(File.ReadAllText(file));
+                try {
+                    LevenshteinMatches matches = ReadTextFromFile(file);
+                    //foreach(string str in File.ReadLines(file))
+                    if (matches.hasMatches) {
+                        window.AddTextToFileBox(file);
+                        window.AddTextToFileBox(matches);
+                        window.AddTextToFileBox("");
+                    }
+                }
+                catch (UnauthorizedAccessException) {
+                    window.AddTextToFileBox("Cannot access:" + file);
+                }
+                catch (IOException) {
+                    //odłączenie urządzenia np
+                }
+                catch (ArgumentException) {
+
+                }
+                if (drive.DriveFormat.Equals("NTFS")) {
+                    //search for ads
+                }
+            }
+        }
+
+        public List<string> GetDirectories(string path, string searchPattern = "*",
         SearchOption searchOption = SearchOption.TopDirectoryOnly) {
             if (searchOption == SearchOption.TopDirectoryOnly)
                 return Directory.GetDirectories(path, searchPattern).ToList();
@@ -24,7 +55,7 @@ namespace Zniffer {
             return directories;
         }
 
-        private static List<string> GetDirectories(string path, string searchPattern) {
+        private List<string> GetDirectories(string path, string searchPattern) {
             try {
                 return Directory.GetDirectories(path, searchPattern).ToList();
             }
@@ -33,7 +64,7 @@ namespace Zniffer {
             }
         }
 
-        public static List<string> GetFiles(string path) {
+        public List<string> GetFiles(string path) {
             string searchPattern = "*";
             try {
                 return Directory.GetFiles(path, searchPattern).ToList();
@@ -43,15 +74,15 @@ namespace Zniffer {
             }
         }
 
-        public static LevenshteinMatches ExtractPhrase(string sourceText) {
+        public LevenshteinMatches ExtractPhrase(string sourceText) {
             //StringBuilder sb = new StringBuilder();
             string phrase = MainWindow.SearchPhrase;
-            LevenshteinMatches matches = sourceText.LevenshteinMultiMatrixParallel(phrase);
+            LevenshteinMatches matches = sourceText.Levenshtein(phrase, mode: LevenshteinMode.SplitForSingleMatrixCPU);
 
             return matches;
         }
 
-        public static LevenshteinMatches ReadTextFromFile(string filePath) {
+        public LevenshteinMatches ReadTextFromFile(string filePath) {
             string textFromFile = File.ReadAllText(filePath);
             return ExtractPhrase(textFromFile);
         }

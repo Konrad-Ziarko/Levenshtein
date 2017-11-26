@@ -235,6 +235,8 @@ namespace Zniffer {
         }
         #endregion
 
+        private Sniffer sniffer;
+        private Searcher searcher;
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
 
@@ -259,40 +261,17 @@ namespace Zniffer {
             foreach (string ext in Properties.Settings.Default.UsedExtensions)
                 UsedExt.Add(new FileExtensionClass(ext));
 
-            
+            //TODO implement sniffer
+            sniffer = new Sniffer();
+            searcher = new Searcher(this);
         }
 
-        
-
-        
 
 
-        private async void SearchFiles(List<string> files, DriveInfo drive) {
-            foreach (string file in files) {
-                //Console.Out.WriteLine(File.ReadAllText(file));
-                try {
-                    LevenshteinMatches matches = Searcher.ReadTextFromFile(file);
-                    //foreach(string str in File.ReadLines(file))
-                    if (matches.hasMatches) {
-                        AddTextToFileBox(file);
-                        AddTextToFileBox(matches);
-                        AddTextToFileBox("");
-                    }
-                }
-                catch (UnauthorizedAccessException) {
-                    AddTextToFileBox("Cannot access:" + file);
-                }
-                catch (IOException) {
-                    //odłączenie urządzenia np
-                }
-                catch (ArgumentException) {
 
-                }
-                if (drive.DriveFormat.Equals("NTFS")) {
-                    //search for ads
-                }
-            }
-        }
+
+
+
 
         //discovering new drives
         private void NewDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
@@ -303,16 +282,16 @@ namespace Zniffer {
 
             foreach (DriveInfo drive in DriveInfo.GetDrives()) {
                 if (drive.Name.Equals(e.NewEvent.Properties["DriveName"].Value.ToString() + "\\")) {
-                    List<string> directories = Searcher.GetDirectories(drive.Name);
+                    List<string> directories = searcher.GetDirectories(drive.Name);
 
-                    List<string> files = Searcher.GetFiles(drive.Name);
-                    SearchFiles(files, drive);
+                    List<string> files = searcher.GetFiles(drive.Name);
+                    searcher.SearchFiles(files, drive);
 
                     foreach (string directory in directories) {
                         //Console.Out.WriteLine(directory);
 
-                        files = Searcher.GetFiles(directory);
-                        SearchFiles(files, drive);
+                        files = searcher.GetFiles(directory);
+                        searcher.SearchFiles(files, drive);
                     }
                 }
 
@@ -322,9 +301,6 @@ namespace Zniffer {
 
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
-            //TODO implement sniffer
-            Sniffer snf = new Sniffer();
-
             ////
             string s = "1234567890";
             //s = string.Concat(Enumerable.Repeat(s, 5000));
@@ -334,7 +310,7 @@ namespace Zniffer {
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //long memory = GC.GetTotalMemory(true);
-            var res = s.LevenshteinMultiMatrixParallel(expression);
+            var res = s.Levenshtein(expression, mode: LevenshteinMode.SplitForSingleMatrixCPU);
             //long memory2 = GC.GetTotalMemory(true);
             watch.Stop();
 
@@ -342,7 +318,7 @@ namespace Zniffer {
 
             var watch2 = System.Diagnostics.Stopwatch.StartNew();
             //long memory = GC.GetTotalMemory(true);
-            var res2 = s.LevenshteinMultiMatrixSingleThread(expression);
+            var res2 = s.Levenshtein(expression, mode: LevenshteinMode.SplitForSingleMatrixCPU);
             //long memory2 = GC.GetTotalMemory(true);
             watch2.Stop();
 
@@ -503,7 +479,7 @@ namespace Zniffer {
         }
 
         #region AddTextTo
-        public void _AddTextToNetworkBox(LevenshteinMatches matches) {
+        private void _AddTextToNetworkBox(LevenshteinMatches matches) {
             List<Run> runs = new List<Run>();
             foreach (LevenshteinMatch match in matches.foundMatches) {
                 string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
@@ -546,7 +522,7 @@ namespace Zniffer {
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("\r\n"));
+                runs.Add(new Run("「" + match.distance+ "」\r\n"));
                 foreach (var item in runs)
                     ClipboardTextBlock.Inlines.Add(item);
                 ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
@@ -579,7 +555,7 @@ namespace Zniffer {
             }
         }
 
-        public void _AddTextToFileBox(LevenshteinMatches matches) {
+        private void _AddTextToFileBox(LevenshteinMatches matches) {
             List<Run> runs = new List<Run>();
             foreach (LevenshteinMatch match in matches.foundMatches) {
                 string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);

@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
+using CustomExtensions;
 
 namespace Zniffer {
     class KeyLogger {
@@ -102,7 +103,10 @@ namespace Zniffer {
             //Console.Out.WriteLine(loggedKeyString);
             //THISREF.AddTextToClipBoardBox(Searcher.ExtractPhrase(loggedKeyString));
 
-            LevenshteinMatches result = Searcher.ExtractPhrase(loggedKeyString);
+            string phrase = MainWindow.SearchPhrase;
+            //way to change levenshtein methode
+            LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: LevenshteinMode.SplitForSingleMatrixCPU);
+
             if (result.hasMatches) {
                 window.AddTextToClipBoardBox(result);
             }

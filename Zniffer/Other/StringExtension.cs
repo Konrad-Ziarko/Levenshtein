@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 using Zniffer;
 
 namespace CustomExtensions {
+    public enum LevenshteinMode {
+        SingleMatixCPU=0,
+        SplitForSingleMatrixCPU,
+        MultiMatrixSingleThread,
+        MultiMatrixParallel,
+    }
 
     public static class ExtensionMethods {
         public static int Map(this int value, int fromSource, int toSource, int fromTarget =0, int toTarget =255) {
@@ -21,8 +27,25 @@ namespace CustomExtensions {
 
         #endregion
 
+
+        public static LevenshteinMatches Levenshtein(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false, LevenshteinMode mode = 0) {
+            if (mode == LevenshteinMode.SingleMatixCPU) {
+                return str.LevenshteinSingleMatrixCPU(expression, maxDistance, onlyBestResults, caseSensitive);
+            }
+            else if (mode == LevenshteinMode.SplitForSingleMatrixCPU) {
+
+            }
+            else if(mode == LevenshteinMode.MultiMatrixSingleThread) {
+                return str.LevenshteinMultiMatrixSingleThread(expression, maxDistance, onlyBestResults, caseSensitive);
+            }
+            else if (mode == LevenshteinMode.MultiMatrixParallel) {
+                return str.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive);
+            }
+            throw new NotImplementedException();
+        }
+
         #region MutliMatrix
-        public static LevenshteinMatches LevenshteinMultiMatrixSingleThread(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        private static LevenshteinMatches LevenshteinMultiMatrixSingleThread(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length/2;
 
@@ -55,7 +78,7 @@ namespace CustomExtensions {
         }
 
 
-        public static LevenshteinMatches LevenshteinMultiMatrixParallel(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        private static LevenshteinMatches LevenshteinMultiMatrixParallel(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (str.Length > 0) {
                 if (maxDistance < 0)
                     maxDistance = expression.Length / 2;
@@ -126,8 +149,11 @@ namespace CustomExtensions {
         }
 
         #region SingleMatrix
+        private static LevenshteinMatches LevenshteinSplitForSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+            return null;
+        }
 
-        public static LevenshteinMatch LevenshteinSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool caseSensitive = false) {
+        private static LevenshteinMatches LevenshteinSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length/2;
 
@@ -145,7 +171,7 @@ namespace CustomExtensions {
                 //if matrix is square compute single matrix
                 int distance = SqueareLevenshteinCPU(dimension, str, expression, strLen, caseSensitive);
                 if (distance < maxDistance)
-                    return new LevenshteinMatch(str, 0, strLen, distance);
+                    return new LevenshteinMatches(new LevenshteinMatch(str, 0, strLen, distance));//temp
                 else
                     return null;
             }
@@ -171,9 +197,8 @@ namespace CustomExtensions {
 
             //find best match in string
 
-
             if (dimension[strLen, exprLen] <= maxDistance)
-                return new LevenshteinMatch(str, 0, strLen, dimension[strLen, exprLen]);
+                return new LevenshteinMatches(new LevenshteinMatch(str, 0, strLen, dimension[strLen, exprLen]));//temp
             else
                 return null;
         }
