@@ -45,7 +45,7 @@ namespace Zniffer {
 
         public static LevenshteinMatches ExtractPhrase(string sourceText) {
             //StringBuilder sb = new StringBuilder();
-            string phrase = MainWindow.searchPhrase;
+            string phrase = MainWindow.SearchPhrase;
             LevenshteinMatches matches = sourceText.LevenshteinMultiMatrixParallel(phrase);
 
             return matches;
