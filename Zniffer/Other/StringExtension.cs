@@ -33,7 +33,7 @@ namespace CustomExtensions {
                 return str.LevenshteinSingleMatrixCPU(expression, maxDistance, onlyBestResults, caseSensitive);
             }
             else if (mode == LevenshteinMode.SplitForSingleMatrixCPU) {
-
+                return null;
             }
             else if(mode == LevenshteinMode.MultiMatrixSingleThread) {
                 return str.LevenshteinMultiMatrixSingleThread(expression, maxDistance, onlyBestResults, caseSensitive);
@@ -41,7 +41,9 @@ namespace CustomExtensions {
             else if (mode == LevenshteinMode.MultiMatrixParallel) {
                 return str.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive);
             }
-            throw new NotImplementedException();
+            else {
+                throw new NotImplementedException();
+            }
         }
 
         #region MutliMatrix

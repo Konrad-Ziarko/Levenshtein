@@ -107,7 +107,7 @@ namespace Zniffer {
             //way to change levenshtein methode
             LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: LevenshteinMode.SplitForSingleMatrixCPU);
 
-            if (result.hasMatches) {
+            if (result !=null && result.hasMatches) {
                 window.AddTextToClipBoardBox(result);
             }
 

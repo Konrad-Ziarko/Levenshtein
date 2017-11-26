@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 
-namespace Zniffer.Network {
+namespace Zniffer {
     public class DNSHeader {
         //DNS header fields
         private ushort usIdentification;        //Sixteen bits for identification

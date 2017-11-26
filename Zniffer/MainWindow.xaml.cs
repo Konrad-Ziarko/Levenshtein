@@ -334,14 +334,14 @@ namespace Zniffer {
 
             //check file system // if ntfs look for ADSs
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
-                Console.Out.WriteLine("Drive {0}", d.Name);
-                Console.Out.WriteLine("  Drive type: {0}", d.DriveType.ToString());
+                //Console.Out.WriteLine("Drive {0}", d.Name);
+                //Console.Out.WriteLine("  Drive type: {0}", d.DriveType.ToString());
                 if (d.IsReady == true) {
-                    Console.Out.WriteLine("  Volume label: {0}", d.VolumeLabel);
-                    Console.Out.WriteLine("  File system: {0}", d.DriveFormat);
-                    Console.Out.WriteLine("  Available space to current user:{0, 15} bytes", d.AvailableFreeSpace.ToString());
-                    Console.Out.WriteLine("  Total available space:          {0, 15} bytes", d.TotalFreeSpace.ToString());
-                    Console.Out.WriteLine("  Total size of drive:            {0, 15} bytes ", d.TotalSize.ToString());
+                    //Console.Out.WriteLine("  Volume label: {0}", d.VolumeLabel);
+                    //Console.Out.WriteLine("  File system: {0}", d.DriveFormat);
+                    //Console.Out.WriteLine("  Available space to current user:{0, 15} bytes", d.AvailableFreeSpace.ToString());
+                    //Console.Out.WriteLine("  Total available space:          {0, 15} bytes", d.TotalFreeSpace.ToString());
+                    //Console.Out.WriteLine("  Total size of drive:            {0, 15} bytes ", d.TotalSize.ToString());
                 }
                 try {
                     avaliableDrives.Add(d.Name, d.DriveFormat);
@@ -361,13 +361,13 @@ namespace Zniffer {
                     if (currentBitsPerPixel.Value != null)
                         ;
                 }*/
-                Console.Out.WriteLine(description.Value.ToString());
+                //Console.Out.WriteLine(description.Value.ToString());
             }
 
             //check for the amount of ram
             double amoutOfRam = new Microsoft.VisualBasic.Devices.ComputerInfo().TotalPhysicalMemory;
             double amountOfMBOfRam = amoutOfRam / 1024 / 1024;
-            Console.Out.WriteLine("" + amountOfMBOfRam);
+            //Console.Out.WriteLine("" + amountOfMBOfRam);
 
 
             //detect new network connections/interfaces
@@ -379,27 +379,27 @@ namespace Zniffer {
             foreach (NetworkInterface adapter in adapters) {
                 string ipAddrList = string.Empty;
                 IPInterfaceProperties properties = adapter.GetIPProperties();
-                Console.Out.WriteLine(adapter.Description);
-                Console.Out.WriteLine("  DNS suffix .............................. : {0}", properties.DnsSuffix);
-                Console.Out.WriteLine("  DNS enabled ............................. : {0}", properties.IsDnsEnabled.ToString());
-                Console.Out.WriteLine("  Dynamically configured DNS .............. : {0}", properties.IsDynamicDnsEnabled.ToString());
+                //Console.Out.WriteLine(adapter.Description);
+                //Console.Out.WriteLine("  DNS suffix .............................. : {0}", properties.DnsSuffix);
+                //Console.Out.WriteLine("  DNS enabled ............................. : {0}", properties.IsDnsEnabled.ToString());
+                //Console.Out.WriteLine("  Dynamically configured DNS .............. : {0}", properties.IsDynamicDnsEnabled.ToString());
 
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
-                            Console.Out.WriteLine("Ip Addresses " + ip.Address.ToString());
+                            //Console.Out.WriteLine("Ip Addresses " + ip.Address.ToString());
                             AvaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
                         }
                 }
-                Console.Out.WriteLine("\n");
+                //Console.Out.WriteLine("\n");
             }
 
 
             //Print more info
-            Console.Out.WriteLine("\n");
-            Console.Out.WriteLine("User Domain Name: " + Environment.UserDomainName);
-            Console.Out.WriteLine("Machine Name: " + Environment.MachineName);
-            Console.Out.WriteLine("User Name " + Environment.UserName);
+            //Console.Out.WriteLine("\n");
+            //Console.Out.WriteLine("User Domain Name: " + Environment.UserDomainName);
+            //Console.Out.WriteLine("Machine Name: " + Environment.MachineName);
+            //Console.Out.WriteLine("User Name " + Environment.UserName);
 
 
 
