@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using CustomExtensions;
 using System.Net;
+using System.Collections.ObjectModel;
 
 namespace Zniffer {
     public enum Protocol {
@@ -23,20 +24,79 @@ namespace Zniffer {
     };
     class Sniffer : Control{
 
-       
-        //
-        private Socket mainSocket;                          //The socket which captures all incoming packets
-        private byte[] byteData = new byte[4096];
-        private bool bContinueCapturing = false;            //A flag to check if packets are to be captured or not
+        public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
+        public ObservableCollection<Socket> Connections = new ObservableCollection<Socket>();
+        public ObservableCollection<AsyncCallback> Callbacks = new ObservableCollection<AsyncCallback>();
 
+        //
+
+        public bool newInterfaceAdded(InterfaceClass interfaceObj) {
+            if (UsedInterfaces.Contains(interfaceObj)){
+                return false;
+            }
+            else {
+                UsedInterfaces.Add(interfaceObj);
+
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
+                Connections.Add(socket);
+                
+                socket.Bind(new IPEndPoint(IPAddress.Parse(interfaceObj.Addres), 0));
+
+                socket.SetSocketOption(SocketOptionLevel.IP,            //Applies only to IP packets
+                                       SocketOptionName.HeaderIncluded, //Set the include the header
+                                       true);                           //option to true
+
+                byte[] byTrue = new byte[4] { 1, 0, 0, 0 };
+                byte[] byOut = new byte[4] { 1, 0, 0, 0 }; //Capture outgoing packets
+
+                //Socket.IOControl is analogous to the WSAIoctl method of Winsock 2
+                socket.IOControl(IOControlCode.ReceiveAll,              //Equivalent to SIO_RCVALL constant
+                                                                            //of Winsock 2
+                                     byTrue,
+                                     byOut);
+
+                //Start receiving the packets asynchronously
+                AsyncCallback callback = ar => {
+                    try {
+                        int nReceived = socket.EndReceive(ar);
+
+                        //Analyze the bytes received...
+                        ParseData(interfaceObj.byteData, nReceived);
+                        //
+                        if (interfaceObj.ContinueCapturing) {
+                            interfaceObj.byteData = new byte[4096];
+
+                            //Another call to BeginReceive so that we continue to receive the incoming
+                            //packets
+                            socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None,
+                                new AsyncCallback(OnReceive), null);
+                        }
+                    }
+                    catch (ObjectDisposedException) {
+                    }
+                    catch (Exception ex) {
+                        MessageBox.Show(ex.Message, "MJsniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                };
+
+                    
+
+                socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+
+                return true;
+            }
+        }
+        public void removeInterface(InterfaceClass interfaceObj) {
+            int index = UsedInterfaces.IndexOf(interfaceObj);
+            UsedInterfaces[index].ContinueCapturing = false;
+        }
 
         public Sniffer() {
+            //this.UsedInterfaces = UsedInterfaces;
 
-
-            Console.Out.WriteLine();
-
+            /*
+            //list interfaces
             string strIP = null;
-
             IPHostEntry HosyEntry = Dns.GetHostEntry((Dns.GetHostName()));
             if (HosyEntry.AddressList.Length > 0) {
                 foreach (IPAddress ip in HosyEntry.AddressList) {
@@ -45,35 +105,9 @@ namespace Zniffer {
                         Console.Out.WriteLine(strIP);
                         //cmbInterfaces.Items.Add(strIP);
                     }
-
                 }
             }
-
-
-            mainSocket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
-
-            //Bind the socket to the selected IP address
-            mainSocket.Bind(new IPEndPoint(IPAddress.Parse("192.168.0.143"), 0));
-
-            //Set the socket  options
-            mainSocket.SetSocketOption(SocketOptionLevel.IP,            //Applies only to IP packets
-                                       SocketOptionName.HeaderIncluded, //Set the include the header
-                                       true);                           //option to true
-
-            byte[] byTrue = new byte[4] { 1, 0, 0, 0 };
-            byte[] byOut = new byte[4] { 1, 0, 0, 0 }; //Capture outgoing packets
-
-            //Socket.IOControl is analogous to the WSAIoctl method of Winsock 2
-            mainSocket.IOControl(IOControlCode.ReceiveAll,              //Equivalent to SIO_RCVALL constant
-                                                                        //of Winsock 2
-                                 byTrue,
-                                 byOut);
-
-            //Start receiving the packets asynchronously
-            mainSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
-                new AsyncCallback(OnReceive), null);
-
-
+            */
         }
 
         private void OnReceive(IAsyncResult ar) {
@@ -82,8 +116,11 @@ namespace Zniffer {
 
                 //Analyze the bytes received...
 
+                
+
                 ParseData(byteData, nReceived);
 
+                //
                 if (bContinueCapturing) {
                     byteData = new byte[4096];
 
@@ -145,7 +182,7 @@ namespace Zniffer {
                     break;
             }
 
-            Console.WriteLine(ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString());
+            Console.WriteLine(ipHeader.ProtocolType + "/" + ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString());
 
         }
     }

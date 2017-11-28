@@ -11,10 +11,12 @@ using System.Windows.Media;
 namespace Zniffer {
     [Serializable()]
     public class InterfaceClass : INotifyPropertyChanged {
-        public string _ports;
-        public string _addres;
-        public bool _used;
-        public bool _interfaceIsUp;
+        private string _ports;
+        private string _addres;
+        private bool _used;
+        private bool _interfaceIsUp;
+        private bool _continueCapturing;
+        public byte[] byteData = new byte[4096];
 
         public string Addres {
             get; set;
@@ -45,17 +47,28 @@ namespace Zniffer {
             }
         }
 
+        public bool ContinueCapturing {
+            get {
+                return _continueCapturing;
+            }
+            set {
+                _continueCapturing = value;
+            }
+        }
+
         public InterfaceClass(string addres, string ports) {
-            this.Addres = addres;
-            this.Ports = ports;
-            this.Used = false;
-            InterfaceIsUp = false;
+            this._addres = addres;
+            this._ports = ports;
+            this._used = false;
+            _interfaceIsUp = false;
+            _continueCapturing = true;
         }
         public InterfaceClass(string addres, string ports, bool used) {
-            this.Addres = addres;
-            this.Ports = ports;
-            this.Used = used;
-            InterfaceIsUp = false;
+            this._addres = addres;
+            this._ports = ports;
+            this._used = used;
+            _interfaceIsUp = false;
+            _continueCapturing = true;
         }
         private void OnPropertyChanged(string propertyName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
