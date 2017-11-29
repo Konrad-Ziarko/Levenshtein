@@ -30,68 +30,55 @@ namespace Zniffer {
 
         //
 
-        public bool newInterfaceAdded(InterfaceClass interfaceObj) {
-            if (UsedInterfaces.Contains(interfaceObj)){
-                return false;
-            }
-            else {
-                UsedInterfaces.Add(interfaceObj);
+        private void addNewInterface(InterfaceClass interfaceObj) {
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
+            Connections.Add(socket);
 
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
-                Connections.Add(socket);
-                
-                socket.Bind(new IPEndPoint(IPAddress.Parse(interfaceObj.Addres), 0));
+            socket.Bind(new IPEndPoint(IPAddress.Parse(interfaceObj.Addres), 0));
 
-                socket.SetSocketOption(SocketOptionLevel.IP,            //Applies only to IP packets
-                                       SocketOptionName.HeaderIncluded, //Set the include the header
-                                       true);                           //option to true
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);           //Applies only to IP packets Set the include the header option to true
 
-                byte[] byTrue = new byte[4] { 1, 0, 0, 0 };
-                byte[] byOut = new byte[4] { 1, 0, 0, 0 }; //Capture outgoing packets
+            byte[] byTrue = new byte[4] { 1, 0, 0, 0 };
+            byte[] byOut = new byte[4] { 1, 0, 0, 0 }; //Capture outgoing packets
 
-                //Socket.IOControl is analogous to the WSAIoctl method of Winsock 2
-                socket.IOControl(IOControlCode.ReceiveAll,              //Equivalent to SIO_RCVALL constant
-                                                                            //of Winsock 2
-                                     byTrue,
-                                     byOut);
+            //Socket.IOControl is analogous to the WSAIoctl method of Winsock 2 Equivalent to SIO_RCVALL constant of Winsock 2
+            socket.IOControl(IOControlCode.ReceiveAll, byTrue, byOut);
 
-                //Start receiving the packets asynchronously
-                AsyncCallback callback = ar => {
-                    try {
-                        int nReceived = socket.EndReceive(ar);
+            //Start receiving the packets asynchronously
+            AsyncCallback callback = null;
+            callback = ar => {
+                try {
+                    int nReceived = socket.EndReceive(ar);
 
-                        //Analyze the bytes received...
-                        ParseData(interfaceObj.byteData, nReceived);
-                        //
-                        if (interfaceObj.ContinueCapturing) {
-                            interfaceObj.byteData = new byte[4096];
+                    //Analyze the bytes received...
+                    ParseData(interfaceObj.byteData, nReceived);
+                    //
+                    if (interfaceObj.ContinueCapturing) {
+                        interfaceObj.byteData = new byte[4096];
 
-                            //Another call to BeginReceive so that we continue to receive the incoming
-                            //packets
-                            socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None,
-                                new AsyncCallback(OnReceive), null);
-                        }
+                        //Another call to BeginReceive so that we continue to receive the incoming packets
+                        socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(callback), null);
                     }
-                    catch (ObjectDisposedException) {
-                    }
-                    catch (Exception ex) {
-                        MessageBox.Show(ex.Message, "MJsniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                };
+                }
+                catch (ObjectDisposedException) {
+                }
+                catch (Exception ex) {
+                    MessageBox.Show(ex.Message, "Sniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
 
-                    
+            Callbacks.Add(callback);
 
-                socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-
-                return true;
-            }
+            socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(callback), null);
         }
         public void removeInterface(InterfaceClass interfaceObj) {
             int index = UsedInterfaces.IndexOf(interfaceObj);
             UsedInterfaces[index].ContinueCapturing = false;
         }
 
-        public Sniffer() {
+        public Sniffer(ref ObservableCollection<InterfaceClass> UsedInterfaces) {
+            this.UsedInterfaces = UsedInterfaces;
+            UsedInterfaces.CollectionChanged += UsedInterfaces_CollectionChanged;
             //this.UsedInterfaces = UsedInterfaces;
 
             /*
@@ -110,32 +97,38 @@ namespace Zniffer {
             */
         }
 
-        private void OnReceive(IAsyncResult ar) {
-            try {
-                int nReceived = mainSocket.EndReceive(ar);
+        private void UsedInterfaces_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
+            //Only if main does not overrides this event
 
-                //Analyze the bytes received...
-
-                
-
-                ParseData(byteData, nReceived);
-
-                //
-                if (bContinueCapturing) {
-                    byteData = new byte[4096];
-
-                    //Another call to BeginReceive so that we continue to receive the incoming
-                    //packets
-                    mainSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
-                        new AsyncCallback(OnReceive), null);
-                }
-            }
-            catch (ObjectDisposedException) {
-            }
-            catch (Exception ex) {
-                MessageBox.Show(ex.Message, "MJsniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
+
+                /*
+        private void OnReceive(IAsyncResult ar) {
+           try {
+               int nReceived = mainSocket.EndReceive(ar);
+
+               //Analyze the bytes received...
+
+
+
+               ParseData(byteData, nReceived);
+
+               //
+               if (bContinueCapturing) {
+                   byteData = new byte[4096];
+
+                   //Another call to BeginReceive so that we continue to receive the incoming
+                   //packets
+                   mainSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
+                       new AsyncCallback(OnReceive), null);
+               }
+           }
+           catch (ObjectDisposedException) {
+           }
+           catch (Exception ex) {
+               MessageBox.Show(ex.Message, "MJsniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+           }
+        }*/
 
         private void ParseData(byte[] byteData, int nReceived) {
             //Since all protocol packets are encapsulated in the IP datagram
@@ -147,21 +140,20 @@ namespace Zniffer {
             //the data field of the datagram
             switch (ipHeader.ProtocolType) {
                 case Protocol.TCP:
-
-                    TCPHeader tcpHeader = new TCPHeader(ipHeader.Data,              //IPHeader.Data stores the data being 
-                                                                                    //carried by the IP datagram
-                                                        ipHeader.MessageLength);//Length of the data field                    
+                    TCPHeader tcpHeader = new TCPHeader(ipHeader.Data, ipHeader.MessageLength);//IPHeader.Data stores the data being carried by the IP datagram Length of the data field   
 
                     //If the port is equal to 53 then the underlying protocol is DNS
                     //Note: DNS can use either TCP or UDP thats why the check is done twice
                     if (tcpHeader.DestinationPort == "53" || tcpHeader.SourcePort == "53") {
                         DNSHeader dnsHeader = new DNSHeader(tcpHeader.Data, (int)tcpHeader.MessageLength);
+                        Console.Write("DNS/");
                     }
-
+                    Console.Write(tcpHeader.DestinationPort);
+                    Console.WriteLine("/" + ipHeader.ProtocolType + "/" + ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString()
+                + "\n\t:" + Encoding.Default.GetString(tcpHeader.Data));
                     break;
 
                 case Protocol.UDP:
-
                     UDPHeader udpHeader = new UDPHeader(ipHeader.Data,              //IPHeader.Data stores the data being 
                                                                                     //carried by the IP datagram
                                                        (int)ipHeader.MessageLength);//Length of the data field                    
@@ -169,21 +161,35 @@ namespace Zniffer {
                     //If the port is equal to 53 then the underlying protocol is DNS
                     //Note: DNS can use either TCP or UDP thats why the check is done twice
                     if (udpHeader.DestinationPort == "53" || udpHeader.SourcePort == "53") {
-
+                        Console.Write("DNS/");
                         DNSHeader dnsHeader = new DNSHeader(udpHeader.Data,
                                                            //Length of UDP header is always eight bytes so we subtract that out of the total 
                                                            //length to find the length of the data
                                                            Convert.ToInt32(udpHeader.Length) - 8);
                     }
-
+                    Console.Write(udpHeader.DestinationPort);
+                    Console.WriteLine("/" + ipHeader.ProtocolType + "/" + ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString()
+                + "\n\t:" + Encoding.UTF8.GetString(udpHeader.Data));
                     break;
-
                 case Protocol.Unknown:
                     break;
             }
+            
+        }
 
-            Console.WriteLine(ipHeader.ProtocolType + "/" + ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString());
+        internal void removeAllConnections() {
+            foreach(var connection in Connections) {
+                connection.Close();
+            }
+            Connections = new ObservableCollection<Socket>();
 
+            Callbacks = new ObservableCollection<AsyncCallback>();
+        }
+
+        internal void addAllConnections() {
+            foreach (var iFace in UsedInterfaces) {
+                addNewInterface(iFace);
+            }
         }
     }
 }

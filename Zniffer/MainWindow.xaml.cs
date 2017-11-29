@@ -262,15 +262,9 @@ namespace Zniffer {
                 UsedExt.Add(new FileExtensionClass(ext));
 
             //TODO implement sniffer
-            sniffer = new Sniffer();
+            sniffer = new Sniffer(ref UsedInterfaces);
             searcher = new Searcher(this);
         }
-
-
-
-
-
-
 
 
         //discovering new drives
@@ -302,10 +296,10 @@ namespace Zniffer {
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
             ////
-            string s = "1234567890";
+            string s = "abcabc def ghi jkl l";
             //s = string.Concat(Enumerable.Repeat(s, 5000));
 
-            var expression = "456";
+            var expression = "ghj";
 
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -602,9 +596,21 @@ namespace Zniffer {
 
         private void MISourceInterfaces_Click(object sender, RoutedEventArgs e) {
             networkSettingsWindow = new BaseWindow() { Owner = this };
+            networkSettingsWindow.Closing += NetworkSettingsWindow_Closing;
+
             networkSettingsWindow.ClientArea.Content = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces, ref networkSettingsWindow);
             networkSettingsWindow.ShowDialog();
 
+        }
+
+        private void NetworkSettingsWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+            //compare avaliable and used interfaces
+
+            //throw new NotImplementedException();
+
+            //InterfaceClass tmp = UsedInterfaces[0];
+
+            //sniffer.newInterfaceAdded(tmp);
         }
 
         private void MINewSession_Click(object sender, RoutedEventArgs e) {
@@ -627,6 +633,15 @@ namespace Zniffer {
 
         private void NetworkScrollViewr_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
 
+        }
+
+        private void MISniff_Click(object sender, RoutedEventArgs e) {
+            if (MISniff.IsChecked) {
+                sniffer.addAllConnections();
+            }
+            else {
+                sniffer.removeAllConnections();
+            }
         }
 
         private void MISaveMultipleFiles_Click(object sender, RoutedEventArgs e) {

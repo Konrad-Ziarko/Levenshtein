@@ -1046,6 +1046,13 @@
                                 <GradientStop Color="#FF2E2E2E" Offset="0"/>
                             </LinearGradientBrush>
                         </MenuItem.Background>
+                        <MenuItem Header="Nasłuchuj" Name="MISniff" Click="MISniff_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" IsCheckable="True">
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                        </MenuItem>
                         <MenuItem Header="Interfejsy źródłowe..." Name="MISourceInterfaces" Click="MISourceInterfaces_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
                             <MenuItem.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">

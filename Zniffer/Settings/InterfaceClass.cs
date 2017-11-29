@@ -57,18 +57,18 @@ namespace Zniffer {
         }
 
         public InterfaceClass(string addres, string ports) {
-            this._addres = addres;
-            this._ports = ports;
-            this._used = false;
-            _interfaceIsUp = false;
-            _continueCapturing = true;
+            this.Addres = addres;
+            this.Ports = ports;
+            this.Used = false;
+            this.InterfaceIsUp = false;
+            this.ContinueCapturing = true;
         }
         public InterfaceClass(string addres, string ports, bool used) {
-            this._addres = addres;
-            this._ports = ports;
-            this._used = used;
-            _interfaceIsUp = false;
-            _continueCapturing = true;
+            this.Addres = addres;
+            this.Ports = ports;
+            this.Used = used;
+            this.InterfaceIsUp = false;
+            this.ContinueCapturing = true;
         }
         private void OnPropertyChanged(string propertyName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

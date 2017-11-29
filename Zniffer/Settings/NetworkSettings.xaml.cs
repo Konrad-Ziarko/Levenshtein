@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -53,6 +54,21 @@ namespace Zniffer
 
 
             List<string> networkInterfaces = new List<string>();
+
+            /*
+            string strIP = null;
+            IPHostEntry HosyEntry = Dns.GetHostEntry((Dns.GetHostName()));
+            if (HosyEntry.AddressList.Length > 0) {
+                foreach (IPAddress ip in HosyEntry.AddressList) {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork) {
+                        networkInterfaces.Add(strIP);
+                        if (!this.AvaliableInterfaces.Any(x => x.Addres.Equals(strIP)) && !this.UsedInterfaces.Any(x => x.Addres.Equals(strIP)))
+                            this.AvaliableInterfaces.Add(new InterfaceClass(strIP, ""));
+                    }
+                }
+            }*/
+
+            
             foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces()) {
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
@@ -63,6 +79,7 @@ namespace Zniffer
                         }
                 }
             }
+            
             foreach (var interfaceObj in this.UsedInterfaces) {
                 if (networkInterfaces.Contains(interfaceObj.Addres))
                     interfaceObj.InterfaceIsUp = true;
