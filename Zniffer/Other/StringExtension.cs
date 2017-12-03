@@ -13,6 +13,7 @@ namespace CustomExtensions {
         SplitForSingleMatrixCPU,
         MultiMatrixSingleThread,
         MultiMatrixParallel,
+        DualRowCPU,
     }
 
     public static class ExtensionMethods {
@@ -40,6 +41,9 @@ namespace CustomExtensions {
             }
             else if (mode == LevenshteinMode.MultiMatrixParallel) {
                 return str.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive);
+            }
+            else if (mode == LevenshteinMode.DualRowCPU) {//memory efficient
+                return str.LevenshteinDualRowCPU(expression, maxDistance, onlyBestResults, caseSensitive);
             }
             else {
                 throw new NotImplementedException();
@@ -151,11 +155,27 @@ namespace CustomExtensions {
         }
 
         #region SingleMatrix
+
+        private static LevenshteinMatches LevenshteinDualRowCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+            if (maxDistance < 0)
+                maxDistance = expression.Length / 2;
+
+            List<LevenshteinMatch> newMatches = new List<LevenshteinMatch>();
+
+
+
+
+
+            throw new NotImplementedException();
+            return null;
+        }
+
+
         private static LevenshteinMatches LevenshteinSplitForSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length / 2;
 
-            List<string> words = str.Split(' ').ToList<string>();
+            List<string> words = str.Split(new[] { '\n', '\r', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             for (int i = words.Count - 1; i >= 0; i--) {
                 //remove too long and too short words
                 if(words[i].Length + 2 < expression.Length || words[i].Length - 2 > expression.Length) {//dist - 2

@@ -15,6 +15,8 @@ using System.Windows.Interop;
 using CustomExtensions;
 using System.Net;
 using System.Collections.ObjectModel;
+using PcapDotNet.Packets;
+using PcapDotNet.Core;
 
 namespace Zniffer {
     public enum Protocol {
@@ -31,7 +33,7 @@ namespace Zniffer {
         //
 
         private void addNewInterface(InterfaceClass interfaceObj) {
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
+            Socket socket = new Socket(System.Net.Sockets.AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
             Connections.Add(socket);
 
             socket.Bind(new IPEndPoint(IPAddress.Parse(interfaceObj.Addres), 0));
@@ -43,6 +45,9 @@ namespace Zniffer {
 
             //Socket.IOControl is analogous to the WSAIoctl method of Winsock 2 Equivalent to SIO_RCVALL constant of Winsock 2
             socket.IOControl(IOControlCode.ReceiveAll, byTrue, byOut);
+
+
+            //socket.ReceiveAsync();
 
             //Start receiving the packets asynchronously
             AsyncCallback callback = null;
@@ -71,6 +76,7 @@ namespace Zniffer {
 
             socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(callback), null);
         }
+
         public void removeInterface(InterfaceClass interfaceObj) {
             int index = UsedInterfaces.IndexOf(interfaceObj);
             UsedInterfaces[index].ContinueCapturing = false;

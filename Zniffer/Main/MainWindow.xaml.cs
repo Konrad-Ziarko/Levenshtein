@@ -319,6 +319,11 @@ namespace Zniffer {
             var elapsedMs2 = watch2.ElapsedMilliseconds;
             ////
 
+
+
+
+
+
             //attach to clipboard
             clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
@@ -333,15 +338,13 @@ namespace Zniffer {
                 if (d.IsReady == true) {
                     //Console.Out.WriteLine("  Volume label: {0}", d.VolumeLabel);
                     //Console.Out.WriteLine("  File system: {0}", d.DriveFormat);
-                    //Console.Out.WriteLine("  Available space to current user:{0, 15} bytes", d.AvailableFreeSpace.ToString());
-                    //Console.Out.WriteLine("  Total available space:          {0, 15} bytes", d.TotalFreeSpace.ToString());
-                    //Console.Out.WriteLine("  Total size of drive:            {0, 15} bytes ", d.TotalSize.ToString());
                 }
                 try {
                     avaliableDrives.Add(d.Name, d.DriveFormat);
                 }
                 catch (ArgumentException) {
-                    //pojawił się dysk o tej samej literce
+                    //connected drive with same letter;
+                    //remove disconnected drives from list
                 }
 
             }
@@ -369,32 +372,17 @@ namespace Zniffer {
 
             //look for network adapters
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-            //timer do szukania nowych interfejsów sieciowych albo nasłuchiwanie eventów o nowym interfejsie
             foreach (NetworkInterface adapter in adapters) {
                 string ipAddrList = string.Empty;
                 IPInterfaceProperties properties = adapter.GetIPProperties();
-                //Console.Out.WriteLine(adapter.Description);
-                //Console.Out.WriteLine("  DNS suffix .............................. : {0}", properties.DnsSuffix);
-                //Console.Out.WriteLine("  DNS enabled ............................. : {0}", properties.IsDnsEnabled.ToString());
-                //Console.Out.WriteLine("  Dynamically configured DNS .............. : {0}", properties.IsDynamicDnsEnabled.ToString());
-
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
-                            //Console.Out.WriteLine("Ip Addresses " + ip.Address.ToString());
                             AvaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
                         }
                 }
                 //Console.Out.WriteLine("\n");
             }
-
-
-            //Print more info
-            //Console.Out.WriteLine("\n");
-            //Console.Out.WriteLine("User Domain Name: " + Environment.UserDomainName);
-            //Console.Out.WriteLine("Machine Name: " + Environment.MachineName);
-            //Console.Out.WriteLine("User Name " + Environment.UserName);
-
 
 
             //detect flash memory

@@ -41,6 +41,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="PcapDotNet.Base, Version=1.0.4.25027, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Base.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PcapDotNet.Core, Version=1.0.4.25149, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=AMD64">
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PcapDotNet.Core.Extensions, Version=1.0.4.25151, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=AMD64">
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Core.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PcapDotNet.Packets, Version=1.0.4.25028, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Packets.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="presentationframework.aero2" />
     <Reference Include="System" />
@@ -69,7 +85,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="BaseWindow.xaml.cs">
+    <Compile Include="Main\BaseWindow.xaml.cs">
       <DependentUpon>BaseWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Other\LevenshteinMatches.cs" />
@@ -88,13 +104,13 @@
     <Compile Include="Settings\NetworkSettings.xaml.cs">
       <DependentUpon>NetworkSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Searcher.cs" />
-    <Compile Include="KeyLogger.cs" />
+    <Compile Include="Files and Text\Searcher.cs" />
+    <Compile Include="Files and Text\KeyLogger.cs" />
     <Compile Include="Network\DNSHeader.cs" />
     <Compile Include="Network\IPHeader.cs" />
-    <Compile Include="SoundCatcher.cs" />
+    <Compile Include="Other\SoundCatcher.cs" />
     <Compile Include="Other\StringExtension.cs" />
-    <Page Include="BaseWindow.xaml">
+    <Page Include="Main\BaseWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -106,7 +122,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Main\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -114,7 +130,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -124,7 +140,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Sniffer.cs">
+    <Compile Include="Network\Sniffer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Network\TCPHeader.cs" />
@@ -157,6 +173,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
