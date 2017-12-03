@@ -29,6 +29,7 @@ namespace Zniffer {
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
         public ObservableCollection<Socket> Connections = new ObservableCollection<Socket>();
         public ObservableCollection<AsyncCallback> Callbacks = new ObservableCollection<AsyncCallback>();
+        public ObservableCollection<BackgroundWorker> Workers = new ObservableCollection<BackgroundWorker>();
 
         //
 
@@ -101,6 +102,10 @@ namespace Zniffer {
                 }
             }
             */
+
+
+
+
         }
 
         private void UsedInterfaces_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {

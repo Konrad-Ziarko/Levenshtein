@@ -28,8 +28,38 @@ namespace Zniffer {
         public static string COLORTAG = "!@#RED$%^";
 
         private static bool AutoScrollClipboard = true;
+        private ManagementEventWatcher watcher = new ManagementEventWatcher();
 
         #region Networking
+        private static bool _TCP;
+        private static bool _UDP;
+        public static bool TCP {
+            get {
+                return _TCP;
+            }
+            set {
+                _TCP = value;
+            }
+        }
+        public static bool UDP {
+            get {
+                return _UDP;
+            }
+            set {
+                _UDP = value;
+            }
+        }
+        private static bool _SaveFile;
+        public static bool SaveFile {
+            get {
+                return _SaveFile;
+            }
+            set {
+                _SaveFile = value;
+            }
+        }
+
+
         public static Dictionary<string, string> AvaliableNetworkAdapters = new Dictionary<string, string>();
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
         public ObservableCollection<InterfaceClass> AvaliableInterfaces = new ObservableCollection<InterfaceClass>();
@@ -240,7 +270,7 @@ namespace Zniffer {
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
 
-        
+
         public static string SearchPhrase = "Zniffer";
 
 
@@ -292,10 +322,21 @@ namespace Zniffer {
             }
         }
 
+        public void attachToClipboard() {
+            //attach to clipboard
+            clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
+            HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            source.AddHook(new HwndSourceHook(WndProc));
+        }
+
+        public void detachFromClipboard() {
+            ChangeClipboardChain(new WindowInteropHelper(this).Handle, clipboardViewerNext);
+        }
 
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
             ////
+            /*
             string s = "abcabc def ghi jkl l";
             //s = string.Concat(Enumerable.Repeat(s, 5000));
 
@@ -317,17 +358,8 @@ namespace Zniffer {
             watch2.Stop();
 
             var elapsedMs2 = watch2.ElapsedMilliseconds;
+            */
             ////
-
-
-
-
-
-
-            //attach to clipboard
-            clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
-            HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
-            source.AddHook(new HwndSourceHook(WndProc));
 
 
 
@@ -383,15 +415,7 @@ namespace Zniffer {
                 }
                 //Console.Out.WriteLine("\n");
             }
-
-
-            //detect flash memory
-            ManagementEventWatcher watcher = new ManagementEventWatcher();
-            WqlEventQuery query = new WqlEventQuery("SELECT * FROM Win32_VolumeChangeEvent WHERE EventType = 2");
-            watcher.EventArrived += new EventArrivedEventHandler(NewDeviceDetectedEventArived);
-            watcher.Query = query;
-            watcher.Start();
-            //watcher.WaitForNextEvent();
+            
 
             //run keylogger
             var obj = new KeyLogger(this);
@@ -402,7 +426,7 @@ namespace Zniffer {
 
         }
 
-            static void AddressChangedCallback(object sender, EventArgs e) {
+        static void AddressChangedCallback(object sender, EventArgs e) {
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface n in adapters) {
                 foreach (UnicastIPAddressInformation ip in n.GetIPProperties().UnicastAddresses)
@@ -412,7 +436,7 @@ namespace Zniffer {
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-            ChangeClipboardChain(new WindowInteropHelper(this).Handle, clipboardViewerNext);
+            detachFromClipboard();
 
             Properties.Settings.Default.Save();
         }
@@ -504,7 +528,7 @@ namespace Zniffer {
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("「" + match.distance+ "」\r\n"));
+                runs.Add(new Run("「" + match.distance + "」\r\n"));
                 foreach (var item in runs)
                     ClipboardTextBlock.Inlines.Add(item);
                 ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
@@ -523,7 +547,7 @@ namespace Zniffer {
             }
         }
         public void AddTextToFileBox(string txt) {
-            if (txt != null && txt.Length!=0) {
+            if (txt != null && txt.Length != 0) {
                 if (!FilesTextBlock.Dispatcher.CheckAccess()) {
                     FilesTextBlock.Dispatcher.Invoke(() => {
                         FilesTextBlock.Inlines.Add(new Run(txt));
@@ -578,10 +602,6 @@ namespace Zniffer {
 
         }
 
-        private void MIIgnoredInterfaces_Click(object sender, RoutedEventArgs e) {
-
-        }
-
         private void MISourceInterfaces_Click(object sender, RoutedEventArgs e) {
             networkSettingsWindow = new BaseWindow() { Owner = this };
             networkSettingsWindow.Closing += NetworkSettingsWindow_Closing;
@@ -589,11 +609,12 @@ namespace Zniffer {
             networkSettingsWindow.ClientArea.Content = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces, ref networkSettingsWindow);
             networkSettingsWindow.ShowDialog();
 
+            ////state changne stop listening
         }
 
         private void NetworkSettingsWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
             //compare avaliable and used interfaces
-
+            //state changne stop listening
             //throw new NotImplementedException();
 
             //InterfaceClass tmp = UsedInterfaces[0];
@@ -632,7 +653,54 @@ namespace Zniffer {
             }
         }
 
-        private void MISaveMultipleFiles_Click(object sender, RoutedEventArgs e) {
+        private void MITCP_Click(object sender, RoutedEventArgs e) {
+            //state changne stop listening
+            if (MISniff.IsChecked) {
+                MISniff.IsChecked = false;
+                MISniff_Click(sender, e);
+            }
+        }
+
+        private void MIUDP_Click(object sender, RoutedEventArgs e) {
+            //state changne stop listening
+            if (MISniff.IsChecked) {
+                MISniff.IsChecked = false;
+                MISniff_Click(sender, e);
+            }
+        }
+
+        private void MIClipBoard_Click(object sender, RoutedEventArgs e) {
+            Console.Out.WriteLine("Schowek " + MIClipBoard.IsChecked);
+        }
+
+        private void MIClipBoard_Unchecked(object sender, RoutedEventArgs e) {
+            detachFromClipboard();
+        }
+
+        private void MIClipBoard_Checked(object sender, RoutedEventArgs e) {
+            attachToClipboard();
+        }
+
+        private void MIDrives_Checked(object sender, RoutedEventArgs e) {
+            //detect flash memory
+            WqlEventQuery query = new WqlEventQuery("SELECT * FROM Win32_VolumeChangeEvent WHERE EventType = 2");
+            watcher.EventArrived += new EventArrivedEventHandler(NewDeviceDetectedEventArived);
+            watcher.Query = query;
+            watcher.Start();
+        }
+
+        private void MIDrives_Unchecked(object sender, RoutedEventArgs e) {
+            watcher.Stop();
+        }
+
+        private void MISaveFile_Click(object sender, RoutedEventArgs e) {
+            if (MISniff.IsChecked) {
+                MISniff.IsChecked = false;
+                MISniff_Click(sender, e);
+            }
+            else {
+
+            }
 
         }
 

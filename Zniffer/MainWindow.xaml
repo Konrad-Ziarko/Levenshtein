@@ -1053,6 +1053,15 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
+                        <MenuItem Header="Zapisuj log do pliku" Name="MISaveFile" Click="MISaveFile_Click" IsCheckable="True"
+                                  IsChecked="{Binding SaveFile}"
+                                  FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                        </MenuItem>
                         <MenuItem Header="Interfejsy źródłowe..." Name="MISourceInterfaces" Click="MISourceInterfaces_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
                             <MenuItem.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1060,7 +1069,14 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
-                        <MenuItem Header="Protokoły sieciowe..." Name="MIIgnoredInterfaces" Click="MIIgnoredInterfaces_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                        <MenuItem Header="TCP" Name="MITCP" Click="MITCP_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" IsCheckable="True" IsChecked="{Binding TCP}">
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                        </MenuItem>
+                        <MenuItem Header="UDP" Name="MIUDP" Click="MIUDP_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" IsCheckable="True" IsChecked="{Binding UDP}">
                             <MenuItem.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
@@ -1091,7 +1107,8 @@
                                 </MenuItem.Background>
                             </MenuItem>
                             <MenuItem Header="Podłączanych dysków" Name="MIDrives" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
-                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanNewDrives, Mode=TwoWay}">
+                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanNewDrives, Mode=TwoWay}"
+                                      Checked="MIDrives_Checked" Unchecked="MIDrives_Unchecked">
                                 <MenuItem.Background>
                                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                         <GradientStop Color="#FF2E2E2E" Offset="0"/>
@@ -1099,7 +1116,8 @@
                                 </MenuItem.Background>
                             </MenuItem>
                             <MenuItem Header="Schowka" FontFamily="Tahoma" Name="MIClipBoard" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
-                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanClipBoard, Mode=TwoWay}">
+                                      IsCheckable="True" 
+                                      Click="MIClipBoard_Click" Unchecked="MIClipBoard_Unchecked" Checked="MIClipBoard_Checked">
                                 <MenuItem.Background>
                                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                         <GradientStop Color="#FF2E2E2E" Offset="0"/>
@@ -1141,15 +1159,7 @@
 
                     </MenuItem>
                     <MenuItem Header="_Inne" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
-                        <MenuItem Header="Zapisuj dane w oddzielnych plikach" Name="MISaveMultipleFiles" Click="MISaveMultipleFiles_Click" IsCheckable="True"
-                                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=MultipleFiles, Mode=TwoWay}"
-                                  FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
-                            <MenuItem.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </MenuItem.Background>
-                        </MenuItem>
+                        
 
                     </MenuItem>
                 </Menu>
