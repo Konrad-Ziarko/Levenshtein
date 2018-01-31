@@ -7,8 +7,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using CustomExtensions;
+using Zniffer.Levenshtein;
 
-namespace Zniffer {
+namespace Zniffer.FilesAndText {
     class KeyLogger {
 
         //event raised when key is pressed

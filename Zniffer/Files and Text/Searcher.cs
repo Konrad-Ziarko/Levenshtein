@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomExtensions;
+using Zniffer.Properties;
+using Zniffer.Levenshtein;
 
-
-namespace Zniffer {
+namespace Zniffer.FilesAndText {
     class Searcher {
         private MainWindow window;
 
@@ -36,7 +37,7 @@ namespace Zniffer {
                 catch (ArgumentException) {
 
                 }
-                if (drive.DriveFormat.Equals("NTFS")) {
+                if (Settings.Default.ScanADS && drive.DriveFormat.Equals("NTFS")) {
                     //search for ads
                 }
             }

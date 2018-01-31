@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace Zniffer
+namespace Zniffer.FileExtension
 {
     [Serializable()]
     public class FileExtensionClass : INotifyPropertyChanged {

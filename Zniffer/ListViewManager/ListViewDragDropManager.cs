@@ -14,6 +14,7 @@ using WPF.JoshSmith.Controls.Utilities;
 using System.Collections.Generic;
 using System.Collections;
 using Zniffer;
+using Zniffer.FileExtension;
 
 namespace WPF.JoshSmith.ServiceProviders.UI {
     #region ListViewDragDropManager

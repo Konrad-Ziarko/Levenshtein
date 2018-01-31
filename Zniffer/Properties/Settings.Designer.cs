@@ -104,5 +104,17 @@ namespace Zniffer.Properties {
                 this["UsedExtensions"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ScanClipBoard {
+            get {
+                return ((bool)(this["ScanClipBoard"]));
+            }
+            set {
+                this["ScanClipBoard"] = value;
+            }
+        }
     }
 }

@@ -3,20 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Threading;
 using Trinet.Core.IO.Ntfs;
+using Zniffer.FileExtension;
+using Zniffer.FilesAndText;
+using Zniffer.Levenshtein;
 
 namespace Zniffer {
 
@@ -265,13 +265,22 @@ namespace Zniffer {
         }
         #endregion
 
+        private KeyLogger keyLogger;
         private Sniffer sniffer;
         private Searcher searcher;
 
         public Dictionary<string, string> avaliableDrives = new Dictionary<string, string>();
 
+        private static string _SearchPhrase = "Zniffer";
+        public static string SearchPhrase {
+            get {
+                return _SearchPhrase;
+            }
+            set {
+                _SearchPhrase = value;
+            }
+        }
 
-        public static string SearchPhrase = "Zniffer";
 
 
         public MainWindow() {
@@ -292,8 +301,10 @@ namespace Zniffer {
                 UsedExt.Add(new FileExtensionClass(ext));
 
             //TODO implement sniffer
-            sniffer = new Sniffer(ref UsedInterfaces);
+            sniffer = new Sniffer(this, ref UsedInterfaces);
             searcher = new Searcher(this);
+            //run keylogger
+            keyLogger = new KeyLogger(this);
         }
 
 
@@ -324,9 +335,11 @@ namespace Zniffer {
 
         public void attachToClipboard() {
             //attach to clipboard
-            clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
-            HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
-            source.AddHook(new HwndSourceHook(WndProc));
+            if((IntPtr)(new WindowInteropHelper(this).Handle) != IntPtr.Zero) {
+                clipboardViewerNext = SetClipboardViewer(new WindowInteropHelper(this).Handle);
+                HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+                source.AddHook(new HwndSourceHook(WndProc));
+            }
         }
 
         public void detachFromClipboard() {
@@ -341,7 +354,6 @@ namespace Zniffer {
             //s = string.Concat(Enumerable.Repeat(s, 5000));
 
             var expression = "ghj";
-
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //long memory = GC.GetTotalMemory(true);
@@ -394,9 +406,8 @@ namespace Zniffer {
             }
 
             //check for the amount of ram
-            double amoutOfRam = new Microsoft.VisualBasic.Devices.ComputerInfo().TotalPhysicalMemory;
-            double amountOfMBOfRam = amoutOfRam / 1024 / 1024;
-            //Console.Out.WriteLine("" + amountOfMBOfRam);
+            double amountOfRam = new Microsoft.VisualBasic.Devices.ComputerInfo().TotalPhysicalMemory;
+            double amountOfRamInMB = amountOfRam / 1024 / 1024;
 
 
             //detect new network connections/interfaces
@@ -415,15 +426,11 @@ namespace Zniffer {
                 }
                 //Console.Out.WriteLine("\n");
             }
-            
 
-            //run keylogger
-            var obj = new KeyLogger(this);
-            //obj.RaiseKeyCapturedEvent += new KeyLogger.keyCaptured(KeyCapturedHandle);
 
-        }
-        public static void KeyCapturedHandle(string s) {
-
+            //attach to clipboard
+            if (MIClipBoard.IsChecked)
+                attachToClipboard();
         }
 
         static void AddressChangedCallback(object sender, EventArgs e) {
@@ -481,7 +488,6 @@ namespace Zniffer {
 
         private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
             SearchPhrase = SearchPhraseTextBox.Text;
-
         }
 
         #region AddTextTo
@@ -493,7 +499,12 @@ namespace Zniffer {
                 foreach (string s in parts) {
                     i = (i + 1) % 2;
                     if (i == 0)
-                        runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
+                        runs.Add(new Run(s) {
+                            Foreground = new SolidColorBrush(Color.FromRgb(
+                                (byte)(match.length - match.distance).Map(0, match.length, 100, 255),
+                                (byte)(match.length - match.distance).Map(0, match.length, 100, 255),
+                                0))
+                        });
                     else
                         runs.Add(new Run(s));
                 }
@@ -524,7 +535,12 @@ namespace Zniffer {
                 foreach (string s in parts) {
                     i = (i + 1) % 2;
                     if (i == 0)
-                        runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
+                        runs.Add(new Run(s) {
+                            Foreground = new SolidColorBrush(Color.FromRgb(
+                                (byte)(match.length - match.distance).Map(0, match.length, 100, 255), 
+                                (byte)(match.length - match.distance).Map(0, match.length, 100, 255), 
+                                0))
+                        });
                     else
                         runs.Add(new Run(s));
                 }
@@ -626,20 +642,6 @@ namespace Zniffer {
 
         }
 
-        private void ClipboardScrollViewer_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
-            if (e.ExtentHeightChange == 0) {
-                if (ClipboardScrollViewer.VerticalOffset == ClipboardScrollViewer.ScrollableHeight) {
-                    AutoScrollClipboard = true;
-                }
-                else {
-                    AutoScrollClipboard = false;
-                }
-            }
-            if (AutoScrollClipboard && e.ExtentHeightChange != 0) {
-                ClipboardScrollViewer.ScrollToVerticalOffset(ClipboardScrollViewer.ExtentHeight);
-            }
-        }
-
         private void NetworkScrollViewr_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
 
         }
@@ -705,5 +707,20 @@ namespace Zniffer {
         }
 
         #endregion
+
+
+        private void ClipboardScrollViewer_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
+            if (e.ExtentHeightChange == 0) {
+                if (ClipboardScrollViewer.VerticalOffset == ClipboardScrollViewer.ScrollableHeight) {
+                    AutoScrollClipboard = true;
+                }
+                else {
+                    AutoScrollClipboard = false;
+                }
+            }
+            if (AutoScrollClipboard && e.ExtentHeightChange != 0) {
+                ClipboardScrollViewer.ScrollToVerticalOffset(ClipboardScrollViewer.ExtentHeight);
+            }
+        }
     }
 }

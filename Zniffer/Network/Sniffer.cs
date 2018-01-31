@@ -1,22 +1,14 @@
-﻿using System.IO;
-using System.Net.Sockets;
-using System.Threading;
-using Zniffer.Network;
-using System.Management;
+﻿using Zniffer.Network;
 using System;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
-using Trinet.Core.IO.Ntfs;
 using System.Text;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Windows.Interop;
-using CustomExtensions;
-using System.Net;
 using System.Collections.ObjectModel;
 using PcapDotNet.Packets;
 using PcapDotNet.Core;
+using PcapDotNet.Packets.IpV4;
+using PcapDotNet.Packets.Transport;
+using PcapDotNet.Packets.Http;
 
 namespace Zniffer {
     public enum Protocol {
@@ -27,63 +19,87 @@ namespace Zniffer {
     class Sniffer : Control{
 
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
-        public ObservableCollection<Socket> Connections = new ObservableCollection<Socket>();
-        public ObservableCollection<AsyncCallback> Callbacks = new ObservableCollection<AsyncCallback>();
+        public ObservableCollection<PacketDevice> Connections = new ObservableCollection<PacketDevice>();
         public ObservableCollection<BackgroundWorker> Workers = new ObservableCollection<BackgroundWorker>();
+        private MainWindow window;
 
         //
-
-        private void addNewInterface(InterfaceClass interfaceObj) {
-            Socket socket = new Socket(System.Net.Sockets.AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP);
-            Connections.Add(socket);
-
-            socket.Bind(new IPEndPoint(IPAddress.Parse(interfaceObj.Addres), 0));
-
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, true);           //Applies only to IP packets Set the include the header option to true
-
-            byte[] byTrue = new byte[4] { 1, 0, 0, 0 };
-            byte[] byOut = new byte[4] { 1, 0, 0, 0 }; //Capture outgoing packets
-
-            //Socket.IOControl is analogous to the WSAIoctl method of Winsock 2 Equivalent to SIO_RCVALL constant of Winsock 2
-            socket.IOControl(IOControlCode.ReceiveAll, byTrue, byOut);
-
-
-            //socket.ReceiveAsync();
-
-            //Start receiving the packets asynchronously
-            AsyncCallback callback = null;
-            callback = ar => {
-                try {
-                    int nReceived = socket.EndReceive(ar);
-
-                    //Analyze the bytes received...
-                    ParseData(interfaceObj.byteData, nReceived);
-                    //
-                    if (interfaceObj.ContinueCapturing) {
-                        interfaceObj.byteData = new byte[4096];
-
-                        //Another call to BeginReceive so that we continue to receive the incoming packets
-                        socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(callback), null);
+        private void addNewBackgroundWorker(LivePacketDevice adapter) {
+            BackgroundWorker backgroundWorker = new BackgroundWorker();
+            backgroundWorker.WorkerSupportsCancellation = true;
+            
+            backgroundWorker.DoWork += (sender, e) => {
+                using (PacketCommunicator communicator = adapter.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000)) {
+                    if (MainWindow.TCP && !MainWindow.UDP)
+                        communicator.SetFilter(communicator.CreateFilter("tcp"));
+                    if (!MainWindow.TCP && MainWindow.UDP)
+                        communicator.SetFilter(communicator.CreateFilter("udp"));
+                    if (MainWindow.TCP && MainWindow.UDP)
+                        communicator.SetFilter(communicator.CreateFilter("tcp and udp"));
+                    communicator.ReceivePackets(0, PacketHandler);
+                    while (!backgroundWorker.CancellationPending) {
+                        //check if this works
                     }
-                }
-                catch (ObjectDisposedException) {
-                }
-                catch (Exception ex) {
-                    MessageBox.Show(ex.Message, "Sniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    communicator.Break();
                 }
             };
+            backgroundWorker.RunWorkerAsync();
+        }
 
-            Callbacks.Add(callback);
+        private void PacketHandler(Packet packet) {
+            IpV4Datagram ip = packet.Ethernet.IpV4;
+            TcpDatagram tcp = ip.Tcp;
+            UdpDatagram udp = ip.Udp;
+            HttpDatagram httpPacket = null;
 
-            socket.BeginReceive(interfaceObj.byteData, 0, interfaceObj.byteData.Length, SocketFlags.None, new AsyncCallback(callback), null);
+            //check port range
+
+            //scan datagram
+
+            //if need save file
+
+            
+
+
+            throw new NotImplementedException();
+        }
+
+        private void addNewInterface(InterfaceClass interfaceObj) {
+            var list = LivePacketDevice.AllLocalMachine;
+            LivePacketDevice adapter = null;
+            foreach(var ad in list) {
+                if (ad.Addresses[1].Address.ToString().Equals(interfaceObj.Addres)) {//if wrong means interface is only ipv4
+                    adapter = ad;
+                    break;
+                }
+            }
+
+
+            //PacketDevice device = new PacketDevice();
+
+            addNewBackgroundWorker(adapter);
+
+
+
+            //ParseData(interfaceObj.byteData, nReceived);
+            
         }
 
         public void removeInterface(InterfaceClass interfaceObj) {
             int index = UsedInterfaces.IndexOf(interfaceObj);
             UsedInterfaces[index].ContinueCapturing = false;
+
+            //stop background workers
+            foreach(BackgroundWorker worker in Workers) {
+                worker.CancelAsync();
+            }
+            Workers = new ObservableCollection<BackgroundWorker>();
+
+            //remove connections
         }
 
-        public Sniffer(ref ObservableCollection<InterfaceClass> UsedInterfaces) {
+        public Sniffer(MainWindow window, ref ObservableCollection<InterfaceClass> UsedInterfaces) {
+            this.window = window;
             this.UsedInterfaces = UsedInterfaces;
             UsedInterfaces.CollectionChanged += UsedInterfaces_CollectionChanged;
             //this.UsedInterfaces = UsedInterfaces;
@@ -189,12 +205,12 @@ namespace Zniffer {
         }
 
         internal void removeAllConnections() {
-            foreach(var connection in Connections) {
-                connection.Close();
-            }
-            Connections = new ObservableCollection<Socket>();
+            //foreach(var connection in Connections) {
+            //    connection.Close();
+            //}
+            //Connections = new ObservableCollection<Socket>();
 
-            Callbacks = new ObservableCollection<AsyncCallback>();
+            //Callbacks = new ObservableCollection<AsyncCallback>();
         }
 
         internal void addAllConnections() {

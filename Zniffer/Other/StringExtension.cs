@@ -1,20 +1,12 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Zniffer;
+using Zniffer.Levenshtein;
 
 namespace CustomExtensions {
-    public enum LevenshteinMode {
-        SingleMatixCPU=0,
-        SplitForSingleMatrixCPU,
-        MultiMatrixSingleThread,
-        MultiMatrixParallel,
-        DualRowCPU,
-    }
+    
 
     public static class ExtensionMethods {
         public static int Map(this int value, int fromSource, int toSource, int fromTarget =0, int toTarget =255) {

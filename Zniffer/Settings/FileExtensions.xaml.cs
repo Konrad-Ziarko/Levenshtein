@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WPF.JoshSmith.ServiceProviders.UI;
+using Zniffer.FileExtension;
 
 namespace Zniffer {
     /// <summary>
