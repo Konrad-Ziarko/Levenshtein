@@ -31,24 +31,6 @@ namespace Zniffer {
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
 
         #region Networking
-        private static bool _TCP;
-        private static bool _UDP;
-        public static bool TCP {
-            get {
-                return _TCP;
-            }
-            set {
-                _TCP = value;
-            }
-        }
-        public static bool UDP {
-            get {
-                return _UDP;
-            }
-            set {
-                _UDP = value;
-            }
-        }
         private static bool _SaveFile;
         public static bool SaveFile {
             get {
@@ -623,6 +605,12 @@ namespace Zniffer {
             networkSettingsWindow.Closing += NetworkSettingsWindow_Closing;
 
             networkSettingsWindow.ClientArea.Content = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces, ref networkSettingsWindow);
+            //stop sniffer
+            if (MISniff.IsChecked) {
+                MISniff.IsChecked = false;
+                MISniff_Click(this, e);
+            }
+
             networkSettingsWindow.ShowDialog();
 
             ////state changne stop listening
@@ -647,6 +635,7 @@ namespace Zniffer {
         }
 
         private void MISniff_Click(object sender, RoutedEventArgs e) {
+            //turn on/off sniffer
             if (MISniff.IsChecked) {
                 sniffer.addAllConnections();
             }

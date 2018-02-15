@@ -70,7 +70,7 @@ namespace Zniffer
 
             
             foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces()) {
-                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet && adapter.OperationalStatus == OperationalStatus.Up) {
+                if (adapter.NetworkInterfaceType != NetworkInterfaceType.Loopback && adapter.OperationalStatus == OperationalStatus.Up) {
                     foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
                             networkInterfaces.Add(ip.Address.ToString());

@@ -1069,20 +1069,6 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
-                        <MenuItem Header="TCP" Name="MITCP" Click="MITCP_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" IsCheckable="True" IsChecked="{Binding TCP}">
-                            <MenuItem.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </MenuItem.Background>
-                        </MenuItem>
-                        <MenuItem Header="UDP" Name="MIUDP" Click="MIUDP_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" IsCheckable="True" IsChecked="{Binding UDP}">
-                            <MenuItem.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </MenuItem.Background>
-                        </MenuItem>
                     </MenuItem>
 
                     <MenuItem Header="_Napędy" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">

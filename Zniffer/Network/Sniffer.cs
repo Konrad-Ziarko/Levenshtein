@@ -9,6 +9,7 @@ using PcapDotNet.Core;
 using PcapDotNet.Packets.IpV4;
 using PcapDotNet.Packets.Transport;
 using PcapDotNet.Packets.Http;
+using System.Collections.Generic;
 
 namespace Zniffer {
     public enum Protocol {
@@ -22,35 +23,109 @@ namespace Zniffer {
         public ObservableCollection<PacketDevice> Connections = new ObservableCollection<PacketDevice>();
         public ObservableCollection<BackgroundWorker> Workers = new ObservableCollection<BackgroundWorker>();
         private MainWindow window;
-
+        private List<BackgroundWorker> backgroundWorkers = new List<BackgroundWorker>();
+        private List<PacketCommunicator> communicators = new List<PacketCommunicator>();
         //
         private void addNewBackgroundWorker(LivePacketDevice adapter) {
             BackgroundWorker backgroundWorker = new BackgroundWorker();
             backgroundWorker.WorkerSupportsCancellation = true;
-            
+            backgroundWorkers.Add(backgroundWorker);
             backgroundWorker.DoWork += (sender, e) => {
-                using (PacketCommunicator communicator = adapter.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000)) {
-                    if (MainWindow.TCP && !MainWindow.UDP)
-                        communicator.SetFilter(communicator.CreateFilter("tcp"));
-                    if (!MainWindow.TCP && MainWindow.UDP)
-                        communicator.SetFilter(communicator.CreateFilter("udp"));
-                    if (MainWindow.TCP && MainWindow.UDP)
-                        communicator.SetFilter(communicator.CreateFilter("tcp and udp"));
+            using (PacketCommunicator communicator = adapter.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000)) {
+            
+                    communicators.Add(communicator);
                     communicator.ReceivePackets(0, PacketHandler);
-                    while (!backgroundWorker.CancellationPending) {
-                        //check if this works
+
+                    if (backgroundWorker.CancellationPending) {
+                        communicator.Break();
+                        e.Cancel = true;
+                        return;
                     }
-                    communicator.Break();
                 }
             };
+            backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
             backgroundWorker.RunWorkerAsync();
+        }
+
+        private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Cancelled) {
+                
+                ;
+            }
         }
 
         private void PacketHandler(Packet packet) {
             IpV4Datagram ip = packet.Ethernet.IpV4;
-            TcpDatagram tcp = ip.Tcp;
-            UdpDatagram udp = ip.Udp;
-            HttpDatagram httpPacket = null;
+
+
+            string count = "";
+            string time = "";
+            string source = "";
+            string destination = "";
+            string protocol = "";
+            string tcpack = "";
+            string tcpsec = "";
+            string tcpnsec = "";
+            string tcpsrc = "";
+            string tcpdes = "";
+            string udpscr = "";
+            string udpdes = "";
+            string httpheader = "";
+            string httpbody = "";
+            string httpver = "";
+            string httplen = "";
+
+            if (ip.Protocol == IpV4Protocol.Tcp) {
+                TcpDatagram tcp = ip.Tcp;
+                HttpDatagram httpPacket = null;
+                httpPacket = tcp.Http;
+                if ((httpPacket.Header != null)) {
+                    protocol = "Http";
+                    httpheader = httpPacket.Header.ToString();
+                    count = packet.Count.ToString();
+                    time = packet.Timestamp.ToString();
+                    source = ip.Source.ToString();
+                    destination = ip.Destination.ToString();
+                    httpver = httpPacket.Version.ToString();
+                    httplen = httpPacket.Length.ToString();
+                    httpbody = httpPacket.Body.ToString();
+
+                    string s = tcp.Payload.Decode(Encoding.Default);
+                    ;
+                }
+
+                else {
+
+                    count = packet.Count.ToString();
+                    time = packet.Timestamp.ToString();
+                    source = ip.Source.ToString();
+                    destination = ip.Destination.ToString();
+                    protocol = ip.Protocol.ToString();
+
+                    tcpsrc = tcp.SourcePort.ToString();
+                    tcpdes = tcp.DestinationPort.ToString();
+                    tcpack = tcp.AcknowledgmentNumber.ToString();
+                    tcpsec = tcp.SequenceNumber.ToString();
+                    tcpnsec = tcp.NextSequenceNumber.ToString();
+
+                    string s = tcp.Payload.Decode(Encoding.Default);
+                    ;
+                }
+            }
+            else if (ip.Protocol == IpV4Protocol.Udp) {
+                UdpDatagram udp = ip.Udp;
+
+                count = packet.Count.ToString();
+                time = packet.Timestamp.ToString();
+                source = ip.Source.ToString();
+                destination = ip.Destination.ToString();
+                protocol = ip.Protocol.ToString();
+                udpscr = udp.SourcePort.ToString();
+                udpdes = udp.DestinationPort.ToString();
+
+                string s = udp.Payload.Decode(Encoding.Default);
+                ;
+            }
 
             //check port range
 
@@ -58,17 +133,17 @@ namespace Zniffer {
 
             //if need save file
 
-            
 
-
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         private void addNewInterface(InterfaceClass interfaceObj) {
             var list = LivePacketDevice.AllLocalMachine;
             LivePacketDevice adapter = null;
             foreach(var ad in list) {
-                if (ad.Addresses[1].Address.ToString().Equals(interfaceObj.Addres)) {//if wrong means interface is only ipv4
+                string s = ad.Addresses[1].Address.ToString();
+                s = s.Split(' ')[1];
+                if (s.Equals(interfaceObj.Addres)) {//if wrong means interface is only ipv4
                     adapter = ad;
                     break;
                 }
@@ -76,8 +151,8 @@ namespace Zniffer {
 
 
             //PacketDevice device = new PacketDevice();
-
-            addNewBackgroundWorker(adapter);
+            if(adapter!=null)
+                addNewBackgroundWorker(adapter);
 
 
 
@@ -205,9 +280,14 @@ namespace Zniffer {
         }
 
         internal void removeAllConnections() {
-            //foreach(var connection in Connections) {
-            //    connection.Close();
-            //}
+            foreach (var com in communicators) {
+                com.Break();
+            }
+            communicators = new List<PacketCommunicator>();
+            foreach (var bw in backgroundWorkers) {
+                bw.CancelAsync();
+            }
+            backgroundWorkers = new List<BackgroundWorker>();
             //Connections = new ObservableCollection<Socket>();
 
             //Callbacks = new ObservableCollection<AsyncCallback>();
