@@ -491,10 +491,25 @@ namespace Zniffer {
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("\r\n"));
+                runs.Add(new Run("「" + match.distance + "」\r\n"));
                 foreach (var item in runs)
                     NetworkTextBlock.Inlines.Add(item);
                 NetworkTextBlock.Inlines.Add(new Run("\r\n"));
+            }
+        }
+
+        public void AddTextToNetworkBox(string txt) {
+            if (txt != null && txt.Length != 0) {
+                if (!NetworkTextBlock.Dispatcher.CheckAccess()) {
+                    NetworkTextBlock.Dispatcher.Invoke(() => {
+                        NetworkTextBlock.Inlines.Add(new Run(txt) { Foreground = new SolidColorBrush(Color.FromRgb(10,170,20))});
+                        NetworkTextBlock.Inlines.Add(new Run("\r\n"));
+                    });
+                }
+                else {
+                    NetworkTextBlock.Inlines.Add(new Run(txt) { Foreground = new SolidColorBrush(Color.FromRgb(10, 170, 20)) });
+                    NetworkTextBlock.Inlines.Add(new Run("\r\n"));
+                }
             }
         }
         public void AddTextToNetworkBox(LevenshteinMatches matches) {

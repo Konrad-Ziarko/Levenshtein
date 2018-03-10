@@ -17,6 +17,7 @@ namespace Zniffer {
         private bool _interfaceIsUp;
         private bool _continueCapturing;
         public byte[] byteData = new byte[4096];
+        private ushort _minPort=0, _maxPort=0;
 
         public string Addres {
             get; set;
@@ -28,6 +29,18 @@ namespace Zniffer {
             set {
                 if (_ports != value) {
                     _ports = value;
+                    try {
+                        if (this.Ports.Contains("-")) {
+                            string[] minMax = this.Ports.Split('-');
+                            _minPort = Convert.ToUInt16(minMax[0]);
+                            _maxPort = Convert.ToUInt16(minMax[1]);
+                        }
+                        else
+                            _minPort = _maxPort = Convert.ToUInt16(this.Ports);
+                    }
+                    catch {
+                        _minPort = _maxPort = 0;
+                    }
                     OnPropertyChanged("ports");
                 }
             }
@@ -78,6 +91,12 @@ namespace Zniffer {
 
         public override string ToString() {
             return Addres + ":" + Ports;
+        }
+
+        public bool isPortValid(ushort portNo) {
+            if ((_minPort == 0 && _maxPort == 0) || (portNo >= _minPort && portNo <= _maxPort))
+                return true;
+            return false;
         }
     }
 }

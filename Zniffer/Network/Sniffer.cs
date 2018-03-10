@@ -1,210 +1,57 @@
-﻿using Zniffer.Network;
-using System;
-using System.Text;
+﻿using System;
 using System.ComponentModel;
-using System.Windows.Forms;
 using System.Collections.ObjectModel;
-using PcapDotNet.Packets;
-using PcapDotNet.Core;
-using PcapDotNet.Packets.IpV4;
-using PcapDotNet.Packets.Transport;
-using PcapDotNet.Packets.Http;
 using System.Collections.Generic;
+using SharpPcap.AirPcap;
+using SharpPcap;
+using SharpPcap.WinPcap;
+using SharpPcap.LibPcap;
+using Zniffer.Levenshtein;
+using System.Text;
+using CustomExtensions;
 
 namespace Zniffer {
-    public enum Protocol {
-        TCP = 6,
-        UDP = 17,
-        Unknown = -1
-    };
-    class Sniffer : Control{
+    class Sniffer {
 
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
-        public ObservableCollection<PacketDevice> Connections = new ObservableCollection<PacketDevice>();
-        public ObservableCollection<BackgroundWorker> Workers = new ObservableCollection<BackgroundWorker>();
+        private List<ICaptureDevice> devices = new List<ICaptureDevice>();
         private MainWindow window;
-        private List<BackgroundWorker> backgroundWorkers = new List<BackgroundWorker>();
-        private List<PacketCommunicator> communicators = new List<PacketCommunicator>();
         //
-        private void addNewBackgroundWorker(LivePacketDevice adapter) {
-            BackgroundWorker backgroundWorker = new BackgroundWorker();
-            backgroundWorker.WorkerSupportsCancellation = true;
-            backgroundWorkers.Add(backgroundWorker);
-            backgroundWorker.DoWork += (sender, e) => {
-            using (PacketCommunicator communicator = adapter.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000)) {
-            
-                    communicators.Add(communicator);
-                    try {
-                        communicator.ReceivePackets(0, PacketHandler);
-                    }
-                    catch { }
 
-                    if (backgroundWorker.CancellationPending) {
-                        communicator.Break();
-                        e.Cancel = true;
-                        return;
-                    }
-                }
-            };
-            backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
-            backgroundWorker.RunWorkerAsync();
-        }
-
-        private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            if (e.Cancelled) {
-                
-                ;
-            }
-        }
-
-        private void PacketHandler(Packet packet) {
-            IpV4Datagram ip = packet.Ethernet.IpV4;
-
-
-            string count = "";
-            string time = "";
-            string source = "";
-            string destination = "";
-            string protocol = "";
-            string tcpack = "";
-            string tcpsec = "";
-            string tcpnsec = "";
-            string tcpsrc = "";
-            string tcpdes = "";
-            string udpscr = "";
-            string udpdes = "";
-            string httpheader = "";
-            string httpbody = "";
-            string httpver = "";
-            string httplen = "";
-
-            if (ip.Protocol == IpV4Protocol.Tcp) {
-                TcpDatagram tcp = ip.Tcp;
-                HttpDatagram httpPacket = null;
-                httpPacket = tcp.Http;
-                if ((httpPacket.Header != null)) {
-                    protocol = "Http";
-                    httpheader = httpPacket.Header.ToString();
-                    count = packet.Count.ToString();
-                    time = packet.Timestamp.ToString();
-                    source = ip.Source.ToString();
-                    destination = ip.Destination.ToString();
-                    httpver = httpPacket.Version.ToString();
-                    httplen = httpPacket.Length.ToString();
-                    httpbody = httpPacket.Body.ToString();
-
-                    string s = tcp.Payload.Decode(Encoding.Default);
-                    //levenshtein
-                    Console.WriteLine(s);
-                }
-
-                else {
-
-                    count = packet.Count.ToString();
-                    time = packet.Timestamp.ToString();
-                    source = ip.Source.ToString();
-                    destination = ip.Destination.ToString();
-                    protocol = ip.Protocol.ToString();
-
-                    tcpsrc = tcp.SourcePort.ToString();
-                    tcpdes = tcp.DestinationPort.ToString();
-                    tcpack = tcp.AcknowledgmentNumber.ToString();
-                    tcpsec = tcp.SequenceNumber.ToString();
-                    tcpnsec = tcp.NextSequenceNumber.ToString();
-
-                    string s = tcp.Payload.Decode(Encoding.Default);
-                    //levenshtein
-                    Console.WriteLine(s); ;
-                }
-            }
-            else if (ip.Protocol == IpV4Protocol.Udp) {
-                UdpDatagram udp = ip.Udp;
-
-                count = packet.Count.ToString();
-                time = packet.Timestamp.ToString();
-                source = ip.Source.ToString();
-                destination = ip.Destination.ToString();
-                protocol = ip.Protocol.ToString();
-                udpscr = udp.SourcePort.ToString();
-                udpdes = udp.DestinationPort.ToString();
-
-                string s = udp.Payload.Decode(Encoding.Default);
-                
-                //levenshtein
-                Console.WriteLine(s); ;
-            }
-
-            
-
-            //check port range
-
-            //scan datagram
-
-            //if need save file
-
-
-            //throw new NotImplementedException();
-        }
+        private static bool BackgroundThreadStop = false;
+        private static object QueueLock = new object();
+        private static List<RawCapture> PacketQueue = new List<RawCapture>();
 
         private void addNewInterface(InterfaceClass interfaceObj) {
-            var list = LivePacketDevice.AllLocalMachine;
-            LivePacketDevice adapter = null;
-            foreach(var ad in list) {
-                string s = ad.Addresses[1].Address.ToString();
-                s = s.Split(' ')[1];
-                if (s.Equals(interfaceObj.Addres)) {//if wrong means interface is only ipv4
-                    adapter = ad;
+            CaptureDeviceList _devices = CaptureDeviceList.Instance;
+
+            ICaptureDevice device = null;
+            // differentiate based upon types
+            foreach (ICaptureDevice dev in _devices) {
+                if (dev.ToString().Contains(interfaceObj.Addres)) {
+                    device = dev;
+                    device.OnPacketArrival += new PacketArrivalEventHandler(device_OnPacketArrival);
+                    devices.Add(device);
+                    device.Open();
+                    device.StartCapture();
+
                     break;
                 }
             }
-
-
-            //PacketDevice device = new PacketDevice();
-            if(adapter!=null)
-                addNewBackgroundWorker(adapter);
-
-
-
-            //ParseData(interfaceObj.byteData, nReceived);
-            
         }
 
         public void removeInterface(InterfaceClass interfaceObj) {
             int index = UsedInterfaces.IndexOf(interfaceObj);
             UsedInterfaces[index].ContinueCapturing = false;
-
-            //stop background workers
-            foreach(BackgroundWorker worker in Workers) {
-                worker.CancelAsync();
-            }
-            Workers = new ObservableCollection<BackgroundWorker>();
-
-            //remove connections
         }
 
         public Sniffer(MainWindow window, ref ObservableCollection<InterfaceClass> UsedInterfaces) {
             this.window = window;
             this.UsedInterfaces = UsedInterfaces;
             UsedInterfaces.CollectionChanged += UsedInterfaces_CollectionChanged;
-            //this.UsedInterfaces = UsedInterfaces;
 
-            /*
-            //list interfaces
-            string strIP = null;
-            IPHostEntry HosyEntry = Dns.GetHostEntry((Dns.GetHostName()));
-            if (HosyEntry.AddressList.Length > 0) {
-                foreach (IPAddress ip in HosyEntry.AddressList) {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork) {
-                        strIP = ip.ToString();
-                        Console.Out.WriteLine(strIP);
-                        //cmbInterfaces.Items.Add(strIP);
-                    }
-                }
-            }
-            */
-
-
-
+            var backgroundThread = new System.Threading.Thread(BackgroundThread);
+            backgroundThread.Start();
 
         }
 
@@ -213,98 +60,95 @@ namespace Zniffer {
 
         }
 
-                /*
-        private void OnReceive(IAsyncResult ar) {
-           try {
-               int nReceived = mainSocket.EndReceive(ar);
-
-               //Analyze the bytes received...
-
-
-
-               ParseData(byteData, nReceived);
-
-               //
-               if (bContinueCapturing) {
-                   byteData = new byte[4096];
-
-                   //Another call to BeginReceive so that we continue to receive the incoming
-                   //packets
-                   mainSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
-                       new AsyncCallback(OnReceive), null);
-               }
-           }
-           catch (ObjectDisposedException) {
-           }
-           catch (Exception ex) {
-               MessageBox.Show(ex.Message, "MJsniffer", MessageBoxButtons.OK, MessageBoxIcon.Error);
-           }
-        }*/
-
-        private void ParseData(byte[] byteData, int nReceived) {
-            //Since all protocol packets are encapsulated in the IP datagram
-            //so we start by parsing the IP header and see what protocol data
-            //is being carried by it
-            IPHeader ipHeader = new IPHeader(byteData, nReceived);
-
-            //Now according to the protocol being carried by the IP datagram we parse 
-            //the data field of the datagram
-            switch (ipHeader.ProtocolType) {
-                case Protocol.TCP:
-                    TCPHeader tcpHeader = new TCPHeader(ipHeader.Data, ipHeader.MessageLength);//IPHeader.Data stores the data being carried by the IP datagram Length of the data field   
-
-                    //If the port is equal to 53 then the underlying protocol is DNS
-                    //Note: DNS can use either TCP or UDP thats why the check is done twice
-                    if (tcpHeader.DestinationPort == "53" || tcpHeader.SourcePort == "53") {
-                        DNSHeader dnsHeader = new DNSHeader(tcpHeader.Data, (int)tcpHeader.MessageLength);
-                        Console.Write("DNS/");
-                    }
-                    Console.Write(tcpHeader.DestinationPort);
-                    Console.WriteLine("/" + ipHeader.ProtocolType + "/" + ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString()
-                + "\n\t:" + Encoding.Default.GetString(tcpHeader.Data));
-                    break;
-
-                case Protocol.UDP:
-                    UDPHeader udpHeader = new UDPHeader(ipHeader.Data,              //IPHeader.Data stores the data being 
-                                                                                    //carried by the IP datagram
-                                                       (int)ipHeader.MessageLength);//Length of the data field                    
-
-                    //If the port is equal to 53 then the underlying protocol is DNS
-                    //Note: DNS can use either TCP or UDP thats why the check is done twice
-                    if (udpHeader.DestinationPort == "53" || udpHeader.SourcePort == "53") {
-                        Console.Write("DNS/");
-                        DNSHeader dnsHeader = new DNSHeader(udpHeader.Data,
-                                                           //Length of UDP header is always eight bytes so we subtract that out of the total 
-                                                           //length to find the length of the data
-                                                           Convert.ToInt32(udpHeader.Length) - 8);
-                    }
-                    Console.Write(udpHeader.DestinationPort);
-                    Console.WriteLine("/" + ipHeader.ProtocolType + "/" + ipHeader.SourceAddress.ToString() + "-" + ipHeader.DestinationAddress.ToString()
-                + "\n\t:" + Encoding.UTF8.GetString(udpHeader.Data));
-                    break;
-                case Protocol.Unknown:
-                    break;
-            }
-            
-        }
-
         internal void removeAllConnections() {
-            foreach (var com in communicators) {
-                com.Break();
+            foreach (var dev in devices) {
+                dev.StopCapture();
+                dev.Close();
             }
-            communicators = new List<PacketCommunicator>();
-            foreach (var bw in backgroundWorkers) {
-                bw.CancelAsync();
-            }
-            backgroundWorkers = new List<BackgroundWorker>();
-            //Connections = new ObservableCollection<Socket>();
-
-            //Callbacks = new ObservableCollection<AsyncCallback>();
+            devices = new List<ICaptureDevice>();
         }
 
         internal void addAllConnections() {
             foreach (var iFace in UsedInterfaces) {
                 addNewInterface(iFace);
+            }
+        }
+
+        private static void device_OnPacketArrival(object sender, CaptureEventArgs e) {
+            lock (QueueLock) {
+                PacketQueue.Add(e.Packet);
+            }
+        }
+
+
+        private void BackgroundThread() {
+            while (!BackgroundThreadStop) {
+                bool shouldSleep = true;
+
+                lock (QueueLock) {
+                    if (PacketQueue.Count != 0) {
+                        shouldSleep = false;
+                    }
+                }
+
+                if (shouldSleep) {
+                    System.Threading.Thread.Sleep(250);
+                }
+                else // should process the queue
+                {
+                    List<RawCapture> ourQueue;
+                    lock (QueueLock) {
+                        // swap queues, giving the capture callback a new one
+                        ourQueue = PacketQueue;
+                        PacketQueue = new List<RawCapture>();
+                    }
+
+                    Console.WriteLine("BackgroundThread: ourQueue.Count is {0}", ourQueue.Count);
+
+                    foreach (var packet in ourQueue) {
+                        var _packet = PacketDotNet.Packet.ParsePacket(packet.LinkLayerType, packet.Data);
+
+                        if (_packet is PacketDotNet.EthernetPacket) {
+                            var ip = (PacketDotNet.IpPacket)_packet.Extract(typeof(PacketDotNet.IpPacket));
+                            if (ip != null) {
+                                bool filterOut = true;
+                                InterfaceClass tmpInterface = null;
+                                foreach (InterfaceClass iFace in UsedInterfaces) {
+                                    if (iFace.Addres.Equals(ip.DestinationAddress.ToString())) {
+                                        filterOut = false;
+                                        tmpInterface = iFace;
+                                        break;
+                                    }
+                                }
+                                if (filterOut == false) {
+                                    filterOut = true;
+                                    var tcp = (PacketDotNet.TcpPacket)_packet.Extract(typeof(PacketDotNet.TcpPacket));
+                                    if (tcp != null) {
+                                        if (tmpInterface.isPortValid(tcp.DestinationPort)) {
+                                            string phrase = MainWindow.SearchPhrase;
+                                            LevenshteinMatches matches = Encoding.UTF8.GetString(tcp.PayloadData).Levenshtein(phrase, mode: MainWindow.SearchMode);
+                                            if (matches.hasMatches) {
+                                                window.AddTextToNetworkBox(tmpInterface.Addres + ":" + tcp.DestinationPort);
+                                                window.AddTextToNetworkBox(matches);
+                                            }
+                                        }
+                                    }
+                                    var udp = (PacketDotNet.UdpPacket)_packet.Extract(typeof(PacketDotNet.UdpPacket));
+                                    if (udp != null) {
+                                        if (tmpInterface.isPortValid(udp.DestinationPort)) {
+                                            string phrase = MainWindow.SearchPhrase;
+                                            LevenshteinMatches matches = Encoding.UTF8.GetString(udp.PayloadData).Levenshtein(phrase, mode: MainWindow.SearchMode);
+                                            if (matches.hasMatches) {
+                                                window.AddTextToNetworkBox(tmpInterface.Addres + ":" + udp.DestinationPort);
+                                                window.AddTextToNetworkBox(matches);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
