@@ -34,7 +34,10 @@ namespace Zniffer {
             using (PacketCommunicator communicator = adapter.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000)) {
             
                     communicators.Add(communicator);
-                    communicator.ReceivePackets(0, PacketHandler);
+                    try {
+                        communicator.ReceivePackets(0, PacketHandler);
+                    }
+                    catch { }
 
                     if (backgroundWorker.CancellationPending) {
                         communicator.Break();
@@ -92,7 +95,7 @@ namespace Zniffer {
 
                     string s = tcp.Payload.Decode(Encoding.Default);
                     //levenshtein
-                    ;
+                    Console.WriteLine(s);
                 }
 
                 else {
@@ -111,7 +114,7 @@ namespace Zniffer {
 
                     string s = tcp.Payload.Decode(Encoding.Default);
                     //levenshtein
-                    ;
+                    Console.WriteLine(s); ;
                 }
             }
             else if (ip.Protocol == IpV4Protocol.Udp) {
@@ -126,9 +129,12 @@ namespace Zniffer {
                 udpdes = udp.DestinationPort.ToString();
 
                 string s = udp.Payload.Decode(Encoding.Default);
+                
                 //levenshtein
-                ;
+                Console.WriteLine(s); ;
             }
+
+            
 
             //check port range
 
