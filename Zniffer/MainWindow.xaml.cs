@@ -26,6 +26,7 @@ namespace Zniffer {
     public partial class MainWindow : Window {
         private static MainWindow THISREF = null;
         public static string COLORTAG = "!@#RED$%^";
+        public static LevenshteinMode SearchMode = LevenshteinMode.SplitForSingleMatrixCPU;
 
         private static bool AutoScrollClipboard = true;
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
@@ -213,7 +214,6 @@ namespace Zniffer {
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
             if (msg == 0x0308) {
-                //printLine("Data retrived from clipboard");
                 //wyciąganie danych z obrazów i dźwięków
                 IDataObject iData = new DataObject();
 
@@ -222,9 +222,6 @@ namespace Zniffer {
                 }
                 catch (ExternalException externEx) {
                     Console.Out.WriteLine("InteropServices.ExternalException: {0}", externEx.Message);
-
-                    //TODO zrobić obsługę schowka
-                    //print screen to też zmiana schowka
 
                     return IntPtr.Zero; ;
                 }
@@ -236,10 +233,10 @@ namespace Zniffer {
                     Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
                     string phrase = SearchPhrase;
                     //way to change levenshtein methode
-                    LevenshteinMatches result = _data.Levenshtein(phrase, mode: LevenshteinMode.SingleMatixCPU);
+                    LevenshteinMatches results = _data.Levenshtein(phrase, mode: SearchMode);
 
-                    if (result != null && result.hasMatches) {
-                        AddTextToClipBoardBox(result);
+                    if (results != null && results.hasMatches) {
+                        AddTextToClipBoardBox(results);
                     }
                 }
                 else {
@@ -272,6 +269,7 @@ namespace Zniffer {
             THISREF = this;
             InitializeComponent();
             this.DataContext = this;
+            
 
             //initialize settings collections if needed
             if (Properties.Settings.Default.UsedExtensions == null)
@@ -570,11 +568,16 @@ namespace Zniffer {
                 foreach (string s in parts) {
                     i = (i + 1) % 2;
                     if (i == 0)
-                        runs.Add(new Run(s) { Foreground = new SolidColorBrush(Color.FromArgb((byte)(match.length - match.distance).Map(0, match.length, 50, 255), (byte)(match.length - match.distance).Map(0, match.length, 50, 255), 0, 0)) });
+                        runs.Add(new Run(s) {
+                            Foreground = new SolidColorBrush(Color.FromRgb(
+                                (byte)(match.length - match.distance).Map(0, match.length, 100, 255),
+                                (byte)(match.length - match.distance).Map(0, match.length, 100, 255),
+                                0))
+                        });
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("\r\n"));
+                runs.Add(new Run("「" + match.distance + "」\r\n"));
                 foreach (var item in runs)
                     FilesTextBlock.Inlines.Add(item);
                 FilesTextBlock.Inlines.Add(new Run("\r\n"));

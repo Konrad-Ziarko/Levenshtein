@@ -106,7 +106,7 @@ namespace Zniffer.FilesAndText {
 
             string phrase = MainWindow.SearchPhrase;
             //way to change levenshtein methode
-            LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: LevenshteinMode.SplitForSingleMatrixCPU);
+            LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: MainWindow.SearchMode);
 
             if (result !=null && result.hasMatches) {
                 window.AddTextToClipBoardBox(result);

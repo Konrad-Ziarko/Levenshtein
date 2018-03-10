@@ -13,12 +13,8 @@ namespace Zniffer.FilesAndText {
     class Searcher {
         private MainWindow window;
         
-        public LevenshteinMode SearchMode { get; set; }
-
-
         public Searcher(MainWindow window) {
             this.window = window;
-            SearchMode = LevenshteinMode.SplitForSingleMatrixCPU;
         }
 
         public void SearchFiles(List<string> files, DriveInfo drive) {
@@ -98,9 +94,8 @@ namespace Zniffer.FilesAndText {
 
 
         public LevenshteinMatches ExtractPhrase(string sourceText) {
-            //StringBuilder sb = new StringBuilder();
             string phrase = MainWindow.SearchPhrase;
-            LevenshteinMatches matches = sourceText.Levenshtein(phrase, mode: LevenshteinMode.SplitForSingleMatrixCPU);
+            LevenshteinMatches matches = sourceText.Levenshtein(phrase, mode: MainWindow.SearchMode);
 
             return matches;
         }
