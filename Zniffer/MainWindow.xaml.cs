@@ -211,7 +211,7 @@ namespace Zniffer {
 
         IntPtr clipboardViewerNext;
 
-        private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
             if (msg == 0x0308) {
                 //printLine("Data retrived from clipboard");
                 //wyciąganie danych z obrazów i dźwięków
@@ -231,13 +231,16 @@ namespace Zniffer {
                 catch (Exception) {
                     return IntPtr.Zero; ;
                 }
-                if (iData.GetDataPresent(DataFormats.Rtf)) {
-                    Console.Out.WriteLine((string)iData.GetData(DataFormats.Rtf));
-
-                }
-                else if (iData.GetDataPresent(DataFormats.Text)) {
+                if (iData.GetDataPresent(DataFormats.Text) || iData.GetDataPresent(DataFormats.Rtf) || iData.GetDataPresent(DataFormats.UnicodeText)) {
+                    string _data = (string)iData.GetData(DataFormats.Text);
                     Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
+                    string phrase = SearchPhrase;
+                    //way to change levenshtein methode
+                    LevenshteinMatches result = _data.Levenshtein(phrase, mode: LevenshteinMode.SingleMatixCPU);
 
+                    if (result != null && result.hasMatches) {
+                        AddTextToClipBoardBox(result);
+                    }
                 }
                 else {
                     Console.Out.WriteLine("(cannot display this format)");

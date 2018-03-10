@@ -91,6 +91,7 @@ namespace Zniffer {
                     httpbody = httpPacket.Body.ToString();
 
                     string s = tcp.Payload.Decode(Encoding.Default);
+                    //levenshtein
                     ;
                 }
 
@@ -109,6 +110,7 @@ namespace Zniffer {
                     tcpnsec = tcp.NextSequenceNumber.ToString();
 
                     string s = tcp.Payload.Decode(Encoding.Default);
+                    //levenshtein
                     ;
                 }
             }
@@ -124,6 +126,7 @@ namespace Zniffer {
                 udpdes = udp.DestinationPort.ToString();
 
                 string s = udp.Payload.Decode(Encoding.Default);
+                //levenshtein
                 ;
             }
 
