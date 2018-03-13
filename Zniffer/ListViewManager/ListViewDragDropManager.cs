@@ -1,8 +1,6 @@
 // Copyright (C) Josh Smith - January 2007
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -12,7 +10,6 @@ using System.Windows.Input;
 using WPF.JoshSmith.Adorners;
 using WPF.JoshSmith.Controls.Utilities;
 using System.Collections.Generic;
-using System.Collections;
 using Zniffer;
 using Zniffer.FileExtension;
 
@@ -37,7 +34,7 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
         bool isDragInProgress;
         ItemType itemUnderDragCursor;
         ListView listViewDestination;
-        ListView ListViewSource;
+        //ListView ListViewSource;
         Point ptMouseDown;
         bool showDragAdorner;
 
@@ -323,7 +320,6 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
 
             int oldIndex = itemsDestination.IndexOf(data);
             int newIndex = this.IndexUnderDragCursor;
-            bool removeOld = true;
             if (newIndex < 0) {
                 // The drag started somewhere else, and our ListView is empty
                 // so make the new item the first in the list.
@@ -341,7 +337,6 @@ namespace WPF.JoshSmith.ServiceProviders.UI {
                 // our ListView, but the mouse is not over an item, so don't
                 // let them drop it.
                 else {
-                    removeOld = false;
                     return;
 
                 }

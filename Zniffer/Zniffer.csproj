@@ -9,13 +9,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Zniffer</RootNamespace>
     <AssemblyName>Zniffer</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,24 +46,23 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="PacketDotNet, Version=0.16.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PacketDotNet.0.16.0\lib\PacketDotNet.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="PacketDotNet">
+      <HintPath>.\PacketDotNet.dll</HintPath>
     </Reference>
     <Reference Include="PcapDotNet.Base, Version=1.0.4.25027, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Base.dll</HintPath>
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Base.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PcapDotNet.Core, Version=1.0.4.25067, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=x86">
-      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Core.dll</HintPath>
+    <Reference Include="PcapDotNet.Core, Version=1.0.4.25149, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=AMD64">
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PcapDotNet.Core.Extensions, Version=1.0.4.25069, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=x86">
-      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Core.Extensions.dll</HintPath>
+    <Reference Include="PcapDotNet.Core.Extensions, Version=1.0.4.25151, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=AMD64">
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Core.Extensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PcapDotNet.Packets, Version=1.0.4.25028, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pcap.Net.x86.1.0.4.1\lib\net45\PcapDotNet.Packets.dll</HintPath>
+      <HintPath>..\packages\Pcap.Net.x64.1.0.4.1\lib\net45\PcapDotNet.Packets.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
@@ -121,7 +121,6 @@
     </Compile>
     <Compile Include="Files and Text\Searcher.cs" />
     <Compile Include="Files and Text\KeyLogger.cs" />
-    <Compile Include="Other\SoundCatcher.cs" />
     <Compile Include="Other\StringExtension.cs" />
     <Page Include="Main\BaseWindow.xaml">
       <SubType>Designer</SubType>

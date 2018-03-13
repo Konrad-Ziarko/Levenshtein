@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Media;
 
 namespace Zniffer {
     [Serializable()]
     public class InterfaceClass : INotifyPropertyChanged {
         private string _ports;
-        private string _addres;
-        private bool _used;
         private bool _interfaceIsUp;
         private bool _continueCapturing;
         public byte[] byteData = new byte[4096];

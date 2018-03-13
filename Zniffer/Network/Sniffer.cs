@@ -1,11 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using SharpPcap.AirPcap;
 using SharpPcap;
-using SharpPcap.WinPcap;
-using SharpPcap.LibPcap;
 using Zniffer.Levenshtein;
 using System.Text;
 using CustomExtensions;
@@ -96,16 +92,16 @@ namespace Zniffer {
                 }
                 else // should process the queue
                 {
-                    List<RawCapture> ourQueue;
+                    List<RawCapture> queue;
                     lock (QueueLock) {
                         // swap queues, giving the capture callback a new one
-                        ourQueue = PacketQueue;
+                        queue = PacketQueue;
                         PacketQueue = new List<RawCapture>();
                     }
 
-                    Console.WriteLine("BackgroundThread: ourQueue.Count is {0}", ourQueue.Count);
+                    Console.WriteLine("BackgroundThread: Queue.Count is {0}", queue.Count);
 
-                    foreach (var packet in ourQueue) {
+                    foreach (var packet in queue) {
                         var _packet = PacketDotNet.Packet.ParsePacket(packet.LinkLayerType, packet.Data);
 
                         if (_packet is PacketDotNet.EthernetPacket) {

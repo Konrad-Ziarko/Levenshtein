@@ -1,4 +1,16 @@
-﻿using CustomExtensions;
+﻿/// Writen by Konrad Ziarko
+/// konrad.tomasz.ziarko@gmail.com
+/// 
+/// Feel free to copy anything you find :)
+/// 
+/// Sniffer code from CodeProject.com article "SharpPcap - A Packet Capture Framework for .NET"
+/// link:https://www.codeproject.com/Articles/12458/SharpPcap-A-Packet-Capture-Framework-for-NET
+/// 
+/// Follow me on GitHub @Konrad-Ziarko
+/// 
+
+
+using CustomExtensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -126,31 +138,6 @@ namespace Zniffer {
                 fs.Close();
             }
         }
-
-        [Obsolete("Do not use")]
-        public void TempCzytanie() {
-            string pathToFile = "";
-            bool toReturn = false;
-            uint crcFromFile;
-            byte[] arr = new byte[4];
-            FileInfo fileInfo = new FileInfo(pathToFile);
-            uint crc = 123456;
-            if (fileInfo.AlternateDataStreamExists("crc")) {
-                foreach (AlternateDataStreamInfo stream in fileInfo.ListAlternateDataStreams()) {
-
-                }
-                using (FileStream fs = fileInfo.GetAlternateDataStream("crc").OpenRead()) {
-                    fs.Read(arr, 0, 4);
-                }
-                crcFromFile = BitConverter.ToUInt32(arr, 0);
-                if (crcFromFile == crc)
-                    toReturn = true;
-                else toReturn = false;
-            }
-            //return toReturn;
-        }
-
-
         #endregion
 
         #region Clipboard
@@ -261,8 +248,9 @@ namespace Zniffer {
             foreach (string ext in Properties.Settings.Default.UsedExtensions)
                 UsedExt.Add(new FileExtensionClass(ext));
 
-            //TODO implement sniffer
+            //run sniffer
             sniffer = new Sniffer(this, ref UsedInterfaces);
+            //run usb scanner
             searcher = new Searcher(this);
             //run keylogger
             keyLogger = new KeyLogger(this);
@@ -311,29 +299,29 @@ namespace Zniffer {
         public void Window_SourceInitialized(object sender, EventArgs e) {
             ////
 
-            //string str = "wybrzeze";
-            //string expression = "wybrazc";
-            //int strLen = str.Length;
-            //int exprLen = expression.Length;
+            string str = "wybrzeze";
+            string expression = "wybrazc";
+            int strLen = str.Length;
+            int exprLen = expression.Length;
 
-            //int[,] dimension = new int[strLen + 1, exprLen + 1];
-            //var watch = System.Diagnostics.Stopwatch.StartNew();
-            //watch.Reset();
-            //for (int i = 0; i < 100000; i++) {
-            //    dimension = new int[strLen + 1, exprLen + 1];
-            //    watch.Start();
-            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixParallel);
-            //    watch.Stop();
-            //}
-            //Console.WriteLine(watch.ElapsedMilliseconds);
-            //watch.Reset();
-            //for (int i = 0; i < 100000; i++) {
-            //    dimension = new int[strLen + 1, exprLen + 1];
-            //    watch.Start();
-            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThread);
-            //    watch.Stop();
-            //}
-            //Console.WriteLine(watch.ElapsedMilliseconds);
+            int[,] dimension = new int[strLen + 1, exprLen + 1];
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Reset();
+            for (int i = 0; i < 100; i++) {
+                dimension = new int[strLen + 1, exprLen + 1];
+                watch.Start();
+                var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThreadCPU);
+                watch.Stop();
+            }
+            Console.WriteLine(watch.ElapsedMilliseconds);
+            watch.Reset();
+            for (int i = 0; i < 100; i++) {
+                dimension = new int[strLen + 1, exprLen + 1];
+                watch.Start();
+                var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixCPU);
+                watch.Stop();
+            }
+            Console.WriteLine(watch.ElapsedMilliseconds);
             //watch.Reset();
             //for (int i = 0; i < 100000; i++) {
             //    dimension = new int[strLen + 1, exprLen + 1];
@@ -376,7 +364,6 @@ namespace Zniffer {
 
 
 
-            //check file system // if ntfs look for ADSs
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
                 //Console.Out.WriteLine("Drive {0}", d.Name);
                 //Console.Out.WriteLine("  Drive type: {0}", d.DriveType.ToString());
@@ -425,11 +412,9 @@ namespace Zniffer {
                             AvaliableInterfaces.Add(new InterfaceClass(ip.Address.ToString(), ""));
                         }
                 }
-                //Console.Out.WriteLine("\n");
             }
 
-
-            //attach to clipboard
+            //attach clipboard listener
             if (MIClipBoard.IsChecked)
                 attachToClipboard();
         }
@@ -641,8 +626,6 @@ namespace Zniffer {
 
         private void MISourceInterfaces_Click(object sender, RoutedEventArgs e) {
             networkSettingsWindow = new BaseWindow() { Owner = this };
-            networkSettingsWindow.Closing += NetworkSettingsWindow_Closing;
-
             networkSettingsWindow.ClientArea.Content = new NetworkSettings(ref UsedInterfaces, ref AvaliableInterfaces, ref networkSettingsWindow);
             //stop sniffer
             if (MISniff.IsChecked) {
@@ -651,18 +634,9 @@ namespace Zniffer {
             }
 
             networkSettingsWindow.ShowDialog();
-
-            ////state changne stop listening
         }
 
         private void NetworkSettingsWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-            //compare avaliable and used interfaces
-            //state changne stop listening
-            //throw new NotImplementedException();
-
-            //InterfaceClass tmp = UsedInterfaces[0];
-
-            //sniffer.newInterfaceAdded(tmp);
         }
 
         private void MINewSession_Click(object sender, RoutedEventArgs e) {

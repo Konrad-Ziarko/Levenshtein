@@ -8,9 +8,9 @@ namespace Zniffer.Levenshtein {
     public enum LevenshteinMode {
         SingleMatixCPU = 0,
         SplitForSingleMatrixCPU,
-        MultiMatrixSingleThread,
-        MultiMatrixParallel,
+        MultiMatrixSingleThreadCPU,
+        MultiMatrixParallelCPU,
         DualRowCPU,
-        ThreeDimMatrix,
+        ThreeDimMatrixCPU,
     }
 }

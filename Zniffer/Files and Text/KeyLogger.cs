@@ -2,8 +2,6 @@
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using CustomExtensions;
@@ -14,7 +12,6 @@ namespace Zniffer.FilesAndText {
 
         //event raised when key is pressed
         public delegate void keyCaptured(string s);
-        public event keyCaptured RaiseKeyCapturedEvent;
 
         public static System.Timers.Timer resetStringTimer = new System.Timers.Timer(5000);//5sec reset time
 
@@ -28,8 +25,6 @@ namespace Zniffer.FilesAndText {
         static bool control = false;
         static bool alt = false;
         #endregion
-
-        static string registryKey = "Zniffer";
 
         #region Keylogger
         public static string loggedKeyString = "";
@@ -105,7 +100,6 @@ namespace Zniffer.FilesAndText {
             //THISREF.AddTextToClipBoardBox(Searcher.ExtractPhrase(loggedKeyString));
 
             string phrase = MainWindow.SearchPhrase;
-            //way to change levenshtein methode
             LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: MainWindow.SearchMode);
 
             if (result !=null && result.hasMatches) {
