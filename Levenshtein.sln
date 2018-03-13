@@ -11,6 +11,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Leven", "Leven\Leven.pyproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zniffer", "Zniffer\Zniffer.csproj", "{965C1153-E103-44B4-8B3E-BC256E3CE45F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zniffer.Tests", "Zniffer.Tests\Zniffer.Tests.csproj", "{B366B6B9-FE29-41A8-8994-1C53CD284F3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{965C1153-E103-44B4-8B3E-BC256E3CE45F}.Release|x64.Build.0 = Release|Any CPU
 		{965C1153-E103-44B4-8B3E-BC256E3CE45F}.Release|x86.ActiveCfg = Release|Any CPU
 		{965C1153-E103-44B4-8B3E-BC256E3CE45F}.Release|x86.Build.0 = Release|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Debug|x64.Build.0 = Debug|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Debug|x86.Build.0 = Debug|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Release|x64.ActiveCfg = Release|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Release|x64.Build.0 = Release|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Release|x86.ActiveCfg = Release|Any CPU
+		{B366B6B9-FE29-41A8-8994-1C53CD284F3E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

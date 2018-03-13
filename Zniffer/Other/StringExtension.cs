@@ -33,6 +33,11 @@ namespace CustomExtensions {
 
         public static LevenshteinMatches Levenshtein(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false, LevenshteinMode mode = 0) {
             str = System.Text.RegularExpressions.Regex.Replace(str, @"\p{C}+", string.Empty);//remove nonprintable characters
+            str = str.Replace("\0", "");
+
+            if (str == null || str.Length == 0 || expression == null || expression.Length == 0)
+                return new LevenshteinMatches();
+
             if (mode == LevenshteinMode.SingleMatixCPU) {
                 return str.LevenshteinSingleMatrixCPU(expression, maxDistance, onlyBestResults, caseSensitive);
             }
@@ -57,10 +62,9 @@ namespace CustomExtensions {
         }
 
         #region MutliMatrix
-        private static LevenshteinMatches LevenshteinMultiMatrixSingleThread(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        public static LevenshteinMatches LevenshteinMultiMatrixSingleThread(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length / 2;
-
             int exprLen = expression.Length;
             long strLen = str.Length - exprLen + 1;
             int[] results = new int[strLen];
@@ -90,55 +94,53 @@ namespace CustomExtensions {
         }
 
 
-        private static LevenshteinMatches LevenshteinMultiMatrixParallel(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
-            if (str.Length > 0) {
-                if (maxDistance < 0)
-                    maxDistance = expression.Length / 2;
+        public static LevenshteinMatches LevenshteinMultiMatrixParallel(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
 
-                //check if system will run out of memory, if so split string/ .NET 2 GB object size limit 
-                var a = expression.Length * expression.Length * str.Length;
-                if (a > 15000000) {
-                    int mid = str.Length / 2;
-                    string leftPart = str.Substring(0, mid + expression.Length - 1);
-                    string rightPart = str.Substring(mid);
+            if (maxDistance < 0)
+                maxDistance = expression.Length / 2;
 
-                    return new LevenshteinMatches(leftPart.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive), rightPart.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive));
-                }
+            //check if system will run out of memory, if so split string/ .NET 2 GB object size limit 
+            var a = expression.Length * expression.Length * str.Length;
+            if (a > 15000000) {
+                int mid = str.Length / 2;
+                string leftPart = str.Substring(0, mid + expression.Length - 1);
+                string rightPart = str.Substring(mid);
 
-                int exprLen = expression.Length;
-                int strLen = str.Length;
-                int numOfMatrixes = strLen - exprLen + 1;
-                int[] results = new int[strLen];
-                int[][,] dimension = new int[strLen][,];
-                for (int i = 0; i < numOfMatrixes; i++) {
-                    dimension[i] = new int[exprLen + 1, exprLen + 1];
-                }
-
-                Parallel.For(0, numOfMatrixes, i => {
-                    results[i] = RectangleLevenshteinCPU(dimension[i], str.Substring(i, exprLen), expression, caseSensitive);
-                });
-
-                LevenshteinMatches matches = new LevenshteinMatches();
-
-                object bestDistance = int.MaxValue;
-
-                Parallel.For(0, numOfMatrixes, i => {
-                    if (results[i] <= maxDistance) {
-                        lock (matches) {
-                            //lock (bestDistance)
-                            bestDistance = (int)bestDistance < results[i] ? bestDistance : results[i];
-                            matches.addMatch(str, i, exprLen, results[i]);
-                        }
-                    }
-                });
-
-                if (onlyBestResults) {
-                    matches.removeMatches((int)bestDistance);
-                }
-
-                return matches;
+                return new LevenshteinMatches(leftPart.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive), rightPart.LevenshteinMultiMatrixParallel(expression, maxDistance, onlyBestResults, caseSensitive));
             }
-            return new LevenshteinMatches();
+
+            int exprLen = expression.Length;
+            int strLen = str.Length;
+            int numOfMatrixes = strLen - exprLen + 1;
+            int[] results = new int[strLen];
+            int[][,] dimension = new int[strLen][,];
+            for (int i = 0; i < numOfMatrixes; i++) {
+                dimension[i] = new int[exprLen + 1, exprLen + 1];
+            }
+
+            Parallel.For(0, numOfMatrixes, i => {
+                results[i] = RectangleLevenshteinCPU(dimension[i], str.Substring(i, exprLen), expression, caseSensitive);
+            });
+
+            LevenshteinMatches matches = new LevenshteinMatches();
+
+            object bestDistance = int.MaxValue;
+
+            Parallel.For(0, numOfMatrixes, i => {
+                if (results[i] <= maxDistance) {
+                    lock (matches) {
+                        //lock (bestDistance)
+                        bestDistance = (int)bestDistance < results[i] ? bestDistance : results[i];
+                        matches.addMatch(str, i, exprLen, results[i]);
+                    }
+                }
+            });
+
+            if (onlyBestResults) {
+                matches.removeMatches((int)bestDistance);
+            }
+
+            return matches;
         }
         #endregion
 
@@ -151,8 +153,10 @@ namespace CustomExtensions {
 
             if (position + length + paddingLength <= str.Length)
                 endPosition = position + length + paddingLength;
-
-            tmp = tmp.Substring(startPosition, position - startPosition) + "<" + MainWindow.COLORTAG + ">" + tmp.Substring(position, length) + "</" + MainWindow.COLORTAG + ">" + tmp.Substring(position + length, endPosition - (position + length));
+            try {
+                tmp = tmp.Substring(startPosition, position - startPosition) + "<" + MainWindow.COLORTAG + ">" + tmp.Substring(position, length) + "</" + MainWindow.COLORTAG + ">" + tmp.Substring(position + length, endPosition - (position + length));
+            }
+            catch { };
             if (position > paddingLength)
                 position = position - startPosition;
             return tmp;
@@ -160,13 +164,17 @@ namespace CustomExtensions {
 
         #region SingleMatrix
 
-        private static LevenshteinMatches LevenshteinThreeDimMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        public static LevenshteinMatches LevenshteinThreeDimMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length / 2;
             int strLen = str.Length;
             int exprLen = expression.Length;
             if (strLen == 0 || exprLen == 0)
-                return null;
+                return new LevenshteinMatches();
+
+            if(strLen < exprLen) {
+                str.Swap(expression);
+            }
 
             int[,,] dimension = new int[strLen + 2 - exprLen, exprLen + 1, exprLen + 1];
 
@@ -204,7 +212,7 @@ namespace CustomExtensions {
             return new LevenshteinMatches(newMatches);
         }
 
-        private static LevenshteinMatches LevenshteinDualRowCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        public static LevenshteinMatches LevenshteinDualRowCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length / 2;
 
@@ -223,7 +231,7 @@ namespace CustomExtensions {
                 return null;
         }
 
-        private static LevenshteinMatches LevenshteinSplitForSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        public static LevenshteinMatches LevenshteinSplitForSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length / 2;
 
@@ -258,7 +266,7 @@ namespace CustomExtensions {
             return new LevenshteinMatches(newMatches);
         }
 
-        private static LevenshteinMatches LevenshteinSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+        public static LevenshteinMatches LevenshteinSingleMatrixCPU(this string str, string expression, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
             if (maxDistance < 0)
                 maxDistance = expression.Length / 2;
 
@@ -290,7 +298,7 @@ namespace CustomExtensions {
         #endregion
 
         //Wagnera–Fischera dynamic programming
-        private static int SqueareLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
+        public static int SqueareLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
             int len = str1.Length;
             for (int i = 0; i <= len; i++) {
                 arr[i, 0] = i;
@@ -313,7 +321,7 @@ namespace CustomExtensions {
             }
             return arr[len, len];//return min edit-distance
         }
-        private static int RectangleLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
+        public static int RectangleLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
             for (int i = 0; i <= str1.Length; i++) {
                 arr[i, 0] = i;
             }
@@ -338,7 +346,7 @@ namespace CustomExtensions {
             }
             return arr[str1.Length, str2.Length];//return min edit-distance
         }
-        private static int DualRowsLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
+        public static int DualRowsLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
             if (!caseSensitive) {
                 str1 = str1.ToUpper();
                 str2 = str2.ToUpper();
@@ -367,6 +375,12 @@ namespace CustomExtensions {
 
             }
             return arr[0, str2.Length];//return min edit-distance
+        }
+
+        private static void Swap(this string str1, string str2) {
+            string tmp = str1;
+            str1 = str2;
+            str2 = tmp;
         }
     }
 }

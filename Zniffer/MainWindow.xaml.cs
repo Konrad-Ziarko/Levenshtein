@@ -299,29 +299,33 @@ namespace Zniffer {
         public void Window_SourceInitialized(object sender, EventArgs e) {
             ////
 
-            string str = "wybrzeze";
-            string expression = "wybrazc";
+            string str = "\0";
+            string expression = "\0";
             int strLen = str.Length;
             int exprLen = expression.Length;
 
             int[,] dimension = new int[strLen + 1, exprLen + 1];
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            watch.Reset();
-            for (int i = 0; i < 100; i++) {
-                dimension = new int[strLen + 1, exprLen + 1];
-                watch.Start();
-                var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThreadCPU);
-                watch.Stop();
-            }
-            Console.WriteLine(watch.ElapsedMilliseconds);
-            watch.Reset();
-            for (int i = 0; i < 100; i++) {
-                dimension = new int[strLen + 1, exprLen + 1];
-                watch.Start();
-                var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixCPU);
-                watch.Stop();
-            }
-            Console.WriteLine(watch.ElapsedMilliseconds);
+
+            var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThreadCPU);
+
+
+            //var watch = System.Diagnostics.Stopwatch.StartNew();
+            //watch.Reset();
+            //for (int i = 0; i < 100; i++) {
+            //    dimension = new int[strLen + 1, exprLen + 1];
+            //    watch.Start();
+            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThreadCPU);
+            //    watch.Stop();
+            //}
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+            //watch.Reset();
+            //for (int i = 0; i < 100; i++) {
+            //    dimension = new int[strLen + 1, exprLen + 1];
+            //    watch.Start();
+            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixCPU);
+            //    watch.Stop();
+            //}
+            //Console.WriteLine(watch.ElapsedMilliseconds);
             //watch.Reset();
             //for (int i = 0; i < 100000; i++) {
             //    dimension = new int[strLen + 1, exprLen + 1];
@@ -432,6 +436,8 @@ namespace Zniffer {
             detachFromClipboard();
 
             Properties.Settings.Default.Save();
+
+            sniffer.endQueueThread();
         }
 
 

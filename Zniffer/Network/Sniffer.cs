@@ -5,6 +5,7 @@ using SharpPcap;
 using Zniffer.Levenshtein;
 using System.Text;
 using CustomExtensions;
+using System.Threading;
 
 namespace Zniffer {
     class Sniffer {
@@ -17,6 +18,11 @@ namespace Zniffer {
         private static bool BackgroundThreadStop = false;
         private static object QueueLock = new object();
         private static List<RawCapture> PacketQueue = new List<RawCapture>();
+        Thread backgroundThread;
+
+        public void endQueueThread() {
+            BackgroundThreadStop = true;
+        }
 
         private void addNewInterface(InterfaceClass interfaceObj) {
             CaptureDeviceList _devices = CaptureDeviceList.Instance;
@@ -46,7 +52,7 @@ namespace Zniffer {
             this.UsedInterfaces = UsedInterfaces;
             UsedInterfaces.CollectionChanged += UsedInterfaces_CollectionChanged;
 
-            var backgroundThread = new System.Threading.Thread(BackgroundThread);
+            backgroundThread = new Thread(BackgroundThread);
             backgroundThread.Start();
 
         }
@@ -88,7 +94,7 @@ namespace Zniffer {
                 }
 
                 if (shouldSleep) {
-                    System.Threading.Thread.Sleep(250);
+                    Thread.Sleep(250);
                 }
                 else // should process the queue
                 {
