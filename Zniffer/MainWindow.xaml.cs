@@ -32,32 +32,11 @@ namespace Zniffer {
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
 
         #region Networking
-        private static bool _SaveFile;
-        public static bool SaveFile {
-            get {
-                return _SaveFile;
-            }
-            set {
-                _SaveFile = value;
-            }
-        }
-
 
         public static Dictionary<string, string> AvaliableNetworkAdapters = new Dictionary<string, string>();
         public ObservableCollection<InterfaceClass> UsedInterfaces = new ObservableCollection<InterfaceClass>();
         public ObservableCollection<InterfaceClass> AvaliableInterfaces = new ObservableCollection<InterfaceClass>();
 
-
-        public ObservableCollection<InterfaceClass> UsedFaces {
-            get {
-                return UsedInterfaces;
-            }
-        }
-        public ObservableCollection<InterfaceClass> AvaliableFaces {
-            get {
-                return AvaliableInterfaces;
-            }
-        }
 
         BaseWindow networkSettingsWindow, fileExtensionsWindow;
 
@@ -270,7 +249,6 @@ namespace Zniffer {
             InitializeComponent();
             this.DataContext = this;
             
-
             //initialize settings collections if needed
             if (Properties.Settings.Default.UsedExtensions == null)
                 Properties.Settings.Default.UsedExtensions = new System.Collections.Specialized.StringCollection();
@@ -332,6 +310,46 @@ namespace Zniffer {
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
             ////
+
+            //string str = "wybrzeze";
+            //string expression = "wybrazc";
+            //int strLen = str.Length;
+            //int exprLen = expression.Length;
+
+            //int[,] dimension = new int[strLen + 1, exprLen + 1];
+            //var watch = System.Diagnostics.Stopwatch.StartNew();
+            //watch.Reset();
+            //for (int i = 0; i < 100000; i++) {
+            //    dimension = new int[strLen + 1, exprLen + 1];
+            //    watch.Start();
+            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixParallel);
+            //    watch.Stop();
+            //}
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+            //watch.Reset();
+            //for (int i = 0; i < 100000; i++) {
+            //    dimension = new int[strLen + 1, exprLen + 1];
+            //    watch.Start();
+            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThread);
+            //    watch.Stop();
+            //}
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+            //watch.Reset();
+            //for (int i = 0; i < 100000; i++) {
+            //    dimension = new int[strLen + 1, exprLen + 1];
+            //    watch.Start();
+            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SingleMatixCPU);
+            //    watch.Stop();
+            //}
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+            //watch.Reset();
+            //for (int i = 0; i < 100000; i++) {
+            //    dimension = new int[strLen + 1, exprLen + 1];
+            //    watch.Start();
+            //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForSingleMatrixCPU);
+            //    watch.Stop();
+            //}
+            //Console.WriteLine(watch.ElapsedMilliseconds);
             /*
             string s = "abcabc def ghi jkl l";
             //s = string.Concat(Enumerable.Repeat(s, 5000));
@@ -648,7 +666,9 @@ namespace Zniffer {
         }
 
         private void MINewSession_Click(object sender, RoutedEventArgs e) {
-
+            NetworkTextBlock.Inlines.Clear();
+            ClipboardTextBlock.Inlines.Clear();
+            FilesTextBlock.Inlines.Clear();
         }
 
         private void NetworkScrollViewr_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {

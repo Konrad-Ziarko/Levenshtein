@@ -11,5 +11,6 @@ namespace Zniffer.Levenshtein {
         MultiMatrixSingleThread,
         MultiMatrixParallel,
         DualRowCPU,
+        ThreeDimMatrix,
     }
 }

@@ -968,10 +968,6 @@
             <Button x:Name="button_Exit" WindowChrome.IsHitTestVisibleInChrome="True" Content="X" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="#59FF0000" Style="{DynamicResource ButtonStyle2}" RenderTransformOrigin="2,0.583" Click="Button_Exit_Click" BorderBrush="#3F707070"/>
             <Button x:Name="button_Max" WindowChrome.IsHitTestVisibleInChrome="True" Content="▢" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="25" Background="Transparent" Margin="0,0,25,0" Click="Button_Max_Click" BorderBrush="#3F707070"/>
         </Grid>
-
-
-
-
         <Grid>
             <Grid Name="ClientAreaGrid">
                 <Menu x:Name="menu" Height="22" VerticalAlignment="Top" FontFamily="Tahoma">
@@ -987,59 +983,8 @@
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
                                 </LinearGradientBrush>
                             </MenuItem.Background>
-
-                        </MenuItem>
-                        <Separator >
-                            <Separator.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </Separator.Background>
-                        </Separator>
-                        <MenuItem Header="Otwórz..." FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                            <MenuItem.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </MenuItem.Background>
-                            <MenuItem Header="Uruchom..." FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                                <MenuItem.Background>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                    </LinearGradientBrush>
-                                </MenuItem.Background>
-                            </MenuItem>
-                            <MenuItem Header="CMD" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                                <MenuItem.Background>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                    </LinearGradientBrush>
-                                </MenuItem.Background>
-                            </MenuItem>
-                            <MenuItem Header="PowerShell" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                                <MenuItem.Background>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                    </LinearGradientBrush>
-                                </MenuItem.Background>
-                            </MenuItem>
-                        </MenuItem>
-                        <Separator BorderThickness="0">
-                            <Separator.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </Separator.Background>
-                        </Separator>
-                        <MenuItem Header="Właściwości" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
-                            <MenuItem.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </MenuItem.Background>
                         </MenuItem>
                     </MenuItem>
-
                     <MenuItem Header="_Sieć" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1047,15 +992,6 @@
                             </LinearGradientBrush>
                         </MenuItem.Background>
                         <MenuItem Header="Nasłuchuj" Name="MISniff" Click="MISniff_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" IsCheckable="True">
-                            <MenuItem.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                </LinearGradientBrush>
-                            </MenuItem.Background>
-                        </MenuItem>
-                        <MenuItem Header="Zapisuj log do pliku" Name="MISaveFile" Click="MISaveFile_Click" IsCheckable="True"
-                                  IsChecked="{Binding SaveFile}"
-                                  FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E" >
                             <MenuItem.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
@@ -1070,7 +1006,6 @@
                             </MenuItem.Background>
                         </MenuItem>
                     </MenuItem>
-
                     <MenuItem Header="_Napędy" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1083,7 +1018,6 @@
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
                                 </LinearGradientBrush>
                             </MenuItem.Background>
-
                             <MenuItem Header="Otwieranych plików" Name="MIFiles" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
                                       IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanOpenFiles, Mode=TwoWay}">
                                 <MenuItem.Background>
@@ -1127,7 +1061,6 @@
                             </MenuItem.Background>
                         </MenuItem>
                     </MenuItem>
-
                     <MenuItem Header="_Widok" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -1142,16 +1075,9 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
-
-                    </MenuItem>
-                    <MenuItem Header="_Inne" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
-                        
-
                     </MenuItem>
                 </Menu>
             </Grid>
-
-
             <Grid Name="BarGrid" Margin="0,22,0,0" Height="24" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MaxWidth="150"/>
@@ -1163,7 +1089,6 @@
                         <GradientStop Color="#FF2E2E2E" Offset="0"/>
                     </LinearGradientBrush>
                 </Grid.Background>
-
                 <Viewbox Grid.Column="0" Stretch="Uniform" StretchDirection="DownOnly" Margin="5,0,0,0" HorizontalAlignment="Left" Width="145">
                     <TextBlock Text="Słowa kluczowe:" FontSize="20" Foreground="#FFFFFFFF">
                         <TextBlock.Background>
@@ -1173,7 +1098,6 @@
                             </LinearGradientBrush>
                         </TextBlock.Background>
                     </TextBlock>
-
                 </Viewbox>
                 <Viewbox Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Left">
                     <TextBox Name="SearchPhraseTextBox" Text="{Binding Source={x:Static properties:Settings.Default}, Path=SearchPhrase, Mode=TwoWay}" HorizontalAlignment="Center" Foreground="#FFFFFFFF" SelectionBrush="#FFD70000" BorderBrush="#FFD70000" BorderThickness="1,0" TextChanged="TextBox_TextChanged">
@@ -1186,7 +1110,6 @@
                     </TextBox>
                 </Viewbox>
             </Grid>
-
             <Grid Margin="0,46,0,0">
                 <Grid.Background>
                     <LinearGradientBrush EndPoint="1,1" StartPoint="0,0" Opacity="0">
@@ -1194,14 +1117,12 @@
                         <GradientStop Color="#FF3F46C7" Offset="1"/>
                     </LinearGradientBrush>
                 </Grid.Background>
-
                 <Grid Name="ContentGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="3"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
                     <Grid Grid.Column="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*" />
@@ -1214,18 +1135,15 @@
                             </Viewbox>
                         </ScrollViewer>
                         <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
-
                         <ScrollViewer Name="ClipboardScrollViewer"  Grid.Row="2" ScrollChanged="ClipboardScrollViewer_ScrollChanged" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                             <TextBlock Name="ClipboardTextBlock"  FontSize="20" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel" ></TextBlock>
                         </ScrollViewer>
                     </Grid>
-
                     <!--druga kolumna-->
                     <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
                     <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                         <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap"  MouseWheel="FilesTextBlock_MouseWheel" ></TextBlock>
                     </ScrollViewer>
-
                 </Grid>
             </Grid>
         </Grid>
