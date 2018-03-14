@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Zniffer.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>GWQgoEsALEaAAQAigB4AIzIgRJxAIIAIQgKxRAqBEAk=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Zniffer.Sniffer">
+    <Position X="4.5" Y="3.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAACAECAAAAAAEAAAAABABAAQAEAIAQAAABAQBAA=</HashCode>
+      <FileName>Network\Sniffer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.InterfaceClass" BaseTypeListCollapsed="true">
+    <Position X="7.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAEAAACAAgEJAAAQAAAgAAAAAAABAAAAAAACEA=</HashCode>
+      <FileName>Network\InterfaceClass.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Zniffer.NetworkSettings" BaseTypeListCollapsed="true">
+    <Position X="10" Y="4" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>BAAgAAIAEAAAgAAAAADAAAAAQAiAAAAAAECAAAAAAAA=</HashCode>
+      <FileName>Settings\NetworkSettings.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.19" Collapsed="true" />
+  </Class>
+  <Class Name="Zniffer.FilesAndText.KeyLogger">
+    <Position X="0.5" Y="2.25" Width="1.5" />
+    <NestedTypes>
+      <Delegate Name="Zniffer.FilesAndText.KeyLogger.keyCaptured" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Files and Text\KeyLogger.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AFgAEEAACAAJhBAAhAAAACABAAAIACIIAAAAgECAAAI=</HashCode>
+      <FileName>Files and Text\KeyLogger.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.FilesAndText.Searcher">
+    <Position X="11.75" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAECAAAAQAAAAAAAAAAAAAAAAAAIEAAAAAgAAAA=</HashCode>
+      <FileName>Files and Text\Searcher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.Other.LevenshteinGPU">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Other\LevenshteinGPU.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.Levenshtein.LevenshteinMatch">
+    <Position X="3.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAEAgIAAAAEAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>Other\LevenshteinMatch.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.Levenshtein.LevenshteinMatches">
+    <Position X="5.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgACAABAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAGAAAA=</HashCode>
+      <FileName>Other\LevenshteinMatches.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CustomExtensions.StringExtension">
+    <Position X="12.5" Y="5.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAEAkAAAAAEAAAAAAAAAgAAAABAACAEAAE=</HashCode>
+      <FileName>Other\StringExtension.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.Properties.Settings">
+    <Position X="2.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAQEAAAAAAAAAAAAAAIgAgAAABAABAAAAAAAAAgAg=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zniffer.FileExtension.FileExtensionClass" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEIAAAAAAAgAAAAQAAAIAAAAAAAAA=</HashCode>
+      <FileName>Settings\FileExtensionClass.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Enum Name="Zniffer.Levenshtein.LevenshteinMode">
+    <Position X="13.75" Y="3.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAAAgACAAAAUAAAAAAE=</HashCode>
+      <FileName>Other\LevenshteinMode.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

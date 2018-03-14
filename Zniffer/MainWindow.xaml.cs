@@ -36,9 +36,7 @@ namespace Zniffer {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        private static MainWindow THISREF = null;
-        public static string COLORTAG = "!@#RED$%^";
-        public static LevenshteinMode SearchMode = LevenshteinMode.SplitForSingleMatrixCPU;
+        public static LevenshteinMode SearchMode = LevenshteinMode.SplitDualRowCPU;
 
         private static bool AutoScrollClipboard = true;
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
@@ -232,7 +230,6 @@ namespace Zniffer {
 
 
         public MainWindow() {
-            THISREF = this;
             InitializeComponent();
             this.DataContext = this;
             
@@ -259,8 +256,6 @@ namespace Zniffer {
 
         //discovering new drives
         private void NewDeviceDetectedEventArived(object sender, EventArrivedEventArgs e) {
-
-            //TODO async scan files on newly attached devices (if ntfs +ADS)
 
             Console.Out.WriteLine(e.NewEvent.Properties["DriveName"].Value.ToString() + " inserted");
 
@@ -486,7 +481,7 @@ namespace Zniffer {
         private void _AddTextToNetworkBox(LevenshteinMatches matches) {
             List<Run> runs = new List<Run>();
             foreach (LevenshteinMatch match in matches.foundMatches) {
-                string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                string[] parts = new string[] { match.contextL, match.value, match.contextR };
                 int i = 0;
                 foreach (string s in parts) {
                     i = (i + 1) % 2;
@@ -500,11 +495,11 @@ namespace Zniffer {
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("「" + match.distance + "」\r\n"));
+                runs.Add(new Run("「" + match.distance + "」\n"));
                 foreach (var item in runs)
                     NetworkTextBlock.Inlines.Add(item);
-                NetworkTextBlock.Inlines.Add(new Run("\r\n"));
             }
+            NetworkTextBlock.Inlines.Add(new Run("\n"));
         }
 
         public void AddTextToNetworkBox(string txt) {
@@ -512,12 +507,10 @@ namespace Zniffer {
                 if (!NetworkTextBlock.Dispatcher.CheckAccess()) {
                     NetworkTextBlock.Dispatcher.Invoke(() => {
                         NetworkTextBlock.Inlines.Add(new Run(txt) { Foreground = new SolidColorBrush(Color.FromRgb(10,170,20))});
-                        NetworkTextBlock.Inlines.Add(new Run("\r\n"));
                     });
                 }
                 else {
                     NetworkTextBlock.Inlines.Add(new Run(txt) { Foreground = new SolidColorBrush(Color.FromRgb(10, 170, 20)) });
-                    NetworkTextBlock.Inlines.Add(new Run("\r\n"));
                 }
             }
         }
@@ -537,7 +530,7 @@ namespace Zniffer {
         private void _AddTextToClipBoardBox(LevenshteinMatches matches) {
             List<Run> runs = new List<Run>();
             foreach (LevenshteinMatch match in matches.foundMatches) {
-                string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                string[] parts = new string[] { match.contextL, match.value, match.contextR };
                 int i = 0;
                 foreach (string s in parts) {
                     i = (i + 1) % 2;
@@ -551,11 +544,11 @@ namespace Zniffer {
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("「" + match.distance + "」\r\n"));
+                runs.Add(new Run("「" + match.distance + "」\n"));
                 foreach (var item in runs)
                     ClipboardTextBlock.Inlines.Add(item);
-                ClipboardTextBlock.Inlines.Add(new Run("\r\n"));
             }
+            ClipboardTextBlock.Inlines.Add(new Run("\n"));
         }
         public void AddTextToClipBoardBox(LevenshteinMatches matches) {
             if (matches.hasMatches) {
@@ -574,12 +567,10 @@ namespace Zniffer {
                 if (!FilesTextBlock.Dispatcher.CheckAccess()) {
                     FilesTextBlock.Dispatcher.Invoke(() => {
                         FilesTextBlock.Inlines.Add(new Run(txt));
-                        FilesTextBlock.Inlines.Add(new Run("\r\n"));
                     });
                 }
                 else {
                     FilesTextBlock.Inlines.Add(new Run(txt));
-                    FilesTextBlock.Inlines.Add(new Run("\r\n"));
                 }
             }
         }
@@ -587,7 +578,7 @@ namespace Zniffer {
         private void _AddTextToFileBox(LevenshteinMatches matches) {
             List<Run> runs = new List<Run>();
             foreach (LevenshteinMatch match in matches.foundMatches) {
-                string[] parts = match.context.Split(new string[] { "<" + COLORTAG + ">", "</" + COLORTAG + ">" }, StringSplitOptions.None);
+                string[] parts = new string[] { match.contextL, match.value, match.contextR };
                 int i = 0;
                 foreach (string s in parts) {
                     i = (i + 1) % 2;
@@ -601,11 +592,11 @@ namespace Zniffer {
                     else
                         runs.Add(new Run(s));
                 }
-                runs.Add(new Run("「" + match.distance + "」\r\n"));
+                runs.Add(new Run("「" + match.distance + "」\n"));
                 foreach (var item in runs)
                     FilesTextBlock.Inlines.Add(item);
-                FilesTextBlock.Inlines.Add(new Run("\r\n"));
             }
+            FilesTextBlock.Inlines.Add(new Run("\n"));
         }
         public void AddTextToFileBox(LevenshteinMatches matches) {
             if (matches.hasMatches) {

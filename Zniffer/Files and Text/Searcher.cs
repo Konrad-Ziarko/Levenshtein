@@ -19,10 +19,13 @@ namespace Zniffer.FilesAndText {
             foreach (string file in files) {
                 //Console.Out.WriteLine(File.ReadAllText(file));
                 try {
+                    Console.WriteLine("Skanowanie " + file);
                     LevenshteinMatches matches = SearchPhraseInFile(file);
+                    Console.WriteLine("Przeskanowano " + file);
                     //foreach(string str in File.ReadLines(file))
                     if (matches.hasMatches) {
                         window.AddTextToFileBox(file);
+                        window.AddTextToFileBox("\n");
                         window.AddTextToFileBox(matches);
                     }
                 }
@@ -31,9 +34,6 @@ namespace Zniffer.FilesAndText {
                 }
                 catch (IOException) {
                     //odłączenie urządzenia np
-                }
-                catch (ArgumentException) {
-
                 }
                 if (Settings.Default.ScanADS && drive.DriveFormat.Equals("NTFS")) {
                     //search for ads
@@ -85,6 +85,9 @@ namespace Zniffer.FilesAndText {
             try {
                 return Directory.GetFiles(path, searchPattern).ToList();
             }
+            catch (IOException) {
+                return new List<string>();
+            }
             catch (UnauthorizedAccessException) {
                 return new List<string>();
             }
@@ -94,7 +97,6 @@ namespace Zniffer.FilesAndText {
         public LevenshteinMatches ExtractPhrase(string sourceText) {
             string phrase = MainWindow.SearchPhrase;
             LevenshteinMatches matches = sourceText.Levenshtein(phrase, mode: MainWindow.SearchMode);
-
             return matches;
         }
 

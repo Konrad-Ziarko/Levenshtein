@@ -56,9 +56,6 @@ namespace Zniffer.FilesAndText {
         }
 
         private void KeyCapturedHandle(string s) {
-            //limit number of chars in string
-            //limit exceeded = slice string and overlap two parts for Levenshtein
-
             if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
                 s = s.Substring(1, s.Length - 2);
                 if (s.Equals("Backspace")) {
@@ -96,9 +93,10 @@ namespace Zniffer.FilesAndText {
                     loggedKeyString = "";
                 }
             }
-            //Console.Out.WriteLine(loggedKeyString);
-            //THISREF.AddTextToClipBoardBox(Searcher.ExtractPhrase(loggedKeyString));
 
+            if (loggedKeyString.Length > 50)
+                loggedKeyString = loggedKeyString.Remove(0, 1);
+            Console.Out.WriteLine(loggedKeyString);
             string phrase = MainWindow.SearchPhrase;
             LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: MainWindow.SearchMode);
 

@@ -42,11 +42,6 @@ namespace Zniffer {
             }
         }
 
-        public void removeInterface(InterfaceClass interfaceObj) {
-            int index = UsedInterfaces.IndexOf(interfaceObj);
-            UsedInterfaces[index].ContinueCapturing = false;
-        }
-
         public Sniffer(MainWindow window, ref ObservableCollection<InterfaceClass> UsedInterfaces) {
             this.window = window;
             this.UsedInterfaces = UsedInterfaces;
@@ -130,7 +125,7 @@ namespace Zniffer {
                                             string phrase = MainWindow.SearchPhrase;
                                             LevenshteinMatches matches = Encoding.UTF8.GetString(tcp.PayloadData).Levenshtein(phrase, mode: MainWindow.SearchMode);
                                             if (matches.hasMatches) {
-                                                window.AddTextToNetworkBox(tmpInterface.Addres + ":" + tcp.DestinationPort);
+                                                window.AddTextToNetworkBox(tmpInterface.Addres + ":" + tcp.DestinationPort + "\n");
                                                 window.AddTextToNetworkBox(matches);
                                             }
                                         }
@@ -141,7 +136,7 @@ namespace Zniffer {
                                             string phrase = MainWindow.SearchPhrase;
                                             LevenshteinMatches matches = Encoding.UTF8.GetString(udp.PayloadData).Levenshtein(phrase, mode: MainWindow.SearchMode);
                                             if (matches.hasMatches) {
-                                                window.AddTextToNetworkBox(tmpInterface.Addres + ":" + udp.DestinationPort);
+                                                window.AddTextToNetworkBox(tmpInterface.Addres + ":" + udp.DestinationPort + "\n");
                                                 window.AddTextToNetworkBox(matches);
                                             }
                                         }

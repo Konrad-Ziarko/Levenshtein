@@ -6,8 +6,6 @@ namespace Zniffer {
     public class InterfaceClass : INotifyPropertyChanged {
         private string _ports;
         private bool _interfaceIsUp;
-        private bool _continueCapturing;
-        public byte[] byteData = new byte[4096];
         private ushort _minPort=0, _maxPort=0;
 
         public string Addres {
@@ -51,28 +49,17 @@ namespace Zniffer {
             }
         }
 
-        public bool ContinueCapturing {
-            get {
-                return _continueCapturing;
-            }
-            set {
-                _continueCapturing = value;
-            }
-        }
-
         public InterfaceClass(string addres, string ports) {
             this.Addres = addres;
             this.Ports = ports;
             this.Used = false;
             this.InterfaceIsUp = false;
-            this.ContinueCapturing = true;
         }
         public InterfaceClass(string addres, string ports, bool used) {
             this.Addres = addres;
             this.Ports = ports;
             this.Used = used;
             this.InterfaceIsUp = false;
-            this.ContinueCapturing = true;
         }
         private void OnPropertyChanged(string propertyName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

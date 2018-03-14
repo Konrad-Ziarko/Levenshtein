@@ -10,7 +10,7 @@ namespace Zniffer.Levenshtein {
         SplitForSingleMatrixCPU,
         MultiMatrixSingleThreadCPU,
         MultiMatrixParallelCPU,
-        DualRowCPU,
+        SplitDualRowCPU,
         ThreeDimMatrixCPU,
     }
 }

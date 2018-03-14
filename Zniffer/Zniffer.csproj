@@ -103,7 +103,6 @@
     <Compile Include="Other\LevenshteinGPU.cs" />
     <Compile Include="Other\LevenshteinMatch.cs" />
     <Compile Include="Other\LevenshteinMatches.cs" />
-    <Compile Include="Other\Converter.cs" />
     <Compile Include="Other\LevenshteinMode.cs" />
     <Compile Include="Settings\EditInterface.xaml.cs">
       <DependentUpon>EditInterface.xaml</DependentUpon>
@@ -112,7 +111,7 @@
     <Compile Include="Settings\FileExtensions.xaml.cs">
       <DependentUpon>FileExtensions.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings\InterfaceClass.cs" />
+    <Compile Include="Network\InterfaceClass.cs" />
     <Compile Include="ListViewManager\DragAdorner.cs" />
     <Compile Include="ListViewManager\ListViewDragDropManager.cs" />
     <Compile Include="ListViewManager\MouseUtilities.cs" />
@@ -171,6 +170,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
