@@ -7,5 +7,6 @@ namespace Zniffer.Levenshtein {
         MultiMatrixParallelCPU,
         SplitDualRowCPU,
         ThreeDimMatrixCPU,
+        ThreeDimMatrixGPU,
     }
 }

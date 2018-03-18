@@ -17,7 +17,7 @@
     FontFamily="Tahoma"
     Foreground="Black"
     SourceInitialized="Window_SourceInitialized" 
-    Closing="Window_Closing"
+    Closing="Window_Closing" Loaded="ZnifferWindow_Loaded"
         >
     <Window.Resources>
         <LinearGradientBrush x:Key="MenuItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
