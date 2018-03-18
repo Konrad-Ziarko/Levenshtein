@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Zniffer.Levenshtein;
-
+using Zniffer.Other;
 
 namespace CustomExtensions {
 
@@ -14,7 +14,7 @@ namespace CustomExtensions {
         }
     }
     public static class StringExtension {
-
+        static LevenshteinGPU gpu = LevenshteinGPU.instance;
         public static LevenshteinMatches Levenshtein(this string str, string pattern, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false, LevenshteinMode mode = 0) {
             str = System.Text.RegularExpressions.Regex.Replace(str, @"\p{C}+", string.Empty);//remove nonprintable characters
             str = str.Replace("\0", "");
@@ -41,7 +41,7 @@ namespace CustomExtensions {
                 return str.LevenshteinThreeDimMatrixCPU(pattern, maxDistance, onlyBestResults, caseSensitive);
             }
             else if (mode == LevenshteinMode.ThreeDimMatrixGPU) {
-                return Zniffer.Other.LevenshteinGPU.LevenshteinSingleMatrixGPU(str, pattern, maxDistance, onlyBestResults, caseSensitive);
+                return gpu.LevenshteinSingleMatrixGPU(str, pattern, maxDistance, onlyBestResults, caseSensitive);
                 //return str.LevenshteinSingleMatrixGPU(pattern, maxDistance, onlyBestResults, caseSensitive);
             }
             else {

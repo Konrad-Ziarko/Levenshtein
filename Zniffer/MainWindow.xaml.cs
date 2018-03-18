@@ -37,7 +37,7 @@ namespace Zniffer {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        public static LevenshteinMode SearchMode = LevenshteinMode.SplitDualRowCPU;
+        public static LevenshteinMode SearchMode = LevenshteinMode.ThreeDimMatrixGPU;
 
         private static bool AutoScrollClipboard = true;
         private ManagementEventWatcher watcher = new ManagementEventWatcher();

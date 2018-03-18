@@ -54,7 +54,11 @@ namespace Zniffer.FilesAndText {
         }
 
         private void KeyCapturedHandle(string s) {
-            if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
+            if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {
+
+            }else {
+
+                if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
                 s = s.Substring(1, s.Length - 2);
                 if (s.Equals("Backspace")) {
                     timerResetString.Stop();
@@ -75,10 +79,6 @@ namespace Zniffer.FilesAndText {
                     if (cursorPosition < keyBuffer.Length)
                         cursorPosition++;
                 }
-            }
-            else if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {//active window changed
-                timerResetString.Stop();
-
             }
             else {//normal characters
                 timerResetString.Stop();
@@ -103,6 +103,7 @@ namespace Zniffer.FilesAndText {
             }
 
             timerResetString.Start();
+            }
         }
 
 
