@@ -50,8 +50,8 @@ namespace Zniffer.Other {
                 }
                 lock (lockGPU) {
 
-                    //CudafyModule km = CudafyModule.Deserialize(typeof(LevenshteinGPU).Name);
-                    CudafyModule km = CudafyTranslator.Cudafy(eArchitecture.sm_50);
+                    CudafyModule km = CudafyModule.Deserialize(typeof(LevenshteinGPU).Name);
+                    //CudafyModule km = CudafyTranslator.Cudafy(eArchitecture.sm_50);
                     _gpu = CudafyHost.GetDevice(CudafyModes.Target);
                     _gpu.LoadModule(km);
 

