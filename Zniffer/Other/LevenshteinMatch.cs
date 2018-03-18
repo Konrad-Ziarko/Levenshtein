@@ -20,7 +20,7 @@ namespace Zniffer.Levenshtein {
                 this.value = context;
                 this.contextL = this.contextR = "";
             }
-            else if (position + length >= context.Length) {
+            else if (position + length + 1 >= context.Length) {
                 this.contextL = context.Substring(startPosition, position - startPosition);
                 this.value = context.Substring(position);
                 this.contextR = "";
@@ -28,7 +28,7 @@ namespace Zniffer.Levenshtein {
             else {
                 this.contextL = context.Substring(startPosition, position - startPosition);
                 this.value = context.Substring(position, length);
-                this.contextR = context.Substring(position + length, endPosiiton - (position + length));
+                this.contextR = context.Substring(position + length);
             }
             this.length = length;
             this.position = position;

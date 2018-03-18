@@ -38,18 +38,6 @@ namespace Zniffer.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ScanOpenFiles {
-            get {
-                return ((bool)(this["ScanOpenFiles"]));
-            }
-            set {
-                this["ScanOpenFiles"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ScanNewDrives {
             get {
                 return ((bool)(this["ScanNewDrives"]));

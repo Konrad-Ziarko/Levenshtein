@@ -191,7 +191,7 @@ namespace CustomExtensions {
 
             for (int i = 0; i < firstDim; i++) {
                 if (maxDistance >= dimension[i, compareLength, compareLength]) {
-                    newMatches.Add(new LevenshteinMatch(originalString, i, compareLength, dimension[i, compareLength, compareLength], expression:expression));
+                    newMatches.Add(new LevenshteinMatch(originalString, i, compareLength, dimension[i, compareLength, compareLength]));
                 }
             }
             return new LevenshteinMatches(newMatches);
@@ -291,7 +291,7 @@ namespace CustomExtensions {
         }
         #endregion
 
-        //Wagnera–Fischera dynamic programming
+        //Wagner–Fischer dynamic programming
         public static int SqueareLevenshteinCPU(int[,] arr, string str1, string str2, bool caseSensitive = false) {
             int len = str1.Length;
             for (int i = 0; i <= len; i++) {

@@ -553,9 +553,12 @@ namespace Zniffer {
         public void AddTextToClipBoardBox(LevenshteinMatches matches) {
             if (matches.hasMatches) {
                 if (!ClipboardTextBlock.Dispatcher.CheckAccess()) {
-                    ClipboardTextBlock.Dispatcher.Invoke(() => {
-                        _AddTextToClipBoardBox(matches);
-                    });
+                    try {
+                        ClipboardTextBlock.Dispatcher.Invoke(() => {
+                            _AddTextToClipBoardBox(matches);
+                        });
+                    }
+                    catch { }
                 }
                 else {
                     _AddTextToClipBoardBox(matches);

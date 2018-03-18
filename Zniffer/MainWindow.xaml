@@ -1018,14 +1018,6 @@
                                     <GradientStop Color="#FF2E2E2E" Offset="0"/>
                                 </LinearGradientBrush>
                             </MenuItem.Background>
-                            <MenuItem Header="Otwieranych plików" Name="MIFiles" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
-                                      IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanOpenFiles, Mode=TwoWay}">
-                                <MenuItem.Background>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
-                                    </LinearGradientBrush>
-                                </MenuItem.Background>
-                            </MenuItem>
                             <MenuItem Header="Podłączanych dysków" Name="MIDrives" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E"
                                       IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=ScanNewDrives, Mode=TwoWay}"
                                       Checked="MIDrives_Checked" Unchecked="MIDrives_Unchecked">
@@ -1130,14 +1122,14 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <ScrollViewer Name="NetworkScrollViewr" Grid.Row="0" ScrollChanged="NetworkScrollViewr_ScrollChanged" VerticalScrollBarVisibility="Auto">
-                            <Viewbox StretchDirection="Both" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <Viewbox StretchDirection="DownOnly" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                 <TextBlock Name="NetworkTextBlock" FontSize="20" TextWrapping="Wrap"   MouseWheel="NetworkOnMouseWheel" ></TextBlock>
                             </Viewbox>
                         </ScrollViewer>
                         <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
                         <ScrollViewer Name="ClipboardScrollViewer" Grid.Row="2" ScrollChanged="ClipboardScrollViewer_ScrollChanged" VerticalScrollBarVisibility="Auto" >
                             <!--HorizontalScrollBarVisibility="Auto"-->
-                            <Viewbox StretchDirection="Both" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <Viewbox StretchDirection="DownOnly" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Auto" >
                                 <TextBlock Name="ClipboardTextBlock"  FontSize="20" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel" ></TextBlock>
                             </Viewbox>
                         </ScrollViewer>

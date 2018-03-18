@@ -5,9 +5,6 @@
     <Setting Name="ScanADS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ScanOpenFiles" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="ScanNewDrives" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

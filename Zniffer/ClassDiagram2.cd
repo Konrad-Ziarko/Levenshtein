@@ -1,13 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Zniffer.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="0.5" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>GWQgoEsALEaAAQAigB4AIzIgRJxAIIAIQgKxRAqBEAk=</HashCode>
-      <FileName>MainWindow.xaml.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" Collapsed="true" />
-  </Class>
   <Class Name="Zniffer.Sniffer">
     <Position X="4.5" Y="3.5" Width="2.5" />
     <TypeIdentifier>
@@ -32,7 +24,7 @@
     <Lollipop Position="0.19" Collapsed="true" />
   </Class>
   <Class Name="Zniffer.FilesAndText.KeyLogger">
-    <Position X="0.5" Y="2.25" Width="1.5" />
+    <Position X="0.5" Y="2.25" Width="2" />
     <NestedTypes>
       <Delegate Name="Zniffer.FilesAndText.KeyLogger.keyCaptured" Collapsed="true">
         <TypeIdentifier>
@@ -60,14 +52,14 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Zniffer.Levenshtein.LevenshteinMatch">
-    <Position X="3.75" Y="0.5" Width="1.5" />
+    <Position X="2.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAgAAAEAgIAAAAEAAACAAAAAAAAAAAAA=</HashCode>
       <FileName>Other\LevenshteinMatch.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Zniffer.Levenshtein.LevenshteinMatches">
-    <Position X="5.5" Y="0.5" Width="1.5" />
+    <Position X="4.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AgACAABAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAGAAAA=</HashCode>
       <FileName>Other\LevenshteinMatches.cs</FileName>
@@ -81,7 +73,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Zniffer.Properties.Settings">
-    <Position X="2.75" Y="3.5" Width="1.5" />
+    <Position X="7.75" Y="5.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEAAQEAAAAAAAAAAAAAAIgAgAAABAABAAAAAAAAAgAg=</HashCode>
     </TypeIdentifier>
@@ -97,7 +89,7 @@
   <Enum Name="Zniffer.Levenshtein.LevenshteinMode">
     <Position X="13.75" Y="3.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAAAgACAAAAUAAAAAAE=</HashCode>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAQAAAgACAAAAEAAAAAAE=</HashCode>
       <FileName>Other\LevenshteinMode.cs</FileName>
     </TypeIdentifier>
   </Enum>

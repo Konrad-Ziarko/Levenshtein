@@ -52,9 +52,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\PexAssemblyInfo.cs" />
     <Compile Include="StringExtensionTest.cs" />
-    <Compile Include="StringExtensionTest.GetContextTest.g.cs">
-      <DependentUpon>StringExtensionTest.cs</DependentUpon>
-    </Compile>
     <Compile Include="StringExtensionTest.LevenshteinDualRowCPUTest.g.cs">
       <DependentUpon>StringExtensionTest.cs</DependentUpon>
     </Compile>
