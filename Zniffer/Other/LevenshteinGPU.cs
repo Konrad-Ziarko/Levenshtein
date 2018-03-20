@@ -3,6 +3,7 @@ using Cudafy.Host;
 using Cudafy.Translator;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Zniffer.Levenshtein;
 
 namespace Zniffer.Other {
@@ -18,7 +19,17 @@ namespace Zniffer.Other {
                 return _instance;
             }
         }
-        private LevenshteinGPU() { }
+        private LevenshteinGPU() {
+            CudafyModule km = null;
+            try {
+                km = CudafyModule.Deserialize(typeof(LevenshteinGPU).Name);
+            }
+            catch {
+                km = CudafyTranslator.Cudafy(eArchitecture.sm_50);
+            }
+            _gpu = CudafyHost.GetDevice(CudafyModes.Target);
+            _gpu.LoadModule(km);
+        }
 
         private object lockGPU = new object();
         public LevenshteinMatches LevenshteinSingleMatrixGPU(string originalString, string pattern, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
@@ -49,13 +60,6 @@ namespace Zniffer.Other {
                     }
                 }
                 lock (lockGPU) {
-
-                    CudafyModule km = CudafyModule.Deserialize(typeof(LevenshteinGPU).Name);
-                    //CudafyModule km = CudafyTranslator.Cudafy(eArchitecture.sm_50);
-                    _gpu = CudafyHost.GetDevice(CudafyModes.Target);
-                    _gpu.LoadModule(km);
-
-
                     int[,,] dev_levMatrix = _gpu.CopyToDevice(host_levMatrix);
 
                     char[] host_source = source.ToCharArray();
@@ -66,11 +70,10 @@ namespace Zniffer.Other {
                     char[] dev_pattern = _gpu.CopyToDevice(host_pattern);
 
 
-                    //
                     //launch kernel
-                    _gpu.Launch(firstDim, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
+                    //_gpu.Launch(firstDim, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
+                    _gpu.Launch(firstDim / 512, 512, 1).LevenshteinGpu2(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
 
-                    //
                     _gpu.CopyFromDevice(dev_results, host_results);
 
 
@@ -82,21 +85,31 @@ namespace Zniffer.Other {
                 }
                 return new LevenshteinMatches(newMatches);
             }
-            //catch (CudafyLanguageException e) {
-            //    //
-            //}
-            //catch (CudafyCompileException e) {
-            //    //
-            //}
-            //catch (CudafyHostException e) {
-            //    //
-            //}
             finally {
                 if (_gpu != null)
                     _gpu.FreeAll();
             }
         }
 
+        [Cudafy]
+        private static void LevenshteinGpu2(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {
+            int tid = thread.threadIdx.x + thread.blockIdx.x * thread.blockDim.x;
+            //int tid = thread.blockIdx.x;
+
+            //if(tid < firstDim) {
+            for (int i = 1; i <= compareLength; i++) {
+                for (int j = 1; j <= compareLength; j++) {
+                    if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
+                        levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
+                    }
+                    else {
+                        levMatrix[tid, i, j] = Math.Min(Math.Min(levMatrix[tid, i - 1, j], levMatrix[tid, i, j - 1]), levMatrix[tid, i - 1, j - 1]) + 1;
+                    }
+                }
+            }
+            dev_results[tid] = levMatrix[tid, compareLength, compareLength];
+            //}
+        }
 
         [Cudafy]
         private static void LevenshteinGpu(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {

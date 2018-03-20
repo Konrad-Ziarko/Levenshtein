@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="Zniffer.Sniffer">
-    <Position X="4.5" Y="3.5" Width="2.5" />
+    <Position X="4" Y="4.5" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAgAACAECAAAAAAEAAAAABABAAQAEAIAQAAABAQBAA=</HashCode>
       <FileName>Network\Sniffer.cs</FileName>
@@ -16,7 +16,7 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="Zniffer.NetworkSettings" BaseTypeListCollapsed="true">
-    <Position X="10" Y="4" Width="2.25" />
+    <Position X="9.75" Y="4.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>BAAgAAIAEAAAgAAAAADAAAAAQAiAAAAAAECAAAAAAAA=</HashCode>
       <FileName>Settings\NetworkSettings.xaml.cs</FileName>
@@ -31,9 +31,14 @@
           <NewMemberFileName>Files and Text\KeyLogger.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
+      <Delegate Name="Zniffer.FilesAndText.KeyLogger.LowLevelKeyboardProc" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Files and Text\KeyLogger.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AFgAEEAACAAJhBAAhAAAACABAAAIACIIAAAAgECAAAI=</HashCode>
+      <HashCode>CIAAAAAACAAABBAAFAAADAADAQAAACAIAAAAAEGgACA=</HashCode>
       <FileName>Files and Text\KeyLogger.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -42,13 +47,6 @@
     <TypeIdentifier>
       <HashCode>AAAAAAECAAAAQAAAAAAAAAAAAAAAAAAIEAAAAAgAAAA=</HashCode>
       <FileName>Files and Text\Searcher.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Zniffer.Other.LevenshteinGPU">
-    <Position X="0.5" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAI=</HashCode>
-      <FileName>Other\LevenshteinGPU.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Zniffer.Levenshtein.LevenshteinMatch">
@@ -68,14 +66,8 @@
   <Class Name="CustomExtensions.StringExtension">
     <Position X="12.5" Y="5.5" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AIAAAAAAAAAEAkAAAAAEAAAAAAAAAgAAAABAACAEAAE=</HashCode>
+      <HashCode>AIAAAAAAAAAEAkAAAAAEAAAAAAAAAgAAAAhAACAEAAE=</HashCode>
       <FileName>Other\StringExtension.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Zniffer.Properties.Settings">
-    <Position X="7.75" Y="5.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AEAAQEAAAAAAAAAAAAAAIgAgAAABAABAAAAAAAAAgAg=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="Zniffer.FileExtension.FileExtensionClass" BaseTypeListCollapsed="true">

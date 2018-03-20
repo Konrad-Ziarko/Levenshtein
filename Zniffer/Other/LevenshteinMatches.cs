@@ -5,10 +5,10 @@ namespace Zniffer.Levenshtein {
     public class LevenshteinMatches {
 
         public bool hasMatches {
-            get { return Lenght > 0; }
+            get { return Length > 0; }
         }
         public List<LevenshteinMatch> foundMatches = null;
-        public int Lenght {
+        public int Length {
             get { return foundMatches.Count; }
         }
 
@@ -24,7 +24,7 @@ namespace Zniffer.Levenshtein {
         }
         public LevenshteinMatches(LevenshteinMatches a, LevenshteinMatches b) {
             //maybe should check if a/b are null ref
-            foundMatches = new List<LevenshteinMatch>(a.Lenght + b.Lenght);
+            foundMatches = new List<LevenshteinMatch>(a.Length + b.Length);
             foundMatches.AddRange(a.foundMatches);
             foundMatches.AddRange(b.foundMatches);
         }
