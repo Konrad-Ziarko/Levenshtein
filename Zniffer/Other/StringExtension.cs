@@ -50,6 +50,9 @@ namespace CustomExtensions {
             else if (mode == LevenshteinMode.SplitForParallelCPU) {
                 return str.LevenshteinSplitForParallelCPU(pattern, maxDistance, onlyBestResults, caseSensitive);
             }
+            else if (mode == LevenshteinMode.HistogramCPU) {
+                return str.LevenshteinHistogramCPU(pattern, maxDistance, onlyBestResults, caseSensitive);
+            }
             else {
                 throw new NotImplementedException();
             }
@@ -190,6 +193,58 @@ namespace CustomExtensions {
                     newMatches.Add(new LevenshteinMatch(originalString, i, compareLength, dimension[i, compareLength, compareLength]));
                 }
             }
+            return new LevenshteinMatches(newMatches);
+        }
+
+        public static LevenshteinMatches LevenshteinHistogramCPU(this string originalString, string pattern, int maxDistance = -1, bool onlyBestResults = false, bool caseSensitive = false) {
+            if (maxDistance < 0)
+                maxDistance = pattern.Length / 2;
+            string str = originalString;
+            if (originalString.Length < pattern.Length)
+                return new LevenshteinMatches();
+
+            int strLen = str.Length;
+            int patternLen = pattern.Length;
+            if (strLen == 0 || patternLen == 0)
+                return new LevenshteinMatches();
+
+            if (!caseSensitive) {
+                str = str.ToUpper();
+                pattern = pattern.ToUpper();
+            }
+
+            List<char> tmp = pattern.Distinct().ToList();
+            tmp.Sort();
+            char[] patternChars = tmp.ToArray();
+            bool[] occurrence = new bool[pattern.Length];
+            int lasIdx = pattern.Length - 1;
+            int metric = 0;
+
+            List<LevenshteinMatch> newMatches = new List<LevenshteinMatch>();
+
+            for (int i = 0; i < str.Length; i++) {
+                for (int j = 0; j < patternChars.Length; j++) {
+                    if (str[i] == patternChars[j]) {
+                        occurrence[lasIdx] = true;
+                        metric++;
+                        break;
+                    }
+                }
+                if(metric >= maxDistance && i >= patternLen) {
+                    int[,] matrix = new int[patternLen + 1, patternLen + 1];
+                    int dist = SqueareLevenshteinCPU(matrix, str.Substring(i - patternLen, patternLen), pattern, caseSensitive);
+                    if (maxDistance >= dist) {
+                        newMatches.Add(new LevenshteinMatch(originalString, i - patternLen, patternLen, dist));
+                    }
+                }
+
+                if (occurrence[0] == true) {
+                    metric--;
+                }
+                Array.Copy(occurrence, 1, occurrence, 0, occurrence.Length - 1);
+                occurrence[lasIdx] = false;
+            }
+            
             return new LevenshteinMatches(newMatches);
         }
 

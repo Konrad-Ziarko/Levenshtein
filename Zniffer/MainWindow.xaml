@@ -1082,7 +1082,7 @@
                     </LinearGradientBrush>
                 </Grid.Background>
                 <Viewbox Grid.Column="0" Stretch="Uniform" StretchDirection="DownOnly" Margin="5,0,0,0" HorizontalAlignment="Left" Width="145">
-                    <TextBlock Text="Słowa kluczowe:" FontSize="20" Foreground="#FFFFFFFF">
+                    <TextBlock Text="Słowo kluczowe:" FontSize="20" Foreground="#FFFFFFFF">
                         <TextBlock.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0">
                                 <GradientStop Color="#FF474747" Offset="1"/>

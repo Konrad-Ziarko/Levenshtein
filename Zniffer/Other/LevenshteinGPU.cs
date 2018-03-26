@@ -52,16 +52,10 @@ namespace Zniffer.Other {
                     pattern = pattern.ToUpper();
                 }
 
-                int[,,] host_levMatrix = new int[firstDim, compareLength + 1, compareLength + 1];
-                for (int i = 0; i < firstDim; i++) {
-                    for (int j = 0; j <= compareLength; j++) {
-                        host_levMatrix[i, 0, j] = j;
-                        host_levMatrix[i, j, 0] = j;
-                    }
-                }
+                
                 lock (lockGPU) {
-                    int[,,] dev_levMatrix = _gpu.CopyToDevice(host_levMatrix);
 
+                    int[,,] dev_levMatrix = _gpu.Allocate<int>(firstDim, compareLength + 1, compareLength + 1);
                     char[] host_source = source.ToCharArray();
                     char[] host_pattern = pattern.ToCharArray();
                     int[] host_results = new int[firstDim];
@@ -72,7 +66,10 @@ namespace Zniffer.Other {
 
                     //launch kernel
                     //_gpu.Launch(firstDim, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
-                    _gpu.Launch(firstDim / 512, 512, 1).LevenshteinGpu2(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
+                    if(firstDim>= 512)
+                        _gpu.Launch(firstDim / 512, 512, 1).LevenshteinGpu3(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
+                    else
+                        _gpu.Launch(firstDim, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
 
                     _gpu.CopyFromDevice(dev_results, host_results);
 
@@ -92,9 +89,44 @@ namespace Zniffer.Other {
         }
 
         [Cudafy]
+        private static void LevenshteinGpu3(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {
+            int tid = thread.threadIdx.x + thread.blockIdx.x * thread.blockDim.x;
+            //int tid = thread.blockIdx.x;
+
+            for (int j = 0; j <= compareLength; j++) {
+                levMatrix[tid, 0, j] = j;
+                levMatrix[tid, j, 0] = j;
+            }
+
+            //if(tid < firstDim) {
+            for (int i = 1; i <= compareLength; i++) {
+                for (int j = 1; j <= compareLength; j++) {
+                    if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
+                        levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
+                    }
+                    else {
+                        int x = levMatrix[tid, i - 1, j];
+                        if (x > levMatrix[tid, i, j - 1])
+                            x = levMatrix[tid, i, j - 1];
+                        if (x > levMatrix[tid, i - 1, j - 1])
+                            x = levMatrix[tid, i - 1, j - 1];
+                        levMatrix[tid, i, j] = x+1;
+                    }
+                }
+            }
+            dev_results[tid] = levMatrix[tid, compareLength, compareLength];
+            //}
+        }
+
+        [Cudafy]
         private static void LevenshteinGpu2(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {
             int tid = thread.threadIdx.x + thread.blockIdx.x * thread.blockDim.x;
             //int tid = thread.blockIdx.x;
+
+            for (int j = 0; j <= compareLength; j++) {
+                levMatrix[tid, 0, j] = j;
+                levMatrix[tid, j, 0] = j;
+            }
 
             //if(tid < firstDim) {
             for (int i = 1; i <= compareLength; i++) {
@@ -114,6 +146,11 @@ namespace Zniffer.Other {
         [Cudafy]
         private static void LevenshteinGpu(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {
             int tid = thread.blockIdx.x;
+
+            for (int j = 0; j <= compareLength; j++) {
+                levMatrix[tid, 0, j] = j;
+                levMatrix[tid, j, 0] = j;
+            }
 
             //if(tid < firstDim) {
             for (int i = 1; i <= compareLength; i++) {

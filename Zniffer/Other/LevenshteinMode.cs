@@ -10,5 +10,6 @@ namespace Zniffer.Levenshtein {
         ThreeDimMatrixGPU,
         ThreeDimMatrixParallelCPU,
         SplitForParallelCPU,
+        HistogramCPU,
     }
 }

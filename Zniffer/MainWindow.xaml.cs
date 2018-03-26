@@ -37,7 +37,7 @@ namespace Zniffer {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        public static LevenshteinMode SearchMode = LevenshteinMode.ThreeDimMatrixGPU;
+        public static LevenshteinMode SearchMode = LevenshteinMode.HistogramCPU;
 
         private static bool AutoScrollClipboard = true;
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
@@ -104,39 +104,6 @@ namespace Zniffer {
         [DllImport("kernel32", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr handle);
 
-        [Obsolete("Do not use")]
-        public void TempPisanie() {
-            string textToAddToFile = "text to add to file";
-            string fileName = "";
-            if (fileName != string.Empty) {
-                FileInfo fileInfo = new FileInfo(fileName);
-                int len = 0;
-                len = textToAddToFile.Length * sizeof(char);
-                byte[] bytes = new byte[textToAddToFile.Length * sizeof(char)];
-                Buffer.BlockCopy(textToAddToFile.ToCharArray(), 0, bytes, 0, bytes.Length);
-
-                using (BinaryWriter bw = new BinaryWriter(File.Open(fileName, FileMode.Append), Encoding.UTF8)) {
-                    bw.Write(bytes);
-                }
-
-                uint crc = 123456;
-                if (!fileInfo.AlternateDataStreamExists("crc")) {
-                    var stream = CreateFile(
-                    fileName + ":crc",
-                    GENERIC_WRITE,
-                    FILE_SHARE_WRITE,
-                    IntPtr.Zero,
-                    OPEN_ALWAYS,
-                    0,
-                    IntPtr.Zero);
-                    if (stream != IntPtr.Zero)
-                        CloseHandle(stream);
-                }
-                FileStream fs = fileInfo.GetAlternateDataStream("crc").OpenWrite();
-                fs.Write(BitConverter.GetBytes(crc), 0, 4);
-                fs.Close();
-            }
-        }
         #endregion
 
         #region Clipboard
@@ -652,108 +619,98 @@ namespace Zniffer {
             
             string lorem = "Lorem ipsum dolor sit amet, consectetur adipisicin";//len = 50
             int len = lorem.Length;
-            int multi = 81920;
+            int multi = 80;
             
             string expression = "zniffer";
             //int strLen = str.Length;
             int exprLen = expression.Length;
 
-            csv.AppendLine("len,SingleMatixCPU,ThreeDimMatrixGPU,ThreeDimMatrixCPU,SplitForSingleMatrixCPU,MultiMatrixParallelCPU,MultiMatrixSingleThreadCPU,SplitDualRowCPU,ThreeDimMatrixParallelCPU,SplitForParallelCPU");
+            csv.AppendLine("len,Macierz trójwymiarowa na GPU,Macierz trójwymiarowa na CPU,Dzielenie ciągu na wyrazy na CPU,Dzielenie ciągu na wyrazy macierz dwu wierszowa na CPU,Macierz trójwymiarowa na CPU z wieloma wątkami,Dzielenie ciągu na wyrazy na CPU z wieloma wątkami,Histogram poprzedzający macierz na CPU");
 
             string str = string.Concat(Enumerable.Repeat(lorem, multi));
+            str += "sniffer";
 
             int loops = 1;
 
-            for (; multi <= 163840; multi *= 2) {
-                
+            //81920
+            //163840
+
+            for (; multi <= 81920; multi *= 2) {
+
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
                 csv.Append(str.Length + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SingleMatixCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik3 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixGPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik3 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixGPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixCPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForSingleMatrixCPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForSingleMatrixCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitDualRowCPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixParallelCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixParallelCPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.MultiMatrixSingleThreadCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForParallelCPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitDualRowCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixParallelCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.Append(watch.ElapsedMilliseconds + ",");
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.HistogramCPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //csv.Append(watch.ElapsedMilliseconds + "");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForParallelCPU);
-                    watch.Stop();
-                }
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                csv.AppendLine(watch.ElapsedMilliseconds + "");
-
+                csv.AppendLine("");
 
                 File.AppendAllText(@"C:\Users\Konrad\Downloads\wyniki5.csv", csv.ToString());
                 csv.Clear();
+
+                GC.Collect();
 
                 str = string.Concat(Enumerable.Repeat(str, 2));
             }
