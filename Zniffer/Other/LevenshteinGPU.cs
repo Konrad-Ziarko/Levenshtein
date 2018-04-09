@@ -3,7 +3,6 @@ using Cudafy.Host;
 using Cudafy.Translator;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Zniffer.Levenshtein;
 
 namespace Zniffer.Other {

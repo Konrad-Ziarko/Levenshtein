@@ -26,7 +26,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using Trinet.Core.IO.Ntfs;
 using Zniffer.FileExtension;
 using Zniffer.FilesAndText;
 using Zniffer.Levenshtein;
@@ -87,25 +86,7 @@ namespace Zniffer {
         }
         #endregion
 
-        #region ADS
-        private const int GENERIC_WRITE = 1073741824;
-        private const int FILE_SHARE_DELETE = 4;
-        private const int FILE_SHARE_WRITE = 2;
-        private const int FILE_SHARE_READ = 1;
-        private const int OPEN_ALWAYS = 4;
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr CreateFile(string lpFileName,
-                                                uint dwDesiredAccess,
-                                                uint dwShareMode,
-                                                IntPtr lpSecurityAttributes,
-                                                uint dwCreationDisposition,
-                                                uint dwFlagsAndAttributes,
-                                                IntPtr hTemplateFile);
-        [DllImport("kernel32", SetLastError = true)]
-        private static extern bool CloseHandle(IntPtr handle);
-
-        #endregion
-
+        
         #region Clipboard
 
         #region DataFromats

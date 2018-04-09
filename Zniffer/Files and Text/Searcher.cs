@@ -33,11 +33,11 @@ namespace Zniffer.FilesAndText {
                     window.AddTextToFileBox("Cannot access:" + file);
                 }
                 catch (IOException) {
-                    //odłączenie urządzenia np
+                    //device detached
                 }
                 if (Settings.Default.ScanADS && drive.DriveFormat.Equals("NTFS")) {
                     //search for ads
-                    string fileName = Path.GetFileName(file);
+                    //string fileName = Path.GetFileName(file);
                     FileInfo fileInfo = new FileInfo(file);
                     
                     foreach (AlternateDataStreamInfo stream in fileInfo.ListAlternateDataStreams()) {
@@ -62,7 +62,6 @@ namespace Zniffer.FilesAndText {
             if (searchOption == SearchOption.TopDirectoryOnly)
                 return Directory.GetDirectories(path, searchPattern).ToList();
 
-            //else
             var directories = new List<string>(GetDirectories(path, searchPattern));
 
             for (var i = 0; i < directories.Count; i++)

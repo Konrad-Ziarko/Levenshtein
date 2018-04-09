@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Globalization;
@@ -7,7 +6,6 @@ using System.Threading;
 using CustomExtensions;
 using Zniffer.Levenshtein;
 using System.Diagnostics;
-using System.Collections.Generic;
 
 namespace Zniffer.FilesAndText {
     class KeyLogger {
@@ -20,9 +18,8 @@ namespace Zniffer.FilesAndText {
         private static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
-        IntPtr wParam, IntPtr lParam);
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 

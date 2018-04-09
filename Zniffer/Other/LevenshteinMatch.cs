@@ -1,6 +1,4 @@
-﻿using CustomExtensions;
-
-namespace Zniffer.Levenshtein {
+﻿namespace Zniffer.Levenshtein {
     public class LevenshteinMatch {
         public string contextL { get; }
         public string contextR { get; }

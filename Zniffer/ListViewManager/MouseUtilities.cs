@@ -1,20 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 
-namespace WPF.JoshSmith.Controls.Utilities
-{
-	/// <summary>
-	/// Provides access to the mouse location by calling unmanaged code.
-	/// </summary>
-	/// <remarks>
-	/// This class was written by Dan Crevier (Microsoft).  
-	/// http://blogs.msdn.com/llobo/archive/2006/09/06/Scrolling-Scrollviewer-on-Mouse-Drag-at-the-boundaries.aspx
-	/// </remarks>
-	public class MouseUtilities
+namespace WPF.JoshSmith.Controls.Utilities {
+    /// <summary>
+    /// Provides access to the mouse location by calling unmanaged code.
+    /// </summary>
+    /// <remarks>
+    /// This class was written by Dan Crevier (Microsoft).  
+    /// http://blogs.msdn.com/llobo/archive/2006/09/06/Scrolling-Scrollviewer-on-Mouse-Drag-at-the-boundaries.aspx
+    /// </remarks>
+    public class MouseUtilities
 	{
 		[StructLayout( LayoutKind.Sequential )]
 		private struct Win32Point
