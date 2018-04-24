@@ -58,18 +58,74 @@ namespace Zniffer.FilesAndText {
         private delegate IntPtr LowLevelKeyboardProc(
             int nCode, IntPtr wParam, IntPtr lParam);
 
-        private static IntPtr HookCallback(
-            int nCode, IntPtr wParam, IntPtr lParam) {
-            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) {
+        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
+            if (wParam == (IntPtr)257) {
+                //if ((Keys.Control | Keys.Alt) == Control.ModifierKeys) {
+                //    alt = true;
+                //}
+            }
+            //if (wParam == (IntPtr)260) {
+            //    int vkCode = Marshal.ReadInt32(lParam);
+            //    KeysConverter kc = new KeysConverter();
+            //    string keyChar = kc.ConvertToString(vkCode);
+
+            //    if (keyChar.Equals("LControlKey", StringComparison.OrdinalIgnoreCase)) {
+            //        alt = true;
+            //    }
+            //    ;
+            //}
+            if (wParam == (IntPtr)261) {
                 int vkCode = Marshal.ReadInt32(lParam);
-                
-                if(Keys.Control == Control.ModifierKeys) {
+                KeysConverter kc = new KeysConverter();
+                string keyChar = kc.ConvertToString(vkCode);
+
+                if ((Keys.Control | Keys.Alt) == Control.ModifierKeys) {
+                    alt = true;
+                }
+
+                if (!shift)
+                    keyChar = keyChar.ToLower();
+
+                if (alt) {
+                    //handle language specific characters
+                    if (string.Equals(keyChar, "a", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ą";
+                    else if (string.Equals(keyChar, "z", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ż";
+                    else if (string.Equals(keyChar, "x", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ź";
+                    else if (string.Equals(keyChar, "c", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ć";
+                    else if (string.Equals(keyChar, "e", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ę";
+                    else if (string.Equals(keyChar, "s", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ś";
+                    else if (string.Equals(keyChar, "n", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ń";
+                    else if (string.Equals(keyChar, "o", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ó";
+                    else if (string.Equals(keyChar, "l", StringComparison.OrdinalIgnoreCase))
+                        keyChar = "ł";
+                    else
+                        keyChar = "";
+                }
+                control = shift = alt = false;
+                KeyCapturedHandle(keyChar);
+            }
+            else if ((nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) || wParam == (IntPtr)261) {
+
+                int vkCode = Marshal.ReadInt32(lParam);
+
+                if (Keys.Control == Control.ModifierKeys) {
                     control = true;
                 }
-                if(Keys.Shift == Control.ModifierKeys) {
+                if (Keys.Shift == Control.ModifierKeys) {
                     shift = true;
                 }
-                if(Keys.RMenu == Control.ModifierKeys) {
+                if (Keys.RMenu == Control.ModifierKeys) {
+                    alt = true;
+                }
+                if ((Keys.Control | Keys.Alt) == Control.ModifierKeys) {
                     alt = true;
                 }
 
@@ -100,7 +156,6 @@ namespace Zniffer.FilesAndText {
 
                     if (!shift) {
                         keyChar = keyChar.ToLower();
-
 
                         if (string.Equals(keyChar, "oemminus", StringComparison.OrdinalIgnoreCase))
                             keyChar = "-";
@@ -147,9 +202,6 @@ namespace Zniffer.FilesAndText {
                             keyChar = "9";
                         else if (string.Equals(keyChar, "numpad0", StringComparison.OrdinalIgnoreCase))
                             keyChar = "0";
-
-
-
                     }
                     else {
                         keyChar = keyChar.ToUpper();
@@ -198,7 +250,6 @@ namespace Zniffer.FilesAndText {
                             keyChar = "(";
                         else if (string.Equals(keyChar, "0", StringComparison.OrdinalIgnoreCase))
                             keyChar = ")";
-
                     }
 
                     if (string.Equals(keyChar, "divide", StringComparison.OrdinalIgnoreCase))
@@ -213,6 +264,7 @@ namespace Zniffer.FilesAndText {
                         keyChar = "\n";
 
                     if (alt) {
+                        //handle language specific characters
                         if (string.Equals(keyChar, "a", StringComparison.OrdinalIgnoreCase))
                             keyChar = "ą";
                         else if (string.Equals(keyChar, "z", StringComparison.OrdinalIgnoreCase))
@@ -231,13 +283,13 @@ namespace Zniffer.FilesAndText {
                             keyChar = "ó";
                         else if (string.Equals(keyChar, "l", StringComparison.OrdinalIgnoreCase))
                             keyChar = "ł";
-
                     }
-
-                    KeyCapturedHandle(keyChar);
+                    if (keyChar.Length == 1)
+                        KeyCapturedHandle(keyChar);
                 }
                 control = shift = alt = false;
             }
+
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
@@ -301,7 +353,7 @@ namespace Zniffer.FilesAndText {
                     keyBuffer = keyBuffer.Remove(0, 1);
                 Console.Out.WriteLine(keyBuffer);
                 string phrase = MainWindow.SearchPhrase;
-                LevenshteinMatches result = keyBuffer.Levenshtein(phrase, mode: MainWindow.SearchMode);
+                LevenshteinMatches result = keyBuffer.Levenshtein(phrase, mode: window.keyloggerMode);
 
                 if (result != null && result.hasMatches) {
                     window.AddTextToClipBoardBox(result);

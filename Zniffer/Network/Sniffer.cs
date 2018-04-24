@@ -123,7 +123,7 @@ namespace Zniffer {
                                     if (tcp != null) {
                                         if (tmpInterface.isPortValid(tcp.DestinationPort)) {
                                             string phrase = MainWindow.SearchPhrase;
-                                            LevenshteinMatches matches = Encoding.UTF8.GetString(tcp.PayloadData).Levenshtein(phrase, mode: MainWindow.SearchMode);
+                                            LevenshteinMatches matches = Encoding.UTF8.GetString(tcp.PayloadData).Levenshtein(phrase, mode: window.snifferMode);
                                             if (matches.hasMatches) {
                                                 window.AddTextToNetworkBox(tmpInterface.Addres + ":" + tcp.DestinationPort + "\n");
                                                 window.AddTextToNetworkBox(matches);
@@ -134,7 +134,7 @@ namespace Zniffer {
                                     if (udp != null) {
                                         if (tmpInterface.isPortValid(udp.DestinationPort)) {
                                             string phrase = MainWindow.SearchPhrase;
-                                            LevenshteinMatches matches = Encoding.UTF8.GetString(udp.PayloadData).Levenshtein(phrase, mode: MainWindow.SearchMode);
+                                            LevenshteinMatches matches = Encoding.UTF8.GetString(udp.PayloadData).Levenshtein(phrase, mode: window.snifferMode);
                                             if (matches.hasMatches) {
                                                 window.AddTextToNetworkBox(tmpInterface.Addres + ":" + udp.DestinationPort + "\n");
                                                 window.AddTextToNetworkBox(matches);

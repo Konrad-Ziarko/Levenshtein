@@ -49,6 +49,7 @@ namespace Zniffer.FilesAndText {
                         }
                         if (matches.hasMatches) {
                             window.AddTextToFileBox(file+":"+streamName);
+                            window.AddTextToFileBox("\n");
                             window.AddTextToFileBox(matches);
                         }
                     }
@@ -95,7 +96,7 @@ namespace Zniffer.FilesAndText {
 
         public LevenshteinMatches ExtractPhrase(string sourceText) {
             string phrase = MainWindow.SearchPhrase;
-            LevenshteinMatches matches = sourceText.Levenshtein(phrase, mode: MainWindow.SearchMode);
+            LevenshteinMatches matches = sourceText.Levenshtein(phrase, mode: window.scanerMode);
             return matches;
         }
 

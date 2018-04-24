@@ -8,6 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:Zniffer"
     xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" 
+    
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     x:Class="Zniffer.MainWindow"
     mc:Ignorable="d"
     WindowStyle="None" 
@@ -984,6 +986,40 @@
                                 </LinearGradientBrush>
                             </MenuItem.Background>
                         </MenuItem>
+                        <MenuItem Header="Algorytmy" Name="MIAlgo1" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                            <MenuItem.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                </LinearGradientBrush>
+                            </MenuItem.Background>
+                            
+                            <MenuItem Header="Algorytmy" Name="MIAlgo2" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                                
+                            </MenuItem>
+
+                            <MenuItem Header="Algorytmy" Name="MIAlgo3" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                                
+                            </MenuItem>
+
+                            <MenuItem Header="Algorytmy" Name="MIAlgo" Click="MIAlgo_Click" FontFamily="Tahoma" FontSize="14" Foreground="#FF707070" BorderThickness="0" BorderBrush="#FF2E2E2E">
+                                <MenuItem.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#FF2E2E2E" Offset="0"/>
+                                    </LinearGradientBrush>
+                                </MenuItem.Background>
+                                
+                            </MenuItem>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem Header="_Sieć" FontFamily="Tahoma" FontSize="14" BorderThickness="0" Foreground="#FF999999"  BorderBrush="#FF2E2E2E">
                         <MenuItem.Background>
@@ -1121,23 +1157,37 @@
                             <RowDefinition Height="5" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ScrollViewer Name="NetworkScrollViewr" Grid.Row="0" ScrollChanged="NetworkScrollViewr_ScrollChanged" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Name="NetworkScrollViewr" Grid.Row="0" ScrollChanged="NetworkScrollViewr_ScrollChanged" VerticalScrollBarVisibility="Auto" MouseRightButtonDown="NetworkScrollViewr_MouseRightButtonDown">
                             <Viewbox StretchDirection="DownOnly" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                 <TextBlock Name="NetworkTextBlock" FontSize="20" TextWrapping="Wrap"   MouseWheel="NetworkOnMouseWheel" ></TextBlock>
                             </Viewbox>
+                            <ScrollViewer.ContextMenu>
+                                <ContextMenu ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:LevenshteinMode}}}" MenuItem.Click="ContextMenu_Click" MenuItem.Loaded="ContextMenu_Loaded">
+                                </ContextMenu>
+                            </ScrollViewer.ContextMenu>
                         </ScrollViewer>
+                        
+
                         <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
                         <ScrollViewer Name="ClipboardScrollViewer" Grid.Row="2" ScrollChanged="ClipboardScrollViewer_ScrollChanged" VerticalScrollBarVisibility="Auto" >
                             <!--HorizontalScrollBarVisibility="Auto"-->
                             <Viewbox StretchDirection="DownOnly" Stretch="Uniform"  VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Auto" >
                                 <TextBlock Name="ClipboardTextBlock"  FontSize="20" TextWrapping="Wrap" MouseWheel="ClipboardTextBlock_MouseWheel" ></TextBlock>
                             </Viewbox>
+                            <ScrollViewer.ContextMenu>
+                                <ContextMenu ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:LevenshteinMode}}}" MenuItem.Click="ContextMenu_Click_1" MenuItem.Loaded="ContextMenu_Loaded_1">
+                                </ContextMenu>
+                            </ScrollViewer.ContextMenu>
                         </ScrollViewer>
                     </Grid>
                     <!--druga kolumna-->
                     <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="1"/>
                     <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                         <TextBlock Name="FilesTextBlock" FontSize="20" TextWrapping="Wrap"  MouseWheel="FilesTextBlock_MouseWheel" ></TextBlock>
+                        <ScrollViewer.ContextMenu>
+                            <ContextMenu ItemsSource="{Binding Source={local:EnumBindingSource {x:Type local:LevenshteinMode}}}" MenuItem.Click="ContextMenu_Click_2" MenuItem.Loaded="ContextMenu_Loaded_2">
+                            </ContextMenu>
+                        </ScrollViewer.ContextMenu>
                     </ScrollViewer>
                 </Grid>
             </Grid>

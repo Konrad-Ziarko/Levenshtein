@@ -1,5 +1,5 @@
 ﻿
-namespace Zniffer.Levenshtein {
+namespace Zniffer {
     public enum LevenshteinMode {
         SingleMatixCPU = 0,
         SplitForSingleMatrixCPU,

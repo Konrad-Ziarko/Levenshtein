@@ -22,6 +22,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -36,10 +37,37 @@ namespace Zniffer {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        public static LevenshteinMode SearchMode = LevenshteinMode.HistogramCPU;
+        //public static LevenshteinMode SearchMode = LevenshteinMode.SplitDualRowCPU;
 
         private static bool AutoScrollClipboard = true;
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
+
+        #region Levenshtein Prop
+        public LevenshteinMode snifferMode { get {
+                return _snifferMode;
+            }
+            set {
+                _snifferMode = value;
+            }
+        }
+        public LevenshteinMode keyloggerMode { get {
+                return _keyloggerMode;
+            }
+            set {
+                _scanerMode = value;
+            }
+        }
+        public LevenshteinMode scanerMode { get {
+                return _scanerMode;
+            }
+            set {
+                _scanerMode = value;
+            }
+        }
+        private LevenshteinMode _snifferMode;
+        private LevenshteinMode _keyloggerMode;
+        private LevenshteinMode _scanerMode;
+        #endregion
 
         #region Networking
 
@@ -71,6 +99,7 @@ namespace Zniffer {
 
         #region TitleBar buttons
         private void Button_Exit_Click(object sender, RoutedEventArgs e) {
+            sniffer.removeAllConnections();
             Close();
         }
 
@@ -146,7 +175,7 @@ namespace Zniffer {
                     Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
                     string phrase = SearchPhrase;
                     //way to change levenshtein methode
-                    LevenshteinMatches results = _data.Levenshtein(phrase, mode: SearchMode);
+                    LevenshteinMatches results = _data.Levenshtein(phrase, mode: keyloggerMode);
 
                     if (results != null && results.hasMatches) {
                         AddTextToClipBoardBox(results);
@@ -252,9 +281,11 @@ namespace Zniffer {
                 try {
                     avaliableDrives.Add(d.Name, d.DriveFormat);
                 }
+                catch (IOException) {
+                    //removed disconnected drives from list
+                }
                 catch (ArgumentException) {
                     //connected drive with same letter;
-                    //remove disconnected drives from list
                 }
 
             }
@@ -699,6 +730,94 @@ namespace Zniffer {
 
             #endregion
         }
+
+        private void MIAlgo_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void NetworkScrollViewr_MouseRightButtonDown(object sender, MouseButtonEventArgs e) {
+            ContextMenu menu = new ContextMenu();
+            menu.Items.Add("asd");
+            menu.Items.Add("asd");
+            menu.Visibility = Visibility.Visible;
+        }
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject {
+            if (depObj != null) {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++) {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T) {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child)) {
+                        yield return childOfChild;
+                    }
+                }
+            }
+        }
+        //network
+        private void ContextMenu_Click(object sender, RoutedEventArgs e) {
+            ContextMenu sen = sender as ContextMenu;
+            var x = sen.Items.SourceCollection;
+            MenuItem mi = e.OriginalSource as MenuItem;
+            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
+                item.IsChecked = false;
+            }
+            mi.IsChecked = true;
+            string context = mi.DataContext.ToString();
+
+            Enum.TryParse(context, out _snifferMode);
+        }
+        private void ContextMenu_Loaded(object sender, RoutedEventArgs e) {
+            ContextMenu sen = sender as ContextMenu;
+            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
+                item.IsChecked = true;
+                break;
+            }
+        }
+        //
+        //keylogger
+        private void ContextMenu_Click_1(object sender, RoutedEventArgs e) {
+            ContextMenu sen = sender as ContextMenu;
+            var x = sen.Items.SourceCollection;
+            MenuItem mi = e.OriginalSource as MenuItem;
+            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
+                item.IsChecked = false;
+            }
+            mi.IsChecked = true;
+            string context = mi.DataContext.ToString();
+
+            Enum.TryParse(context, out _keyloggerMode);
+        }
+        private void ContextMenu_Loaded_1(object sender, RoutedEventArgs e) {
+            ContextMenu sen = sender as ContextMenu;
+            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
+                item.IsChecked = true;
+                break;
+            }
+        }
+        //
+        //scaner
+        private void ContextMenu_Click_2(object sender, RoutedEventArgs e) {
+            ContextMenu sen = sender as ContextMenu;
+            var x = sen.Items.SourceCollection;
+            MenuItem mi = e.OriginalSource as MenuItem;
+            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
+                item.IsChecked = false;
+            }
+            mi.IsChecked = true;
+            string context = mi.DataContext.ToString();
+
+            Enum.TryParse(context, out _scanerMode);
+        }
+        private void ContextMenu_Loaded_2(object sender, RoutedEventArgs e) {
+            ContextMenu sen = sender as ContextMenu;
+            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
+                item.IsChecked = true;
+                break;
+            }
+        }
+        //
 
         private void ClipboardScrollViewer_ScrollChanged(object sender, System.Windows.Controls.ScrollChangedEventArgs e) {
             if (e.ExtentHeightChange == 0) {
