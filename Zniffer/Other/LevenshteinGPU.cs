@@ -35,7 +35,7 @@ namespace Zniffer.Other {
             List<LevenshteinMatch> newMatches = new List<LevenshteinMatch>();
             try {
                 string source = originalString;
-                int firstDim = source.Length + 2 - pattern.Length;
+                int NUMBER_OF_BLOCKS = source.Length + 2 - pattern.Length;
                 int compareLength = pattern.Length;
 
                 if (maxDistance < 0)
@@ -51,29 +51,34 @@ namespace Zniffer.Other {
                     pattern = pattern.ToUpper();
                 }
 
-                
+
                 lock (lockGPU) {
 
-                    int[,,] dev_levMatrix = _gpu.Allocate<int>(firstDim, compareLength + 1, compareLength + 1);
+                    int[,,] dev_levMatrix = _gpu.Allocate<int>(NUMBER_OF_BLOCKS, compareLength + 1, compareLength + 1);
                     char[] host_source = source.ToCharArray();
                     char[] host_pattern = pattern.ToCharArray();
-                    int[] host_results = new int[firstDim];
-                    int[] dev_results = _gpu.Allocate<int>(firstDim);
+                    int[] host_results = new int[NUMBER_OF_BLOCKS];
+                    int[] dev_results = _gpu.Allocate<int>(NUMBER_OF_BLOCKS);
                     char[] dev_source = _gpu.CopyToDevice(host_source);
                     char[] dev_pattern = _gpu.CopyToDevice(host_pattern);
 
 
                     //launch kernel
                     //_gpu.Launch(firstDim, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
-                    if(firstDim>= 512)
-                        _gpu.Launch(firstDim / 512, 512, 1).LevenshteinGpu3(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
+
+                    int THREADS_PER_BLOCK = 512;
+
+                    if (NUMBER_OF_BLOCKS >= THREADS_PER_BLOCK)
+                        _gpu.Launch(NUMBER_OF_BLOCKS / THREADS_PER_BLOCK, THREADS_PER_BLOCK, 1).LevenshteinGpu3(dev_source, dev_pattern, dev_levMatrix, NUMBER_OF_BLOCKS, compareLength, dev_results);
+
+                    //_gpu.Launch(NUMBER_OF_BLOCKS / THREADS_PER_BLOCK, THREADS_PER_BLOCK, 1).LevenshteinGpu3(dev_source, dev_pattern, dev_levMatrix, NUMBER_OF_BLOCKS, compareLength, dev_results);
                     else
-                        _gpu.Launch(firstDim, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, firstDim, compareLength, dev_results);
+                        _gpu.Launch(NUMBER_OF_BLOCKS, 1).LevenshteinGpu(dev_source, dev_pattern, dev_levMatrix, NUMBER_OF_BLOCKS, compareLength, dev_results);
 
                     _gpu.CopyFromDevice(dev_results, host_results);
 
 
-                    for (int i = 0; i < firstDim; i++) {
+                    for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
                         if (maxDistance >= host_results[i]) {
                             newMatches.Add(new LevenshteinMatch(originalString, i, compareLength, host_results[i]));
                         }
@@ -90,56 +95,57 @@ namespace Zniffer.Other {
         [Cudafy]
         private static void LevenshteinGpu3(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {
             int tid = thread.threadIdx.x + thread.blockIdx.x * thread.blockDim.x;
-            //int tid = thread.blockIdx.x;
 
             for (int j = 0; j <= compareLength; j++) {
                 levMatrix[tid, 0, j] = j;
                 levMatrix[tid, j, 0] = j;
             }
 
-            //if(tid < firstDim) {
-            for (int i = 1; i <= compareLength; i++) {
-                for (int j = 1; j <= compareLength; j++) {
-                    if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
-                        levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
-                    }
-                    else {
-                        int x = levMatrix[tid, i - 1, j];
-                        if (x > levMatrix[tid, i, j - 1])
-                            x = levMatrix[tid, i, j - 1];
-                        if (x > levMatrix[tid, i - 1, j - 1])
-                            x = levMatrix[tid, i - 1, j - 1];
-                        levMatrix[tid, i, j] = x+1;
+            if (tid < firstDim) {
+                for (int i = 1; i <= compareLength; i++) {
+                    for (int j = 1; j <= compareLength; j++) {
+                        int iMinusOne = i - 1;
+                        int jMinusOne = j - 1;
+
+                        if (tid + iMinusOne < source.Length && source[tid + iMinusOne] == pattern[jMinusOne]) {
+                            levMatrix[tid, i, j] = levMatrix[tid, iMinusOne, jMinusOne];
+                        }
+                        else {
+                            int x = levMatrix[tid, iMinusOne, j];
+                            if (x > levMatrix[tid, i, jMinusOne])
+                                x = levMatrix[tid, i, jMinusOne];
+                            if (x > levMatrix[tid, iMinusOne, jMinusOne])
+                                x = levMatrix[tid, iMinusOne, jMinusOne];
+                            levMatrix[tid, i, j] = x + 1;
+                        }
                     }
                 }
+                dev_results[tid] = levMatrix[tid, compareLength, compareLength];
             }
-            dev_results[tid] = levMatrix[tid, compareLength, compareLength];
-            //}
         }
 
         [Cudafy]
         private static void LevenshteinGpu2(GThread thread, char[] source, char[] pattern, int[,,] levMatrix, int firstDim, int compareLength, int[] dev_results) {
             int tid = thread.threadIdx.x + thread.blockIdx.x * thread.blockDim.x;
-            //int tid = thread.blockIdx.x;
 
             for (int j = 0; j <= compareLength; j++) {
                 levMatrix[tid, 0, j] = j;
                 levMatrix[tid, j, 0] = j;
             }
 
-            //if(tid < firstDim) {
-            for (int i = 1; i <= compareLength; i++) {
-                for (int j = 1; j <= compareLength; j++) {
-                    if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
-                        levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
-                    }
-                    else {
-                        levMatrix[tid, i, j] = Math.Min(Math.Min(levMatrix[tid, i - 1, j], levMatrix[tid, i, j - 1]), levMatrix[tid, i - 1, j - 1]) + 1;
+            if (tid < firstDim) {
+                for (int i = 1; i <= compareLength; i++) {
+                    for (int j = 1; j <= compareLength; j++) {
+                        if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
+                            levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
+                        }
+                        else {
+                            levMatrix[tid, i, j] = Math.Min(Math.Min(levMatrix[tid, i - 1, j], levMatrix[tid, i, j - 1]), levMatrix[tid, i - 1, j - 1]) + 1;
+                        }
                     }
                 }
+                dev_results[tid] = levMatrix[tid, compareLength, compareLength];
             }
-            dev_results[tid] = levMatrix[tid, compareLength, compareLength];
-            //}
         }
 
         [Cudafy]
@@ -151,19 +157,19 @@ namespace Zniffer.Other {
                 levMatrix[tid, j, 0] = j;
             }
 
-            //if(tid < firstDim) {
-            for (int i = 1; i <= compareLength; i++) {
-                for (int j = 1; j <= compareLength; j++) {
-                    if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
-                        levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
-                    }
-                    else {
-                        levMatrix[tid, i, j] = Math.Min(Math.Min(levMatrix[tid, i - 1, j], levMatrix[tid, i, j - 1]), levMatrix[tid, i - 1, j - 1]) + 1;
+            if (tid < firstDim) {
+                for (int i = 1; i <= compareLength; i++) {
+                    for (int j = 1; j <= compareLength; j++) {
+                        if (tid + i - 1 < source.Length && source[tid + i - 1] == pattern[j - 1]) {
+                            levMatrix[tid, i, j] = levMatrix[tid, i - 1, j - 1];
+                        }
+                        else {
+                            levMatrix[tid, i, j] = Math.Min(Math.Min(levMatrix[tid, i - 1, j], levMatrix[tid, i, j - 1]), levMatrix[tid, i - 1, j - 1]) + 1;
+                        }
                     }
                 }
+                dev_results[tid] = levMatrix[tid, compareLength, compareLength];
             }
-            dev_results[tid] = levMatrix[tid, compareLength, compareLength];
-            //}
         }
     }
 }

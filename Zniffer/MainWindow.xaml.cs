@@ -39,25 +39,32 @@ namespace Zniffer {
     public partial class MainWindow : Window {
         //public static LevenshteinMode SearchMode = LevenshteinMode.SplitDualRowCPU;
 
+        private static bool isScanerInitialized = false;
+        private static bool isSnifferInitialized = false;
+        private static bool isKeyLoggerInitialized = false;
+
         private static bool AutoScrollClipboard = true;
         private ManagementEventWatcher watcher = new ManagementEventWatcher();
 
         #region Levenshtein Prop
-        public LevenshteinMode snifferMode { get {
+        public LevenshteinMode snifferMode {
+            get {
                 return _snifferMode;
             }
             set {
                 _snifferMode = value;
             }
         }
-        public LevenshteinMode keyloggerMode { get {
+        public LevenshteinMode keyloggerMode {
+            get {
                 return _keyloggerMode;
             }
             set {
                 _scanerMode = value;
             }
         }
-        public LevenshteinMode scanerMode { get {
+        public LevenshteinMode scanerMode {
+            get {
                 return _scanerMode;
             }
             set {
@@ -115,7 +122,7 @@ namespace Zniffer {
         }
         #endregion
 
-        
+
         #region Clipboard
 
         #region DataFromats
@@ -171,15 +178,19 @@ namespace Zniffer {
                     return IntPtr.Zero; ;
                 }
                 if (iData.GetDataPresent(DataFormats.Text) || iData.GetDataPresent(DataFormats.Rtf) || iData.GetDataPresent(DataFormats.UnicodeText)) {
-                    string _data = (string)iData.GetData(DataFormats.Text);
-                    Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
-                    string phrase = SearchPhrase;
-                    //way to change levenshtein methode
-                    LevenshteinMatches results = _data.Levenshtein(phrase, mode: keyloggerMode);
+                    try {
+                        string _data = (string)iData.GetData(DataFormats.Text);
+                        Console.Out.WriteLine((string)iData.GetData(DataFormats.Text));
+                        string phrase = SearchPhrase;
+                        //way to change levenshtein methode
+                        LevenshteinMatches results = _data.Levenshtein(phrase, mode: keyloggerMode);
 
-                    if (results != null && results.hasMatches) {
-                        AddTextToClipBoardBox(results);
+                        if (results != null && results.hasMatches) {
+                            AddTextToClipBoardBox(results);
+                        }
                     }
+                    catch (System.Runtime.InteropServices.COMException) { }
+
                 }
                 else {
                     Console.Out.WriteLine("(cannot display this format)");
@@ -270,7 +281,7 @@ namespace Zniffer {
 
 
         public void Window_SourceInitialized(object sender, EventArgs e) {
-            
+
             foreach (DriveInfo d in DriveInfo.GetDrives()) {
                 //Console.Out.WriteLine("Drive {0}", d.Name);
                 //Console.Out.WriteLine("  Drive type: {0}", d.DriveType.ToString());
@@ -628,11 +639,11 @@ namespace Zniffer {
             #region experiment
 
             var csv = new StringBuilder();
-            
+
             string lorem = "Lorem ipsum dolor sit amet, consectetur adipisicin";//len = 50
             int len = lorem.Length;
             int multi = 80;
-            
+
             string expression = "zniffer";
             //int strLen = str.Length;
             int exprLen = expression.Length;
@@ -647,19 +658,19 @@ namespace Zniffer {
             //81920
             //163840
 
-            for (; multi <= 81920; multi *= 2) {
+            for (; multi <= 40960; multi *= 2) {
 
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
                 csv.Append(str.Length + ",");
 
-                //watch.Reset();
-                //for (int i = 0; i < loops; i++) {
-                //    watch.Start();
-                //    var wynik3 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixGPU);
-                //    watch.Stop();
-                //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                watch.Reset();
+                for (int i = 0; i < loops; i++) {
+                    watch.Start();
+                    var wynik3 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixGPU);
+                    watch.Stop();
+                }
+                Console.WriteLine("gpu " + str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
                 //watch.Reset();
@@ -668,7 +679,7 @@ namespace Zniffer {
                 //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixCPU);
                 //    watch.Stop();
                 //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //Console.WriteLine(str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
                 //watch.Reset();
@@ -677,7 +688,7 @@ namespace Zniffer {
                 //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForSingleMatrixCPU);
                 //    watch.Stop();
                 //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //Console.WriteLine(str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
                 //watch.Reset();
@@ -686,7 +697,7 @@ namespace Zniffer {
                 //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitDualRowCPU);
                 //    watch.Stop();
                 //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //Console.WriteLine(str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
                 //watch.Reset();
@@ -695,7 +706,7 @@ namespace Zniffer {
                 //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixParallelCPU);
                 //    watch.Stop();
                 //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //Console.WriteLine(str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
                 //watch.Reset();
@@ -704,7 +715,7 @@ namespace Zniffer {
                 //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.SplitForParallelCPU);
                 //    watch.Stop();
                 //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //Console.WriteLine(str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
 
@@ -714,13 +725,13 @@ namespace Zniffer {
                 //    var wynik2 = str.Levenshtein(expression, mode: LevenshteinMode.HistogramCPU);
                 //    watch.Stop();
                 //}
-                //Console.WriteLine(watch.ElapsedMilliseconds);
+                //Console.WriteLine("hist " + str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + "");
 
                 csv.AppendLine("");
 
-                File.AppendAllText(@"C:\Users\Konrad\Downloads\wyniki5.csv", csv.ToString());
-                csv.Clear();
+                //File.AppendAllText(@"C:\Users\Konrad\Downloads\wyniki5.csv", csv.ToString());
+                //csv.Clear();
 
                 GC.Collect();
 
@@ -769,10 +780,10 @@ namespace Zniffer {
             Enum.TryParse(context, out _snifferMode);
         }
         private void ContextMenu_Loaded(object sender, RoutedEventArgs e) {
-            ContextMenu sen = sender as ContextMenu;
-            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
-                item.IsChecked = true;
-                break;
+            if (!isKeyLoggerInitialized) {
+                ContextMenu sen = sender as ContextMenu;
+                var item = FindVisualChildren<MenuItem>(sen).First();
+                item.IsChecked = isKeyLoggerInitialized = true;
             }
         }
         //
@@ -790,10 +801,10 @@ namespace Zniffer {
             Enum.TryParse(context, out _keyloggerMode);
         }
         private void ContextMenu_Loaded_1(object sender, RoutedEventArgs e) {
-            ContextMenu sen = sender as ContextMenu;
-            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
-                item.IsChecked = true;
-                break;
+            if (!isSnifferInitialized) {
+                ContextMenu sen = sender as ContextMenu;
+                var item = FindVisualChildren<MenuItem>(sen).First();
+                item.IsChecked = isSnifferInitialized = true;
             }
         }
         //
@@ -811,10 +822,10 @@ namespace Zniffer {
             Enum.TryParse(context, out _scanerMode);
         }
         private void ContextMenu_Loaded_2(object sender, RoutedEventArgs e) {
-            ContextMenu sen = sender as ContextMenu;
-            foreach (MenuItem item in FindVisualChildren<MenuItem>(sen)) {
-                item.IsChecked = true;
-                break;
+            if (!isScanerInitialized) {
+                ContextMenu sen = sender as ContextMenu;
+                var item = FindVisualChildren<MenuItem>(sen).First();
+                item.IsChecked = isScanerInitialized = true;
             }
         }
         //
