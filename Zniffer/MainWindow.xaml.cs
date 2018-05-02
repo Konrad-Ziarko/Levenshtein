@@ -634,7 +634,7 @@ namespace Zniffer {
         #endregion
 
 
-        private void ZnifferWindow_Loaded(object sender, RoutedEventArgs e) {
+        private async void ZnifferWindow_Loaded(object sender, RoutedEventArgs e) {
 
             #region experiment
 
@@ -651,26 +651,26 @@ namespace Zniffer {
             csv.AppendLine("len,Macierz trójwymiarowa na GPU,Macierz trójwymiarowa na CPU,Dzielenie ciągu na wyrazy na CPU,Dzielenie ciągu na wyrazy macierz dwu wierszowa na CPU,Macierz trójwymiarowa na CPU z wieloma wątkami,Dzielenie ciągu na wyrazy na CPU z wieloma wątkami,Histogram poprzedzający macierz na CPU");
 
             string str = string.Concat(Enumerable.Repeat(lorem, multi));
-            str += "sniffer";
+            //str += "sniffer";
 
             int loops = 1;
 
             //81920
             //163840
 
-            for (; multi <= 40960; multi *= 2) {
+            for (; multi <= 163840; multi *= 2) {
 
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-                csv.Append(str.Length + ",");
+                //csv.Append(str.Length + ",");
 
-                watch.Reset();
-                for (int i = 0; i < loops; i++) {
-                    watch.Start();
-                    var wynik3 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixGPU);
-                    watch.Stop();
-                }
-                Console.WriteLine("gpu " + str.Length + " " + watch.ElapsedMilliseconds);
+                //watch.Reset();
+                //for (int i = 0; i < loops; i++) {
+                //    watch.Start();
+                //    var wynik3 = str.Levenshtein(expression, mode: LevenshteinMode.ThreeDimMatrixGPU);
+                //    watch.Stop();
+                //}
+                //Console.WriteLine("gpu " + str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
                 //watch.Reset();
@@ -718,7 +718,6 @@ namespace Zniffer {
                 //Console.WriteLine(str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + ",");
 
-
                 //watch.Reset();
                 //for (int i = 0; i < loops; i++) {
                 //    watch.Start();
@@ -728,7 +727,7 @@ namespace Zniffer {
                 //Console.WriteLine("hist " + str.Length + " " + watch.ElapsedMilliseconds);
                 //csv.Append(watch.ElapsedMilliseconds + "");
 
-                csv.AppendLine("");
+                //csv.AppendLine("");
 
                 //File.AppendAllText(@"C:\Users\Konrad\Downloads\wyniki5.csv", csv.ToString());
                 //csv.Clear();
@@ -737,7 +736,6 @@ namespace Zniffer {
 
                 str = string.Concat(Enumerable.Repeat(str, 2));
             }
-
 
             #endregion
         }

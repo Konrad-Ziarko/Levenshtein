@@ -26,7 +26,9 @@
             else {
                 this.contextL = context.Substring(startPosition, position - startPosition);
                 this.value = context.Substring(position, length);
-                this.contextR = context.Substring(position + length);
+                int tmpR = context.Length - (position + length) - 1 > paddingLength ? paddingLength : context.Length - (position + length) - 1;
+                
+                this.contextR = context.Substring(position + length, tmpR);
             }
             this.length = length;
             this.position = position;
